@@ -51,11 +51,9 @@ public class PersonController {
                                                         mapUserRegister.get_tBirthDate()));
             //mapUserRegister.set_sMessage("Usuario creado correctamente.");
             sMessage = "Usuario creado correctamente.";
-            System.out.println("Se ejecuta 1");
         } else {
             //mapUserRegister.set_sMessage("Error. El nombre de usuario ya existe.");
             sMessage = "Error. El nombre de usuario ya existe.";
-            System.out.println("Se ejecuta 2");
         }
         return sMessage;
     }
