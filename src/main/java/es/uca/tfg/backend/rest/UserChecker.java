@@ -1,4 +1,4 @@
-package es.uca.tfg.backend.entity.rest;
+package es.uca.tfg.backend.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -10,6 +10,7 @@ public class UserChecker {
 
         public UsernameChecker(@JsonProperty("sUsername") String sUsername) {
             _sUsername = sUsername;
+            _bIsUsernameTaken = false;
         }
 
         public String get_sUsername() {
@@ -20,9 +21,7 @@ public class UserChecker {
             return _bIsUsernameTaken;
         }
 
-        public void set_bIsUsernameTaken(boolean _bIsUsernameTaken) {
-            this._bIsUsernameTaken = _bIsUsernameTaken;
-        }
+        public void set_bIsUsernameTaken(boolean bIsUsernameTaken) { _bIsUsernameTaken = bIsUsernameTaken; }
     }
 
     public static class EmailChecker {
@@ -31,6 +30,7 @@ public class UserChecker {
 
         public EmailChecker(@JsonProperty("sEmail") String sEmail) {
             _sEmail = sEmail;
+            _bIsEmailTaken = false;
         }
         public String get_sEmail() {
             return _sEmail;

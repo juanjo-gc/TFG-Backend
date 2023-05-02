@@ -1,4 +1,4 @@
-package es.uca.tfg.backend.entity.rest;
+package es.uca.tfg.backend.rest;
 
 import java.util.Date;
 

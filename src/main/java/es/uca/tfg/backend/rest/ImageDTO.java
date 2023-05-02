@@ -1,4 +1,4 @@
-package es.uca.tfg.backend.dto;
+package es.uca.tfg.backend.rest;
 
 import org.springframework.web.multipart.MultipartFile;
 
