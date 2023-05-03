@@ -16,17 +16,15 @@ public class ImagePath {
     private int _iId;
 
     @NotNull
-    @Column(insertable = false, updatable = false, name = "type")
-    private String _sType;
-
-    @NotNull
     @Column(name = "name")
     private String _sName;
 
+    @OneToOne(mappedBy = "_profileImagePath")
+    private User _user;
+
     public ImagePath() {}
-    public ImagePath(String sName, String sType) {
+    public ImagePath(String sName) {
         _sName = sName;
-        _sType = sType;
     }
 
     public int get_iId() {
@@ -41,11 +39,4 @@ public class ImagePath {
         this._sName = _sName;
     }
 
-    public String get_sType() {
-        return _sType;
-    }
-
-    public void set_sType(String sType) {
-        _sType = sType;
-    }
 }

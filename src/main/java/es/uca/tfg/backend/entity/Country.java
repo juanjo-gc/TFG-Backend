@@ -17,4 +17,27 @@ public class Country {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "_country")
     private Set<Region> _setRegions;
 
+    public Country(String sName) {
+        _sName = sName;
+    }
+
+    public int get_iId() {
+        return _iId;
+    }
+
+    public String get_sName() {
+        return _sName;
+    }
+
+    public void set_sName(String _sName) {
+        this._sName = _sName;
+    }
+
+    public Set<Region> get_setRegions() {
+        return _setRegions;
+    }
+
+    public void set_setRegions(Set<Region> _setRegions) {
+        this._setRegions = _setRegions;
+    }
 }

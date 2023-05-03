@@ -1,15 +1,18 @@
 package es.uca.tfg.backend.controller;
 
+import es.uca.tfg.backend.entity.ImagePath;
 import es.uca.tfg.backend.entity.Person;
 import es.uca.tfg.backend.entity.User;
-import es.uca.tfg.backend.entity.UserImage;
+import es.uca.tfg.backend.entity.ImagePath;
 import es.uca.tfg.backend.rest.MapUserRegister;
 import es.uca.tfg.backend.rest.UserChecker;
 import es.uca.tfg.backend.repository.InterestRepository;
 import es.uca.tfg.backend.repository.PersonRepository;
-import es.uca.tfg.backend.repository.UserImageRepository;
+import es.uca.tfg.backend.repository.ImagePathRepository;
 import es.uca.tfg.backend.repository.UserRepository;
 import es.uca.tfg.backend.service.PersonService;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
@@ -37,7 +40,11 @@ public class PersonController {
     @Autowired
     private InterestRepository _interestRepository;
     @Autowired
-    private UserImageRepository _userImageRepository;
+    private ImagePathRepository _imagePathRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
     @PostMapping("/register")
     public String registerNewUser(@RequestBody MapUserRegister mapUserRegister) {
@@ -126,15 +133,19 @@ public class PersonController {
     @PostMapping("/uploadProfileImage")
     public String saveProfileImage(@RequestParam("id") int iId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         User user = _userRepository.findBy_iId(iId);
-        UserImage userImageProfile = user.getProfileImage();
+        ImagePath profileImagePath = user.get_profileImagePath();
         System.out.println(_sUploadPath);
         Path path = Paths.get(_sUploadPath);
 
-        if(userImageProfile != null) {
-            File file = new File(_sUploadPath + user.getProfileImage());
-            user.get_setUserImages().remove(_userImageRepository.findBy_iId(userImageProfile.get_iId()));
+        /*
+
+        if(profileImagePath != null) {
+            File file = new File(_sUploadPath + profileImagePath
+            user.get_setImagePath().remove(_imagePathRepository.findBy_iId(imagePathProfile.get_iId()));
             file.delete();
         }
+        */
+
 
         String sFilename = user.get_iId() + "-" + multipartFile.getOriginalFilename();
         File file = new File(_sUploadPath + sFilename);
@@ -142,9 +153,9 @@ public class PersonController {
         System.out.println("Ruta: " + path.toString());
         multipartFile.transferTo(file);
 
-        UserImage userImage = new UserImage(sFilename, "user", true);
-        userImage = _userImageRepository.save(userImage);
-        user.get_setUserImages().add(userImage);
+        ImagePath imagePath = new ImagePath(sFilename);
+        imagePath = _imagePathRepository.save(imagePath);
+        user.get_setImagePath().add(imagePath);
         user = _userRepository.save(user);
         return "Guardado";
     }
@@ -154,21 +165,23 @@ public class PersonController {
         User user = _userRepository.findBy_iId(iId);
         System.out.println(_sUploadPath);
 
-        for(UserImage userImage: user.get_setUserImages()) {
-            if(!userImage.is_bIsProfile()) {
-                _userImageRepository.delete(userImage);
-                user.get_setUserImages().remove(userImage);
+        /*
+        for(ImagePath imagePath: user.get_setImagePath()) {
+            if(!imagePath.is_bIsProfile()) {
+                _imagePathRepository.delete(imagePath);
+                user.get_setImagePath().remove(imagePath);
             }
         }
+         */
 
         for(int i = 0; i < aMultipartFile.length; i++) {
             String sFilename = user.get_iId() + "-" + aMultipartFile[i].getOriginalFilename();
             File file = new File(_sUploadPath + sFilename);
             aMultipartFile[i].transferTo(file);
             System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sUploadPath);
-            UserImage userImage = new UserImage(sFilename,"user", false);
-            userImage = _userImageRepository.save(userImage);
-            user.get_setUserImages().add(userImage);
+            ImagePath imagePath = new ImagePath(sFilename);
+            imagePath = _imagePathRepository.save(imagePath);
+            user.get_setImagePath().add(imagePath);
             user = _userRepository.save(user);
         }
         return "Imágenes subidas correctamente";
@@ -179,7 +192,7 @@ public class PersonController {
     public ResponseEntity<InputStreamResource> getProfileImage(@PathVariable("id") int iId) throws FileNotFoundException {
         User user = _userRepository.findBy_iId(iId);
         //String sImageName = "2-unnamed.png";
-        String sImageName = user.getProfileImage().get_sName();
+        String sImageName = user.get_profileImagePath().get_sName();
         if(sImageName == null)
             sImageName = "GenericAvatar.png";
         System.out.print(sImageName);
@@ -193,10 +206,10 @@ public class PersonController {
 
     @GetMapping("/getImage/{imageName}")
     @ResponseBody
-    public ResponseEntity<InputStreamResource> getUserImage(@PathVariable("imageName") String sImageName) throws FileNotFoundException {
+    public ResponseEntity<InputStreamResource> getImagePath(@PathVariable("imageName") String sImageName) throws FileNotFoundException {
         /*
         User user = _userRepository.findBy_iId(2);
-        UserImage uimg = user.get_setUserImages().iterator().next();
+        ImagePath uimg = user.get_setImagePath().iterator().next();
         String sFilename = uimg.get_sName();
 
         char cFormat = sFilename.toCharArray()[sFilename.length() - 3];
@@ -216,22 +229,6 @@ public class PersonController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(new InputStreamResource(fileInputStream));
-    }
-
-    @GetMapping("/testget")
-    public String TestGet() {
-
-        User user = _userRepository.findBy_iId(2);
-        List<UserImage> userImage = _userImageRepository.findAll();
-
-        for (UserImage img: userImage) {
-            user.get_setUserImages().remove(img);
-            _userImageRepository.delete(img);
-        }
-
-        user = _userRepository.save(user);
-
-        return "Holabuenas";
     }
 
     @PostMapping("/testReq")
@@ -256,14 +253,36 @@ public class PersonController {
         return "Holabuena";
     }
 
+    /*
+    @GetMapping("/removeImages")
+    public void removeImages() {
+        List<User> listUser = _userRepository.findAll();
+        for(User user: listUser) {
+            user.get_setImagePath().clear();
+            user = _userRepository.save(user);
+        }
+        List<ImagePath> listImages = _imagePathRepository.findAll();
+        for(ImagePath imagePath: listImages) {
+            _imagePathRepository.delete(imagePath);
+        }
+    }
+     */
+
+    @GetMapping("/dropdb")
+    @Transactional
+    public void dropSchema() {
+        entityManager.createNativeQuery("drop schema backend;").executeUpdate();
+        entityManager.createNativeQuery("create schema backend;").executeUpdate();
+    }
+
         /*
     Esto funciona pero no es la mejor manera
     @GetMapping("getImages")
     public String getUsersImages() throws IOException {
         User user = _userRepository.findBy_iId(2);
 
-        UserImage userImage = user.get_setUserImages().iterator().next();
-        String sFilename = userImage.get_sName();
+        ImagePath imagePath = user.get_setImagePath().iterator().next();
+        String sFilename = imagePath.get_sName();
         byte[] fileContent = FileUtils.readFileToByteArray(new File(_sUploadPath + sFilename));
         String encodedString = Base64.getEncoder().encodeToString(fileContent);
         System.out.println(_sUploadPath);

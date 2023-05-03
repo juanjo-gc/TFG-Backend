@@ -28,13 +28,21 @@ public class User extends Person {
     @Column(name = "interests")
     private Set<Interest> _setInterests;
 
+    @ManyToOne
+    @JoinColumn(name = "province_id", nullable = false)
+    private Province _province;
+
     @OneToMany
     @Column(name = "images")
-    private Set<UserImage> _setUserImages;
+    private Set<ImagePath> _setImagePath;
+    
+    @OneToOne
+    @JoinColumn(name = "profileImage")
+    private ImagePath _profileImagePath;
 
     public User() {
         _setInterests = Collections.emptySet();
-        _setUserImages = Collections.emptySet();
+        _setImagePath = Collections.emptySet();
     }
 
     public User(String sEmail, String sPassword, String sUsername, String sRole, String sName, Date tBirthDate) {
@@ -43,7 +51,7 @@ public class User extends Person {
         _tBirthDate = tBirthDate;
         _bIsPrivate = false;
         _setInterests = Collections.emptySet();
-        _setUserImages = Collections.emptySet();
+        _setImagePath = Collections.emptySet();
     }
 
     public String get_sName() {
@@ -86,24 +94,31 @@ public class User extends Person {
         this._setInterests = _setInterests;
     }
 
-    public Set<UserImage> get_setUserImages() {
-        return _setUserImages;
+    public void set_setUserImages(Set<ImagePath> setImagePath) {
+        _setImagePath = setImagePath;
     }
 
-    public void set_setUserImages(Set<UserImage> _setUserImages) {
-        this._setUserImages = _setUserImages;
+    public Set<ImagePath> get_setImagePath() {
+        return _setImagePath;
     }
 
-
-    public UserImage getProfileImage() {
-        String sImageName = "";
-        UserImage userImage = null;
-        for(UserImage i: _setUserImages) {
-            if(i.is_bIsProfile())
-                userImage = i;
-        }
-        return userImage != null ? userImage : new UserImage();
+    public void set_setImagePath(Set<ImagePath> _setImagePath) {
+        this._setImagePath = _setImagePath;
     }
 
+    public ImagePath get_profileImagePath() {
+        return _profileImagePath;
+    }
 
+    public void set_profileImagePath(ImagePath _profileImagePath) {
+        this._profileImagePath = _profileImagePath;
+    }
+
+    public Province get_province() {
+        return _province;
+    }
+
+    public void set_province(Province province) {
+        _province = province;
+    }
 }

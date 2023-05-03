@@ -1,17 +1,14 @@
 package es.uca.tfg.backend.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.uca.tfg.backend.entity.Person;
 import es.uca.tfg.backend.entity.User;
 import es.uca.tfg.backend.rest.MapUserRegister;
 import es.uca.tfg.backend.repository.InterestRepository;
 import es.uca.tfg.backend.repository.PersonRepository;
-import es.uca.tfg.backend.repository.UserImageRepository;
+import es.uca.tfg.backend.repository.ImagePathRepository;
 import es.uca.tfg.backend.repository.UserRepository;
 import es.uca.tfg.backend.rest.UserChecker;
 import es.uca.tfg.backend.service.PersonService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +45,7 @@ public class PersonControllerTest {
     @MockBean
     private InterestRepository _interestRepository;
     @MockBean
-    private UserImageRepository _userImageRepository;
+    private ImagePathRepository _ImagePathRepository;
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
 
 
