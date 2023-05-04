@@ -18,8 +18,10 @@ public class Province {
     private Set<User> _setUsers;
 
     @ManyToOne
-    @JoinColumn(name = "region_id", nullable = false)
+    @JoinColumn(name = "region_id", nullable = true)
     private Region _region;
+
+    public Province() {}
 
     public Province(String sName) {
         _sName = sName;

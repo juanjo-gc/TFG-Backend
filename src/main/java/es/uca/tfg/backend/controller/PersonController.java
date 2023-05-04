@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -133,19 +134,8 @@ public class PersonController {
     @PostMapping("/uploadProfileImage")
     public String saveProfileImage(@RequestParam("id") int iId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         User user = _userRepository.findBy_iId(iId);
-        ImagePath profileImagePath = user.get_profileImagePath();
         System.out.println(_sUploadPath);
         Path path = Paths.get(_sUploadPath);
-
-        /*
-
-        if(profileImagePath != null) {
-            File file = new File(_sUploadPath + profileImagePath
-            user.get_setImagePath().remove(_imagePathRepository.findBy_iId(imagePathProfile.get_iId()));
-            file.delete();
-        }
-        */
-
 
         String sFilename = user.get_iId() + "-" + multipartFile.getOriginalFilename();
         File file = new File(_sUploadPath + sFilename);
@@ -154,8 +144,9 @@ public class PersonController {
         multipartFile.transferTo(file);
 
         ImagePath imagePath = new ImagePath(sFilename);
+        imagePath.set_user(user);
         imagePath = _imagePathRepository.save(imagePath);
-        user.get_setImagePath().add(imagePath);
+        user.set_profileImagePath(imagePath);
         user = _userRepository.save(user);
         return "Guardado";
     }
@@ -165,21 +156,13 @@ public class PersonController {
         User user = _userRepository.findBy_iId(iId);
         System.out.println(_sUploadPath);
 
-        /*
-        for(ImagePath imagePath: user.get_setImagePath()) {
-            if(!imagePath.is_bIsProfile()) {
-                _imagePathRepository.delete(imagePath);
-                user.get_setImagePath().remove(imagePath);
-            }
-        }
-         */
-
         for(int i = 0; i < aMultipartFile.length; i++) {
             String sFilename = user.get_iId() + "-" + aMultipartFile[i].getOriginalFilename();
             File file = new File(_sUploadPath + sFilename);
             aMultipartFile[i].transferTo(file);
             System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sUploadPath);
             ImagePath imagePath = new ImagePath(sFilename);
+            imagePath.set_user(user);
             imagePath = _imagePathRepository.save(imagePath);
             user.get_setImagePath().add(imagePath);
             user = _userRepository.save(user);
@@ -191,10 +174,9 @@ public class PersonController {
     @ResponseBody
     public ResponseEntity<InputStreamResource> getProfileImage(@PathVariable("id") int iId) throws FileNotFoundException {
         User user = _userRepository.findBy_iId(iId);
-        //String sImageName = "2-unnamed.png";
-        String sImageName = user.get_profileImagePath().get_sName();
-        if(sImageName == null)
-            sImageName = "GenericAvatar.png";
+        String sImageName = "GenericAvatar.png";
+        if(user.get_profileImagePath() != null)
+            sImageName = user.get_profileImagePath().get_sName();
         System.out.print(sImageName);
         File file = new File(_sUploadPath + sImageName);
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -231,28 +213,6 @@ public class PersonController {
                 .body(new InputStreamResource(fileInputStream));
     }
 
-    @PostMapping("/testReq")
-    public String prueba(@RequestParam("file[]") MultipartFile[] multipartFiles) {
-        /*
-        for(int i = 0; i < multipartFiles.length; i++) {
-            String sFilename = multipartFiles[i].getOriginalFilename();
-            System.out.println("Imagen " + i+1 + " " + sFilename);
-        }
-        */
-        //System.out.println(multipartFiles.getOriginalFilename());
-        /*
-        _interestRepository.save(new Interest("Deportes"));
-        _interestRepository.save(new Interest("Música"));
-        _interestRepository.save(new Interest("Videojuegos"));
-         */
-        String sFilename = multipartFiles[1].getOriginalFilename();
-        System.out.println(multipartFiles[0].getOriginalFilename());
-        System.out.println(sFilename);
-        System.out.println(multipartFiles[2].getOriginalFilename());
-
-        return "Holabuena";
-    }
-
     /*
     @GetMapping("/removeImages")
     public void removeImages() {
@@ -268,6 +228,7 @@ public class PersonController {
     }
      */
 
+    
     @GetMapping("/dropdb")
     @Transactional
     public void dropSchema() {
@@ -275,6 +236,12 @@ public class PersonController {
         entityManager.createNativeQuery("create schema backend;").executeUpdate();
     }
 
+    @GetMapping("/customGet")
+    void customGet() {
+        User user = _userRepository.findBy_sUsername("userEjemplo");
+        user.set_profileImagePath(null);
+        user = _userRepository.save(user);
+    }
         /*
     Esto funciona pero no es la mejor manera
     @GetMapping("getImages")

@@ -18,7 +18,7 @@ public class Region {
     private Set<Province> _setProvinces;
 
     @ManyToOne
-    @JoinColumn(name = "country_id", nullable = false)
+    @JoinColumn(name = "country_id", nullable = true)
     private Country _country;
 
     public Region(String sName) {

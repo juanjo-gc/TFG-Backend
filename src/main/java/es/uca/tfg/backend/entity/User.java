@@ -29,7 +29,7 @@ public class User extends Person {
     private Set<Interest> _setInterests;
 
     @ManyToOne
-    @JoinColumn(name = "province_id", nullable = false)
+    @JoinColumn(name = "province_id")
     private Province _province;
 
     @OneToMany
@@ -43,6 +43,8 @@ public class User extends Person {
     public User() {
         _setInterests = Collections.emptySet();
         _setImagePath = Collections.emptySet();
+        _profileImagePath = new ImagePath();
+        _province = new Province();
     }
 
     public User(String sEmail, String sPassword, String sUsername, String sRole, String sName, Date tBirthDate) {

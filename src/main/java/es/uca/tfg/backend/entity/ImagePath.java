@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import java.awt.*;
 
 @Entity
-@DiscriminatorColumn(name = "type")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class ImagePath {
 
     @Id
@@ -39,4 +37,11 @@ public class ImagePath {
         this._sName = _sName;
     }
 
+    public User get_user() {
+        return _user;
+    }
+
+    public void set_user(User _user) {
+        this._user = _user;
+    }
 }
