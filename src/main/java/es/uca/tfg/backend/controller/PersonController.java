@@ -43,8 +43,6 @@ public class PersonController {
     @Autowired
     private ImagePathRepository _imagePathRepository;
 
-    @Autowired
-    private EntityManager entityManager;
 
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
     @PostMapping("/register")
@@ -105,7 +103,7 @@ public class PersonController {
         user.set_sEmail(sEmail);
         user.set_sDescription(sDescription);
         user = _userRepository.save(user);
-        System.out.println("Despues del cambio: " + user.get_sDescription());
+        //System.out.println("Despues del cambio: " + user.get_sDescription());
         return user;
     }
 
@@ -136,6 +134,11 @@ public class PersonController {
         User user = _userRepository.findBy_iId(iId);
         System.out.println(_sUploadPath);
         Path path = Paths.get(_sUploadPath);
+
+        if(user.get_profileImagePath() != null) {
+            File file = new File(_sUploadPath + user.get_profileImagePath().get_sName());
+            file.delete();
+        }
 
         String sFilename = user.get_iId() + "-" + multipartFile.getOriginalFilename();
         File file = new File(_sUploadPath + sFilename);
@@ -228,13 +231,15 @@ public class PersonController {
     }
      */
 
-    
+    /*
     @GetMapping("/dropdb")
     @Transactional
     public void dropSchema() {
         entityManager.createNativeQuery("drop schema backend;").executeUpdate();
         entityManager.createNativeQuery("create schema backend;").executeUpdate();
     }
+
+     */
 
     @GetMapping("/customGet")
     void customGet() {

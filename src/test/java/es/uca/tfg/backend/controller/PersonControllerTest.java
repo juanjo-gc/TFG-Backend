@@ -9,6 +9,8 @@ import es.uca.tfg.backend.repository.ImagePathRepository;
 import es.uca.tfg.backend.repository.UserRepository;
 import es.uca.tfg.backend.rest.UserChecker;
 import es.uca.tfg.backend.service.PersonService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +18,19 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
 
+import javax.print.attribute.standard.Media;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -123,18 +134,16 @@ public class PersonControllerTest {
     @Test
     void getUserFromUsernameTest() throws Exception {
         //given
-        User user1 = new User("example@gmail.com", "password", "username", "user", "name", new Date());
-        User user2 = new User("example2@gmail.com", "password2", "username2", "user2", "name2", new Date());
+        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
 
-        Mockito.when(_userRepository.findBy_sUsername(user1.get_sUsername())).thenReturn(user1);
-        Mockito.when(_userRepository.findBy_sUsername(user2.get_sUsername())).thenReturn(user2);
+        Mockito.when(_userRepository.findBy_sUsername(user.get_sUsername())).thenReturn(user);
         //when
-        ResultActions response = _mockMvc.perform(get("/api/getUserFromUsername/" + user1.get_sUsername())
+        ResultActions response = _mockMvc.perform(get("/api/getUserFromUsername/" + user.get_sUsername())
                 .contentType(MediaType.APPLICATION_JSON));
         //then
         response.andDo(print())
                 .andExpect(status().is2xxSuccessful())
-                .andExpect(content().string(_objectMapper.writeValueAsString(user1)));
+                .andExpect(content().string(_objectMapper.writeValueAsString(user)));
     }
 
     @Test
@@ -152,6 +161,56 @@ public class PersonControllerTest {
                 .andExpect(content().string(_objectMapper.writeValueAsString(new User())));
     }
 
+    @Test
+    void updateUserDetailsTest() throws Exception {
+        //given
+        MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
+        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
 
+        multiValueMap.add("id", "1");
+        multiValueMap.add("name", "newName");
+        multiValueMap.add("description", "newDescription");
+        multiValueMap.add("email", "newExample@gmail.com");
+        multiValueMap.add("username", "newUsername");
+
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+
+        //when
+        ResultActions response = _mockMvc.perform(post("/api/updateUserDetails")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .params(multiValueMap));
+        MockHttpServletResponse mockHttpServletResponse = response.andReturn().getResponse();
+        String sResponseBody = mockHttpServletResponse.getContentAsString();
+        MultiValueMap<String, String> mapResponseBody =
+                UriComponentsBuilder.fromUriString("?" + sResponseBody).build().getQueryParams();
+
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        Assertions.assertEquals(user.get_sEmail(), "newExample@gmail.com");
+        Mockito.verify(_userRepository).save(any(User.class));
+
+    }
+
+    @Test
+    public void updateInterestsTest() throws Exception {
+        //given
+        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        String[] asInterests = new String[] {"Música", "Videojuegos", "Deportes"};
+        MockHttpServletRequestBuilder mockHttpServletRequestBuilder = MockMvcRequestBuilders.post("/api/uploadInterests")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .param("id", "1")
+                .param("interests[]", asInterests);
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+        //when
+        ResultActions resultActions = _mockMvc.perform(post("/api/uploadInterests")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .param("id", "1")
+                .param("interests[]", asInterests));
+
+        //then
+        Assertions.assertEquals(asInterests.length, user.get_setInterests().size());
+
+    }
 
 }
