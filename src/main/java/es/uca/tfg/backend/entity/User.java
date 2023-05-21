@@ -40,6 +40,20 @@ public class User extends Person {
     @JoinColumn(name = "profileImage")
     private ImagePath _profileImagePath;
 
+    @ManyToMany
+    @JoinTable(
+            name = "user_following",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "following_id"))
+    private Set<User> _setFollowing;
+
+    @ManyToMany(mappedBy = "following")
+    private Set<User> _setFollowers;
+
+    @OneToMany
+    @Column(name = "posts")
+    private Set<Post> _setPosts;
+
     public User() {
         _setInterests = Collections.emptySet();
         _setImagePath = Collections.emptySet();
