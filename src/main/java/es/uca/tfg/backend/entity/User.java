@@ -47,11 +47,10 @@ public class User extends Person {
             inverseJoinColumns = @JoinColumn(name = "following_id"))
     private Set<User> _setFollowing;
 
-    @ManyToMany(mappedBy = "following")
+    @ManyToMany(mappedBy = "_setFollowing")
     private Set<User> _setFollowers;
 
-    @OneToMany
-    @Column(name = "posts")
+    @OneToMany(mappedBy = "_user")
     private Set<Post> _setPosts;
 
     public User() {
@@ -136,5 +135,29 @@ public class User extends Person {
 
     public void set_province(Province province) {
         _province = province;
+    }
+
+    public Set<User> get_setFollowing() {
+        return _setFollowing;
+    }
+
+    public void set_setFollowing(Set<User> _setFollowing) {
+        this._setFollowing = _setFollowing;
+    }
+
+    public Set<User> get_setFollowers() {
+        return _setFollowers;
+    }
+
+    public void set_setFollowers(Set<User> _setFollowers) {
+        this._setFollowers = _setFollowers;
+    }
+
+    public Set<Post> get_setPosts() {
+        return _setPosts;
+    }
+
+    public void set_setPosts(Set<Post> _setPosts) {
+        this._setPosts = _setPosts;
     }
 }

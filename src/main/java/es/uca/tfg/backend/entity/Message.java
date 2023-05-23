@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
+@Entity
 public class Message {
 
     @Id
@@ -29,6 +30,12 @@ public class Message {
     @JoinColumn(name = "recipient_id")
     private User _recipient;
 
+    public Message(String sText, User issuer, User recipient) {
+        _sText = sText;
+        _issuer = issuer;
+        _recipient = recipient;
+        _tSentAt = LocalDateTime.now();
+    }
 
     public int get_iId() {
         return _iId;
