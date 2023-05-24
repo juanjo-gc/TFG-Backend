@@ -5,13 +5,16 @@ import es.uca.tfg.backend.entity.User;
 import es.uca.tfg.backend.repository.PostRepository;
 import es.uca.tfg.backend.repository.UserRepository;
 import es.uca.tfg.backend.rest.PostDTO;
+import es.uca.tfg.backend.service.PostService;
+import es.uca.tfg.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
@@ -24,6 +27,9 @@ public class PostController {
     @Autowired
     private UserRepository _userRepository;
 
+    @Autowired
+    private PostService _postService;
+
     @PostMapping("/newPost")
     public String newPost(@RequestBody PostDTO dtopost) {
 
@@ -32,18 +38,41 @@ public class PostController {
         System.out.println(post.get_user().get_sUsername());
         post = _postRepository.save(post);
 
-        return "Funsiona";
+        return "La publicación ha sido guardada correctamente.";
     }
 
-    @GetMapping("/getPosts")
-    public void getPosts() {
-        User user = _userRepository.findBy_iId(1);
-        int i = 1;
-        List<Post> posts = new ArrayList(_userRepository.findBy_iId(1).get_setPosts());
-        Collections.sort(posts, new Post.PostComparator());
-        for(Post post: posts) {
-            System.out.println("Iteración " + i + " Fecha y hora: " + post.get_tCreatedAt());
-            i++;
+
+    @GetMapping("/getUserPosts/{username}")
+    public List<Post> getUserPosts(@PathVariable("username") String sUsername) {
+        List<Post> posts = _postRepository.findBy_user(_userRepository.findBy_sUsername(sUsername));
+        if(posts.isEmpty() || posts == null) {
+            return Collections.emptyList();
+        } else {
+            Collections.sort(posts, new Post.PostComparator());
+            return posts;
         }
+    }
+
+
+
+    @GetMapping("/getTimelinePosts/{id}")
+    public List<Post> getTimelinePosts(@PathVariable("id") int iUserId) {
+        User user = _userRepository.findBy_iId(iUserId);
+        List<Post> orderedPosts = _postRepository.findBy_user(user);
+
+        for(User followed: user.get_setFollowing()) {
+            List<Post> followedUserPosts = _postRepository.findBy_user(followed);
+        }
+
+        orderedPosts = orderedPosts.stream()
+                .filter(p -> p.get_tCreatedAt().isAfter(LocalDateTime.now().minusDays(10)))     //Publicaciones de hace menos de 10 días
+                .sorted(Comparator.comparing(Post::get_tCreatedAt).reversed())         // Ordenados por fecha (el primero el más reciente)
+                .collect(Collectors.toList());
+
+        for(Post post: orderedPosts) {
+            System.out.println("Texto: " + post.get_sText() + " | Fecha: " + post.get_tCreatedAt());
+        }
+
+        return _postRepository.findAll();
     }
 }

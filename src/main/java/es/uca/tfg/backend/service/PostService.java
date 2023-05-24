@@ -8,10 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -41,20 +39,11 @@ public class PostService {
         return (int) _postRepository.count();
     }
 
-    public void orderedPosts(int iUserId) {
+    public List<Post> getOrderedPosts(int iUserId) {
         User user = _userRepository.findBy_iId(iUserId);
-        List<Post> orderedPosts = Collections.emptyList();
-        for(User followed: user.get_setFollowing()) {
-            for(Post post: followed.get_setPosts()) {
-                if(post.get_tCreatedAt().isAfter(LocalDateTime.now().minusDays(10))) {
-                    orderedPosts.add(post);
-                }
-            }
-        }
-        Collections.sort(orderedPosts, new Post.PostComparator());
 
-        for(Post post: orderedPosts) {
-            System.out.println("Texto: " + post.get_sText() + " Fecha: " + post.get_tCreatedAt());
-        }
+
+
+        return new ArrayList<Post>();
     }
 }

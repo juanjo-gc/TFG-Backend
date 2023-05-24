@@ -50,8 +50,8 @@ public class User extends Person {
     @ManyToMany(mappedBy = "_setFollowing")
     private Set<User> _setFollowers;
 
-    @OneToMany(mappedBy = "_user")
-    private Set<Post> _setPosts;
+    //@OneToMany(mappedBy = "_user")
+    //private Set<Post> _setPosts;
 
     public User() {
         _setInterests = Collections.emptySet();
@@ -153,11 +153,7 @@ public class User extends Person {
         this._setFollowers = _setFollowers;
     }
 
-    public Set<Post> get_setPosts() {
-        return _setPosts;
-    }
+    //public Set<Post> get_setPosts() { return _setPosts; }
 
-    public void set_setPosts(Set<Post> _setPosts) {
-        this._setPosts = _setPosts;
-    }
+    //public void set_setPosts(Set<Post> _setPosts) { this._setPosts = _setPosts; }
 }
