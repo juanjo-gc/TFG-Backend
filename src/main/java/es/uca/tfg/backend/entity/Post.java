@@ -31,8 +31,9 @@ public class Post {
     private Set<Post> _replies;
 
     @NotNull
-    @Column(name = "likes")
-    private int _iLikes;
+    @ManyToMany
+    @JoinColumn(name = "likes")
+    private Set<User> _setLikes;
 
     public Post() {}
 
@@ -40,7 +41,7 @@ public class Post {
         _sText = sText;
         _user = user;
         _tCreatedAt = LocalDateTime.now();
-        _iLikes = 0;
+        _setLikes = Collections.emptySet();
         _replies = Collections.emptySet();
     }
 
@@ -76,12 +77,12 @@ public class Post {
         _replies = replies;
     }
 
-    public int get_iLikes() {
-        return _iLikes;
+    public Set<User> get_setLikes() {
+        return _setLikes;
     }
 
-    public void set_iLikes(int iLikes) {
-        _iLikes = iLikes;
+    public void set_setLikes(Set<User> setLikes) {
+        _setLikes = setLikes;
     }
 
     public static class PostComparator implements Comparator<Post> {

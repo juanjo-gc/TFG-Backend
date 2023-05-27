@@ -31,14 +31,14 @@ public class PostController {
     private PostService _postService;
 
     @PostMapping("/newPost")
-    public String newPost(@RequestBody PostDTO dtopost) {
+    public Post newPost(@RequestBody PostDTO dtopost) {
 
         Post post = new Post(dtopost.get_sText(), _userRepository.findBy_iId(dtopost.get_iUserId()));
         System.out.println(post.get_sText());
         System.out.println(post.get_user().get_sUsername());
         post = _postRepository.save(post);
 
-        return "La publicación ha sido guardada correctamente.";
+        return post;
     }
 
 
@@ -73,6 +73,21 @@ public class PostController {
             System.out.println("Texto: " + post.get_sText() + " | Fecha: " + post.get_tCreatedAt());
         }
 
-        return _postRepository.findAll();
+        return orderedPosts;
+    }
+
+    @PostMapping("/setLike/{postId}/{userId}")
+    public boolean setLike(@PathVariable("postId") int iPostId, @PathVariable("userId") int iUserId) {
+        boolean bPostWasLiked = false;
+        Post post = _postRepository.findBy_iId(iPostId);
+        User user = _userRepository.findBy_iId(iUserId);
+
+        if(post.get_setLikes().contains(user)) {
+            post.get_setLikes().remove(user);
+            bPostWasLiked = true;
+        } else {
+            post.get_setLikes().add(user);
+        }
+        return bPostWasLiked;
     }
 }
