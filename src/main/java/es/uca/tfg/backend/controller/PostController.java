@@ -69,9 +69,12 @@ public class PostController {
                 .sorted(Comparator.comparing(Post::get_tCreatedAt).reversed())         // Ordenados por fecha (el primero el más reciente)
                 .collect(Collectors.toList());
 
+        /*
         for(Post post: orderedPosts) {
-            System.out.println("Texto: " + post.get_sText() + " | Fecha: " + post.get_tCreatedAt());
+            System.out.println("Texto: " + post.get_sText() + "| Fecha: " + post.get_tCreatedAt());
         }
+         */
+
 
         return orderedPosts;
     }
@@ -82,11 +85,18 @@ public class PostController {
         Post post = _postRepository.findBy_iId(iPostId);
         User user = _userRepository.findBy_iId(iUserId);
 
-        if(post.get_setLikes().contains(user)) {
+
+        if(post.get_setLikes().contains(user)) {    //El usuario ya le había dado like al post
             post.get_setLikes().remove(user);
-            bPostWasLiked = true;
+            post = _postRepository.save(post);
+            System.out.println("Ya le habia dado like");
         } else {
+            bPostWasLiked = true;
+            System.out.println("Antes de añadir al usuario: " + post.get_setLikes().size());
             post.get_setLikes().add(user);
+            post = _postRepository.save(post);
+            System.out.println("Despues de añadir al usuario: " + post.get_setLikes().size());
+            System.out.println("No le habia dado like");
         }
         return bPostWasLiked;
     }
