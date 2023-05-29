@@ -94,10 +94,11 @@ public class PostController {
             bPostWasLiked = true;
             System.out.println("Antes de añadir al usuario: " + post.get_setLikes().size());
             post.get_setLikes().add(user);
-            post = _postRepository.save(post);
             System.out.println("Despues de añadir al usuario: " + post.get_setLikes().size());
             System.out.println("No le habia dado like");
         }
+        post = _postRepository.save(post);
+
         return bPostWasLiked;
     }
 }

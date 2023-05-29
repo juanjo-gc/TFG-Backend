@@ -25,6 +25,7 @@ import java.awt.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -214,6 +215,49 @@ public class PersonController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(new InputStreamResource(fileInputStream));
+    }
+
+    @GetMapping("/checkFollow/{userId}/{followingId}")
+    public boolean isUserFollowing(@PathVariable("userId") int iUserId, @PathVariable("followingId") int iFollowingId) {
+        return _userRepository.findBy_iId(iUserId).get_setFollowing().contains(_userRepository.findBy_iId(iFollowingId)) ? true : false;
+    }
+
+    @PatchMapping("/setFollow/{userId}/{followId}")
+    public boolean setFollow(@PathVariable("userId") Integer iUserId, @PathVariable("followId") Integer iFollowId) {
+        boolean bIsFollowing = false;
+
+        User user = _userRepository.findBy_iId(iUserId);
+        User userToFollow = _userRepository.findBy_iId(iFollowId);
+
+        if(user.get_setFollowing().contains(userToFollow)) {
+            user.get_setFollowing().remove(userToFollow);
+            System.out.println("Deja de seguir");
+        } else {
+            user.get_setFollowing().add(userToFollow);
+            bIsFollowing = true;
+            System.out.println("Siguiendo ahora");
+        }
+        user = _userRepository.save(user);
+        for(User followed: user.get_setFollowing()) {
+            System.out.println(followed.get_sUsername());
+        }
+    /*
+        for (String i : htIds.keySet()) {
+            System.out.println(i);
+        }
+
+        User user = _userRepository.findBy_iId(htIds.get("iUserId"));
+        User userToFollow = _userRepository.findBy_iId(htIds.get("iFollowId"));
+
+        if(user.get_setFollowing().contains(userToFollow)) {
+            user.get_setFollowing().remove(userToFollow);
+        } else {
+            user.get_setFollowers().add(userToFollow);
+            bIsFollowing = true;
+        }
+
+     */
+        return bIsFollowing;
     }
 
     /*
