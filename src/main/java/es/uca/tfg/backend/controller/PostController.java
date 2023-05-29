@@ -44,7 +44,10 @@ public class PostController {
 
     @GetMapping("/getUserPosts/{username}")
     public List<Post> getUserPosts(@PathVariable("username") String sUsername) {
+        System.out.println("Recibido: " + sUsername);
         List<Post> posts = _postRepository.findBy_user(_userRepository.findBy_sUsername(sUsername));
+        System.out.println("Username en getuserposts: " + _userRepository.findBy_sUsername(sUsername).get_sUsername());
+        System.out.println("Numero de posts: " + posts.size());
         if(posts.isEmpty() || posts == null) {
             return Collections.emptyList();
         } else {
@@ -62,8 +65,8 @@ public class PostController {
 
         for(User followed: user.get_setFollowing()) {
             List<Post> followedUserPosts = _postRepository.findBy_user(followed);
+            orderedPosts.addAll(followedUserPosts);
         }
-
         orderedPosts = orderedPosts.stream()
                 .filter(p -> p.get_tCreatedAt().isAfter(LocalDateTime.now().minusDays(10)))     //Publicaciones de hace menos de 10 días
                 .sorted(Comparator.comparing(Post::get_tCreatedAt).reversed())         // Ordenados por fecha (el primero el más reciente)

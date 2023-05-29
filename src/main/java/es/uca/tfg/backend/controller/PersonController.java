@@ -25,6 +25,7 @@ import java.awt.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -241,23 +242,18 @@ public class PersonController {
         for(User followed: user.get_setFollowing()) {
             System.out.println(followed.get_sUsername());
         }
-    /*
-        for (String i : htIds.keySet()) {
-            System.out.println(i);
-        }
-
-        User user = _userRepository.findBy_iId(htIds.get("iUserId"));
-        User userToFollow = _userRepository.findBy_iId(htIds.get("iFollowId"));
-
-        if(user.get_setFollowing().contains(userToFollow)) {
-            user.get_setFollowing().remove(userToFollow);
-        } else {
-            user.get_setFollowers().add(userToFollow);
-            bIsFollowing = true;
-        }
-
-     */
         return bIsFollowing;
+    }
+
+    @GetMapping("/getNumFollows/{userId}")
+    public ArrayList<Integer> getNumFollows(@PathVariable("userId") int iUserId) {
+        ArrayList<Integer> numFollows = new ArrayList<>();
+        User user = _userRepository.findBy_iId(iUserId);
+
+        numFollows.add(user.get_setFollowing().size());
+        numFollows.add(user.get_setFollowers().size());
+
+        return numFollows;
     }
 
     /*

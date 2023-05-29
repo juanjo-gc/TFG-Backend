@@ -1,5 +1,6 @@
 package es.uca.tfg.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.mapping.Array;
@@ -45,13 +46,16 @@ public class User extends Person {
             name = "user_following",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "following_id"))
+    @JsonIgnore
     private Set<User> _setFollowing;
 
     @ManyToMany(mappedBy = "_setFollowing")
+    @JsonIgnore
     private Set<User> _setFollowers;
 
-    //@OneToMany(mappedBy = "_user")
-    //private Set<Post> _setPosts;
+    @OneToMany(mappedBy = "_user")
+    @JsonIgnore
+    private Set<Post> _setPosts;
 
     public User() {
         _setInterests = Collections.emptySet();
@@ -145,6 +149,7 @@ public class User extends Person {
         this._setFollowing = _setFollowing;
     }
 
+
     public Set<User> get_setFollowers() {
         return _setFollowers;
     }
@@ -153,7 +158,9 @@ public class User extends Person {
         this._setFollowers = _setFollowers;
     }
 
-    //public Set<Post> get_setPosts() { return _setPosts; }
 
-    //public void set_setPosts(Set<Post> _setPosts) { this._setPosts = _setPosts; }
+
+    public Set<Post> get_setPosts() { return _setPosts; }
+
+    public void set_setPosts(Set<Post> _setPosts) { this._setPosts = _setPosts; }
 }
