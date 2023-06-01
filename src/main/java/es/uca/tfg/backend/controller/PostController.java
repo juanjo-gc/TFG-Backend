@@ -100,8 +100,46 @@ public class PostController {
             System.out.println("Despues de añadir al usuario: " + post.get_setLikes().size());
             System.out.println("No le habia dado like");
         }
+        post.set_iLikes(post.get_setLikes().size());
         post = _postRepository.save(post);
 
         return bPostWasLiked;
     }
+
+    @GetMapping("/getPost/{postId}")
+    public Post getPost(@PathVariable("postId") int iPostId) {
+        System.out.println("Peticion de post con id " + iPostId);
+        Optional<Post> optionalPost = _postRepository.findById(iPostId);
+        return optionalPost.isPresent() ? optionalPost.get() : new Post();
+    }
+
+    @GetMapping("/getLikes/{postId}")
+    public List<User> getPostLikes(@PathVariable("postId") int iPostId) {
+        Optional<Post> optionalPost = _postRepository.findById(iPostId);
+        return optionalPost.isPresent() ? optionalPost.get().get_setLikes().stream().toList() : Collections.emptyList();
+    }
+
+    @GetMapping("/getReplies/{postId}")
+    public List<Post> getPostReplies(@PathVariable("postId") int iPostId) {
+        Optional<Post> optionalPost = _postRepository.findById(iPostId);
+        return optionalPost.isPresent() ? optionalPost.get().get_setReplies().stream().toList() : Collections.emptyList();
+    }
+
+    @PostMapping("/newReply/{postId}")
+    public Post newReply(@RequestBody PostDTO postDTO, @PathVariable("postId") int iPostId) {
+        Optional<Post> optionalPost = _postRepository.findById(iPostId);
+        if(optionalPost.isPresent()) {
+            Post reply = new Post(postDTO.get_sText(), _userRepository.findBy_iId(postDTO.get_iUserId()));
+            reply = _postRepository.save(reply);
+            optionalPost.get().get_setReplies().add(reply);
+            _postRepository.save(optionalPost.get());
+            for(Post postReply: optionalPost.get().get_setReplies()) {
+                System.out.println("Texto de la respuesta: " + postReply.get_sText());
+            }
+            return reply;
+        } else  {
+            return new Post();
+        }
+    }
+
 }

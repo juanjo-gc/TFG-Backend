@@ -39,6 +39,7 @@ public class User extends Person {
     
     @OneToOne
     @JoinColumn(name = "profileImage")
+    @JsonIgnore
     private ImagePath _profileImagePath;
 
     @ManyToMany

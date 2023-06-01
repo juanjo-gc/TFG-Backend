@@ -1,6 +1,6 @@
 package es.uca.tfg.backend.entity;
 
-import es.uca.tfg.backend.repository.UserRepository;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -28,12 +28,19 @@ public class Post {
     private User _user;
 
     @OneToMany
-    private Set<Post> _replies;
+    @JsonIgnore
+    private Set<Post> _setReplies;
 
     @NotNull
     @ManyToMany
-    @JoinColumn(name = "likes")
+    @JoinTable(
+            name = "user_likes",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "liked_id"))
+    @JsonIgnore
     private Set<User> _setLikes;
+
+    private int _iLikes;
 
     public Post() {}
 
@@ -42,7 +49,8 @@ public class Post {
         _user = user;
         _tCreatedAt = LocalDateTime.now();
         _setLikes = Collections.emptySet();
-        _replies = Collections.emptySet();
+        _setReplies = Collections.emptySet();
+        _iLikes = 0;
     }
 
     public int get_iId() {
@@ -69,12 +77,12 @@ public class Post {
         _user = user;
     }
 
-    public Set<Post> get_replies() {
-        return _replies;
+    public Set<Post> get_setReplies() {
+        return _setReplies;
     }
 
-    public void set_replies(Set<Post> replies) {
-        _replies = replies;
+    public void set_setReplies(Set<Post> replies) {
+        _setReplies = replies;
     }
 
     public Set<User> get_setLikes() {
@@ -83,6 +91,14 @@ public class Post {
 
     public void set_setLikes(Set<User> setLikes) {
         _setLikes = setLikes;
+    }
+
+    public int get_iLikes() {
+        return _iLikes;
+    }
+
+    public void set_iLikes(int _iLikes) {
+        this._iLikes = _iLikes;
     }
 
     public static class PostComparator implements Comparator<Post> {
