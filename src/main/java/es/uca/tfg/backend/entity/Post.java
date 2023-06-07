@@ -27,9 +27,12 @@ public class Post {
     @ManyToOne
     private User _user;
 
-    @OneToMany
+    @OneToMany(mappedBy = "_repliesTo")
     @JsonIgnore
     private Set<Post> _setReplies;
+
+    @ManyToOne
+    private Post _repliesTo;
 
     @NotNull
     @ManyToMany
@@ -51,6 +54,7 @@ public class Post {
         _setLikes = Collections.emptySet();
         _setReplies = Collections.emptySet();
         _iLikes = 0;
+        _repliesTo = null;
     }
 
     public int get_iId() {
@@ -83,6 +87,14 @@ public class Post {
 
     public void set_setReplies(Set<Post> replies) {
         _setReplies = replies;
+    }
+
+    public Post get_repliesTo() {
+        return _repliesTo;
+    }
+
+    public void set_repliesTo(Post _repliesTo) {
+        this._repliesTo = _repliesTo;
     }
 
     public Set<User> get_setLikes() {

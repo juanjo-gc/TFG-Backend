@@ -130,9 +130,10 @@ public class PostController {
         Optional<Post> optionalPost = _postRepository.findById(iPostId);
         if(optionalPost.isPresent()) {
             Post reply = new Post(postDTO.get_sText(), _userRepository.findBy_iId(postDTO.get_iUserId()));
-            reply = _postRepository.save(reply);
+            reply.set_repliesTo(optionalPost.get());
             optionalPost.get().get_setReplies().add(reply);
             _postRepository.save(optionalPost.get());
+            reply = _postRepository.save(reply);
             for(Post postReply: optionalPost.get().get_setReplies()) {
                 System.out.println("Texto de la respuesta: " + postReply.get_sText());
             }

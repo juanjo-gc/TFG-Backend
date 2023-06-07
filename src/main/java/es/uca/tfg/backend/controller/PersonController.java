@@ -25,8 +25,7 @@ import java.awt.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 @RestController
@@ -254,6 +253,22 @@ public class PersonController {
         numFollows.add(user.get_setFollowers().size());
 
         return numFollows;
+    }
+
+    @GetMapping("/getFollowing/{username}")
+    public List<User> getFollowing(@PathVariable("username") String sUsername) {
+        User user = _userRepository.findBy_sUsername(sUsername);
+        return user.get_iId() != 0 ? user.get_setFollowing().stream().toList() : Collections.emptyList();
+    }
+
+    @GetMapping("/getFollowers/{username}")
+    public List<User> getFollowers(@PathVariable("username") String sUsername) {
+        User user = _userRepository.findBy_sUsername(sUsername);
+        System.out.println(sUsername);
+        for(User follower: user.get_setFollowers()) {
+            System.out.println(follower.get_sUsername());
+        }
+        return user.get_iId() != 0 ? user.get_setFollowers().stream().toList() : Collections.emptyList();
     }
 
     /*
