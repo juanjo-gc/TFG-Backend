@@ -271,6 +271,11 @@ public class PersonController {
         return user.get_iId() != 0 ? user.get_setFollowers().stream().toList() : Collections.emptyList();
     }
 
+    @GetMapping("/findUsers/{username}")
+    public List<User> getUsersByUsername(@PathVariable("username") String sUsername) {
+        return _userRepository.findFirst7By_sUsernameStartsWith(sUsername);
+    }
+
     /*
     @GetMapping("/removeImages")
     public void removeImages() {
