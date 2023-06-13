@@ -11,5 +11,4 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     User findBy_sUsername(String sUsername);
     List<User> findFirst7By_sUsernameStartsWith(String sUsername);
 
-
 }

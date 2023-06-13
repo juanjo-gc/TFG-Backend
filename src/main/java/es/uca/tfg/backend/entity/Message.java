@@ -26,9 +26,11 @@ public class Message {
     private User _issuer;
 
     @NotNull
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "recipient_id")
     private User _recipient;
+
+    public Message() {}
 
     public Message(String sText, User issuer, User recipient) {
         _sText = sText;

@@ -87,6 +87,12 @@ public class PersonController {
         return _personService.authenticate(loginChecker.get_sEmail(), loginChecker.get_sPassword());
     }
 
+    @GetMapping("/getUser/{userId}")
+    public User getUser(@PathVariable("userId") int iUserId) {
+        Optional<User> optUser = _userRepository.findById(iUserId);
+        return optUser.isPresent() ? optUser.get() : new User();
+    }
+
     @GetMapping("/getUserFromUsername/{username}")
     public User getUserFromUsername(@PathVariable("username") String sUsername) {
         System.out.println(sUsername);

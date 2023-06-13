@@ -58,6 +58,14 @@ public class User extends Person {
     @JsonIgnore
     private Set<Post> _setPosts;
 
+    @OneToMany(mappedBy = "_issuer")
+    @JsonIgnore
+    private Set<Message> _setMessages;
+
+    @OneToMany(mappedBy = "_recipient")
+    @JsonIgnore
+    private Set<Message> _setReceivedMessages;
+
     public User() {
         _setInterests = Collections.emptySet();
         _setImagePath = Collections.emptySet();
