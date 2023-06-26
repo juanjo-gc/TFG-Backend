@@ -1,5 +1,6 @@
 package es.uca.tfg.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,7 +16,10 @@ public class Country {
     private String _sName;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "_country")
+    @JsonIgnore
     private Set<Region> _setRegions;
+
+    public Country() {}
 
     public Country(String sName) {
         _sName = sName;

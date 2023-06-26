@@ -1,18 +1,12 @@
 package es.uca.tfg.backend.controller;
 
+import es.uca.tfg.backend.entity.*;
 import es.uca.tfg.backend.entity.ImagePath;
-import es.uca.tfg.backend.entity.Person;
-import es.uca.tfg.backend.entity.User;
-import es.uca.tfg.backend.entity.ImagePath;
+import es.uca.tfg.backend.repository.*;
 import es.uca.tfg.backend.rest.MapUserRegister;
 import es.uca.tfg.backend.rest.UserChecker;
-import es.uca.tfg.backend.repository.InterestRepository;
-import es.uca.tfg.backend.repository.PersonRepository;
-import es.uca.tfg.backend.repository.ImagePathRepository;
-import es.uca.tfg.backend.repository.UserRepository;
+import es.uca.tfg.backend.rest.UserFilterDTO;
 import es.uca.tfg.backend.service.PersonService;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
@@ -21,12 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.*;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
@@ -43,6 +37,15 @@ public class PersonController {
     private InterestRepository _interestRepository;
     @Autowired
     private ImagePathRepository _imagePathRepository;
+
+    @Autowired
+    private CountryRepository _countryRepository;
+
+    @Autowired
+    private RegionRepository _regionRepository;
+
+    @Autowired
+    private ProvinceRepository _provinceRepository;
 
 
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
@@ -116,16 +119,27 @@ public class PersonController {
 
     @PostMapping("/uploadInterests")
     public User saveInterests(@RequestParam("id") int iId, @RequestParam("interests[]") String[] aSInterests) {
+
+
         System.out.println("ID: " + iId + " longitud del vector: " + aSInterests.length + " Elemento del vector: " + aSInterests[0]);
         User user = _userRepository.findBy_iId(iId);
+        System.out.println("Nº de intereses actuales del usuario: " + user.get_setInterests().size());
+
         user.get_setInterests().clear();
 
         for(int i = 0; i < aSInterests.length; i++) {
+            System.out.println("Añadiendo interes: " + _interestRepository.findBy_sName(aSInterests[i]).get_sName());
             user.get_setInterests().add(_interestRepository.findBy_sName(aSInterests[i]));
         }
         user = _userRepository.save(user);
 
         return user;
+    }
+
+    @GetMapping("/getUserInterests/{userId}")
+    public List<Interest> getUserInterests(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        return optionalUser.isPresent() ? optionalUser.get().get_setInterests().parallelStream().toList() : Collections.emptyList();
     }
 
     /*
@@ -223,9 +237,15 @@ public class PersonController {
                 .body(new InputStreamResource(fileInputStream));
     }
 
+    @GetMapping("/getImageNames/{userId}")
+    public List<ImagePath> getImageNames(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        return optionalUser.isPresent() ? optionalUser.get().get_setImagePath().parallelStream().toList() : Collections.emptyList();
+    }
+
     @GetMapping("/checkFollow/{userId}/{followingId}")
     public boolean isUserFollowing(@PathVariable("userId") int iUserId, @PathVariable("followingId") int iFollowingId) {
-        return _userRepository.findBy_iId(iUserId).get_setFollowing().contains(_userRepository.findBy_iId(iFollowingId)) ? true : false;
+        return _userRepository.findBy_iId(iUserId).get_setFollowing().contains(_userRepository.findBy_iId(iFollowingId));
     }
 
     @PatchMapping("/setFollow/{userId}/{followId}")
@@ -244,9 +264,6 @@ public class PersonController {
             System.out.println("Siguiendo ahora");
         }
         user = _userRepository.save(user);
-        for(User followed: user.get_setFollowing()) {
-            System.out.println(followed.get_sUsername());
-        }
         return bIsFollowing;
     }
 
@@ -282,6 +299,40 @@ public class PersonController {
         return _userRepository.findFirst7By_sUsernameStartsWith(sUsername);
     }
 
+    @PostMapping(value = "/filterUsers/{userId}")
+    public List<Integer> filterUsers(@RequestBody UserFilterDTO filter, @PathVariable("userId") int iUserId) {
+        List<Integer> aiFilteredUserIdsByInterest;
+        List<Integer> aiFilteredUserIds = _userRepository.findUserIdsByLocation(
+                _provinceRepository.findBy_sName(filter.get_sProvince()),
+                _regionRepository.findBy_sName(filter.get_sRegion()),
+                _countryRepository.findBy_sName(filter.get_sCountry()));
+
+
+        if(!filter.get_asInterests().isEmpty()) {
+            int iNumberOfInterests = filter.get_asInterests().size();
+             aiFilteredUserIdsByInterest = _userRepository.findUserIdsByOptionalInterests(
+                    iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(filter.get_asInterests().get(0)) : null,
+                    iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(filter.get_asInterests().get(1)) : null,
+                    iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(filter.get_asInterests().get(2)) : null
+            );
+        } else {
+            aiFilteredUserIdsByInterest = _userRepository.findAllIds();
+        }
+
+        System.out.println("Antes de filtro: " + aiFilteredUserIds.toString() + " (Llegó la ID "+ iUserId);
+
+        aiFilteredUserIds = aiFilteredUserIds.stream().filter(iId -> aiFilteredUserIdsByInterest.contains(iId) && iId != iUserId).collect(Collectors.toList());
+
+        System.out.println("Despues de filtro: " + aiFilteredUserIds.toString());
+
+        List<Integer> aiFollowedIds = _userRepository.findFollowingUserIds(_userRepository.findBy_iId(iUserId));
+
+        System.out.println("Despues de filtro 2: " + aiFilteredUserIds.stream().filter(iId -> !aiFollowedIds.contains(Integer.valueOf(iId))).collect(Collectors.toList()).toString());
+
+        //TODO filtrar las ids para que no se envíen las ids de los usuarios seguidos por quien envia la peticion
+        return aiFilteredUserIds.stream().filter(iId -> !aiFollowedIds.contains(Integer.valueOf(iId))).collect(Collectors.toList());
+    }
+
     /*
     @GetMapping("/removeImages")
     public void removeImages() {
@@ -309,9 +360,20 @@ public class PersonController {
 
     @GetMapping("/customGet")
     void customGet() {
-        User user = _userRepository.findBy_sUsername("userEjemplo");
-        user.set_profileImagePath(null);
-        user = _userRepository.save(user);
+        /*
+        Country country = _countryRepository.save(new Country("España"));
+        _regionRepository.save(new Region("Andalucía", country));
+        _regionRepository.save(new Region("Comunidad Valenciana", country));
+        _provinceRepository.save(new Province("Cádiz", _regionRepository.findById(1).get()));
+        _provinceRepository.save(new Province("Sevilla", _regionRepository.findById(1).get()));
+        _provinceRepository.save(new Province("Málaga", _regionRepository.findById(1).get()));
+        User user = _userRepository.findBy_iId(2);
+        user.set_province(_provinceRepository.findById(1).get());
+        _userRepository.save(user);
+
+         */
+        System.out.println(_userRepository.findUserIdsByOptionalInterests(null, null, null).toString());
+
     }
         /*
     Esto funciona pero no es la mejor manera

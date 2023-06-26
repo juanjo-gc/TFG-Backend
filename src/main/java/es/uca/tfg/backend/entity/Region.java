@@ -1,5 +1,6 @@
 package es.uca.tfg.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,14 +16,19 @@ public class Region {
     private String _sName;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "_region")
+    @JsonIgnore
     private Set<Province> _setProvinces;
 
     @ManyToOne
     @JoinColumn(name = "country_id", nullable = true)
     private Country _country;
 
-    public Region(String sName) {
+    public Region() {}
+
+    public Region(String sName, Country country) {
+
         _sName = sName;
+        _country = country;
     }
 
     public int get_iId() {

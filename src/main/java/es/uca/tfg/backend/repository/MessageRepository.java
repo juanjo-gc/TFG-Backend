@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface MessageRepository extends JpaRepository<Message, Integer> {
-    @Query("SELECT m FROM Message m WHERE (m._issuer = :issuer AND m._recipient = :recipient) OR (m._issuer = :recipient AND m._recipient = :issuer) ORDER BY m._tSentAt DESC")
+    @Query("SELECT m FROM Message m WHERE (m._issuer = :issuer AND m._recipient = :recipient) OR (m._issuer = :recipient AND m._recipient = :issuer) ORDER BY m._tSentAt ASC")
     List<Message> findConversation(@Param("issuer") User issuer, @Param("recipient") User recipient);
 
     @Query("SELECT m FROM Message m WHERE (m._issuer = :issuer AND m._recipient = :recipient) OR (m._issuer = :recipient AND m._recipient = :issuer) ORDER BY m._tSentAt DESC")

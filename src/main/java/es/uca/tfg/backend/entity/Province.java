@@ -1,5 +1,6 @@
 package es.uca.tfg.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -15,6 +16,7 @@ public class Province {
     private String _sName;
 
     @OneToMany(mappedBy = "_province")
+    @JsonIgnore
     private Set<User> _setUsers;
 
     @ManyToOne
@@ -23,8 +25,9 @@ public class Province {
 
     public Province() {}
 
-    public Province(String sName) {
+    public Province(String sName, Region region) {
         _sName = sName;
+        _region = region;
     }
 
     public int get_iId() {

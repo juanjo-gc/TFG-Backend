@@ -13,6 +13,7 @@ public class MessageDTO {
         _sText = sText;
     }
 
+
     public int get_iIssuerId() {
         return _iIssuerId;
     }

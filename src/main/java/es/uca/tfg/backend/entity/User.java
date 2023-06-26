@@ -58,6 +58,10 @@ public class User extends Person {
     @JsonIgnore
     private Set<Post> _setPosts;
 
+    @ManyToMany(mappedBy = "_setLikes")
+    @JsonIgnore
+    private Set<Post> _setLikedPosts;
+
     @OneToMany(mappedBy = "_issuer")
     @JsonIgnore
     private Set<Message> _setMessages;
@@ -167,7 +171,17 @@ public class User extends Person {
         this._setFollowers = _setFollowers;
     }
 
+    public Set<Post> get_setLikedPosts() {
+        return _setLikedPosts;
+    }
 
+    public Set<Message> get_setMessages() {
+        return _setMessages;
+    }
+
+    public Set<Message> get_setReceivedMessages() {
+        return _setReceivedMessages;
+    }
 
     public Set<Post> get_setPosts() { return _setPosts; }
 
