@@ -1,25 +1,33 @@
 package es.uca.tfg.backend.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.uca.tfg.backend.entity.Interest;
 import es.uca.tfg.backend.entity.User;
+import es.uca.tfg.backend.repository.*;
 import es.uca.tfg.backend.rest.MapUserRegister;
-import es.uca.tfg.backend.repository.InterestRepository;
-import es.uca.tfg.backend.repository.PersonRepository;
-import es.uca.tfg.backend.repository.ImagePathRepository;
-import es.uca.tfg.backend.repository.UserRepository;
 import es.uca.tfg.backend.rest.UserChecker;
+import es.uca.tfg.backend.rest.UserFilterDTO;
 import es.uca.tfg.backend.service.PersonService;
+import es.uca.tfg.backend.service.PostService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -27,28 +35,41 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
 import javax.print.attribute.standard.Media;
-import java.util.Date;
+import javax.xml.transform.Result;
+import java.io.File;
+import java.io.FileInputStream;
+import java.sql.Array;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
 @WebMvcTest
+
 public class PersonControllerTest {
     @Autowired
     private MockMvc _mockMvc;
     @Autowired
+    private WebApplicationContext _webApplicationContext;
+    @Autowired
     private ObjectMapper _objectMapper;
     @MockBean
     private PersonService _personService;
+    @MockBean
+    private PostService _postService;
     @MockBean
     private UserRepository _userRepository;
     @MockBean
@@ -57,7 +78,27 @@ public class PersonControllerTest {
     private InterestRepository _interestRepository;
     @MockBean
     private ImagePathRepository _ImagePathRepository;
+    @MockBean
+    private CountryRepository _countryRepository;
+    @MockBean
+    private RegionRepository _regionRepository;
+    @MockBean
+    private ProvinceRepository _provinceRepository;
+    @MockBean
+    private MessageRepository _messageRepository;
+    @MockBean
+    private  PostRepository _postRepository;
+    @MockBean
+    private FileInputStream _fileInputStream;
+    @Mock
+    File _file;
+    @InjectMocks
+    PersonController _personController;
+
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
+
+    public PersonControllerTest() {
+    }
 
 
     @Test
@@ -193,7 +234,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void updateInterestsTest() throws Exception {
+    void updateInterestsTest() throws Exception {
         //given
         User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
         String[] asInterests = new String[] {"Música", "Videojuegos", "Deportes"};
@@ -202,14 +243,237 @@ public class PersonControllerTest {
                 .param("id", "1")
                 .param("interests[]", asInterests);
         Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+        Mockito.when(_interestRepository.findBy_sName(any(String.class))).thenReturn(new Interest(any(String.class)));
         //when
-        ResultActions resultActions = _mockMvc.perform(post("/api/uploadInterests")
+        ResultActions response = _mockMvc.perform(post("/api/uploadInterests")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .param("id", "1")
                 .param("interests[]", asInterests));
 
         //then
+        response.andDo(print())
+                        .andExpect(status().is2xxSuccessful());
+
         Assertions.assertEquals(asInterests.length, user.get_setInterests().size());
+
+    }
+
+    @Test
+    void getUserInterestTest() throws Exception {
+        //given
+        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        Optional<User> optionalUser = Optional.of(user);
+        Interest[] aInterests = {new Interest("Música"), new Interest("Videojuegos")};
+        user.set_setInterests(List.of(aInterests).stream().collect(Collectors.toSet()));
+        MockHttpServletRequestBuilder mockHttpServletRequestBuilder = MockMvcRequestBuilders.get("/api/getUserInterests/1");
+        Mockito.when(_userRepository.findById(1)).thenReturn(optionalUser);
+        //when
+        ResultActions response = _mockMvc.perform(get("/api/getUserInterests/1"));
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+    }
+
+    @Test
+    void uploadUserProfileImageTest() throws Exception {
+        //given
+        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("filename", new byte[1]);
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+        //when
+        ResultActions response = _mockMvc.perform(post("/api/uploadProfileImage")
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .param("id", "1")
+                .param("file", String.valueOf(mockMultipartFile)));
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        String sResponse = response.andReturn().getResponse().getContentAsString();
+        Assertions.assertEquals(_objectMapper.readValue(sResponse, User.class).get_iId(), 1);
+    }
+
+    @Test
+    public void getUserInterestsTest() throws Exception {
+        // Given
+        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        List<Interest> interests = Arrays.asList(new Interest("Música"), new Interest("Videojuegos"));
+        user.set_setInterests(interests.stream().collect(Collectors.toSet()));
+        Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(user));
+
+        // When
+        ResultActions response = _mockMvc.perform(get("/api/getUserInterests/" + 1))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[{'_sName': 'Música'}, {'_sName': 'Videojuegos'}]"));
+
+        // Then
+        Mockito.verify(_userRepository).findById(1);
+    }
+
+    @Test
+    public void getImagePathTest() throws Exception {
+        // Given
+        String sImageName = "image.jpg";
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("image", _fileInputStream);
+        Mockito.when(_file.getPath()).thenReturn(any(String.class));
+        //Mockito.when(_fileInputStream.read()).thenReturn(any(Integer.class));
+
+        // When
+        _mockMvc.perform(get("/api/getImage/" + sImageName))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.IMAGE_JPEG));
+
+        // Then
+        Mockito.verify(mockMultipartFile).getInputStream();
+    }
+
+    @Test
+    public void setFollowWhenFollowingNewUser() throws Exception {
+        //given
+        //User followed = new User("followed@gmail.com", "password", "followed", "user", "followed", new Date());
+        User user = Mockito.mock(User.class);
+        User followed = Mockito.mock(User.class);
+        boolean bIsFollowing = false;
+        user.set_setFollowing(Collections.emptySet());
+        Mockito.when(_userRepository.findBy_iId(0)).thenReturn(user);
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(followed);
+        //when
+        ResultActions response = _mockMvc.perform(patch("/api/setFollow/0/1"));
+        //then
+        response.andDo(print())
+                        .andExpect(status().is2xxSuccessful());
+        Assertions.assertEquals(true, _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), boolean.class));
+    }
+
+    @Test
+    public void setFollowWhenUnfollowUser() throws Exception {
+        //given
+        User user = Mockito.mock(User.class);
+        User followed = Mockito.mock(User.class);
+        Set<User> followingUsers = Mockito.mock(Set.class);
+
+        Mockito.when(_userRepository.findBy_iId(0)).thenReturn(user);
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(followed);
+        Mockito.when(user.get_setFollowing()).thenReturn(followingUsers);
+        Mockito.when(followingUsers.contains(any(User.class))).thenReturn(true);
+        //when
+        ResultActions response = _mockMvc.perform(patch("/api/setFollow/0/1"));
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        Assertions.assertEquals(false, _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), boolean.class));
+    }
+
+    @Test
+    public void getNumFollowsWillReturnOneFollowedAndTwoFollowers() throws Exception {
+        //given
+        User user = Mockito.mock(User.class);
+        Set<User> setFollowing = Mockito.mock(Set.class);
+        Set<User> setFollowers = Mockito.mock(Set.class);
+        Mockito.when(_userRepository.findBy_iId(0)).thenReturn(user);
+        Mockito.when(user.get_setFollowers()).thenReturn(setFollowers);
+        Mockito.when(user.get_setFollowing()).thenReturn(setFollowing);
+        Mockito.when(setFollowing.size()).thenReturn(1);
+        Mockito.when(setFollowers.size()).thenReturn(2);
+        //when
+        ResultActions response = _mockMvc.perform(get("/api/getNumFollows/0"));
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        ArrayList<Integer> aNumFollows = _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), ArrayList.class);
+        Assertions.assertEquals(1, aNumFollows.get(0));
+        Assertions.assertEquals(2, aNumFollows.get(1));
+    }
+
+    @Test
+    public void getUserFollowingAndUserFollowsNoOneTest() throws Exception {
+        //given
+        User user = Mockito.mock(User.class);
+        Mockito.when(_userRepository.findBy_sUsername("user")).thenReturn(user);
+        //when
+        ResultActions response = _mockMvc.perform(get("/api/getFollowing/user"));
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        Assertions.assertEquals(0, _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), List.class).size());
+    }
+
+    @Test
+    public void getUsersByUsernameWhenThereAreNoMatches() throws Exception {
+        //given
+        Mockito.when(_userRepository.findFirst7By_sUsernameStartsWith("user")).thenReturn(Collections.emptyList());
+        //Mockito.when(aUsersToShow.size()).thenReturn(7);
+        //when
+        ResultActions response = _mockMvc.perform(get("/api/findUsers/user"));
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        Assertions.assertEquals(0, _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), ArrayList.class).size());
+    }
+
+    @Test
+    public void getUsersByUsernameWhenThereAreMoreThanSevenMatches() throws Exception {
+        List<User> aUserList = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            aUserList.add(new User("example" + i + "@gmail.com", "password", "username" + i, "user", "name", new Date()));
+        }
+        Mockito.when(_userRepository.findFirst7By_sUsernameStartsWith(anyString())).thenReturn(aUserList);
+        //when
+        ResultActions response = _mockMvc.perform(get("/api/findUsers/user"));
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        Assertions.assertEquals(7, _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), ArrayList.class).size());
+    }
+
+    @Test
+    public void getUsersByUsernameWhenThereAreMoreThanZeroAndLessSevenMatches() throws Exception {
+        //given
+        List<User> aUserList = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            aUserList.add(new User("example" + i + "@gmail.com", "password", "username" + i, "user", "name", new Date()));
+        }
+        Mockito.when(_userRepository.findFirst7By_sUsernameStartsWith(anyString())).thenReturn(aUserList);
+        //when
+        ResultActions response = _mockMvc.perform(get("/api/findUsers/user"));
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
+        Assertions.assertEquals(3, _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), ArrayList.class).size());
+    }
+
+    @Test
+    public void filterUserIdsWhenThereAreNoInterestsAndNoLocation() throws Exception {
+        //given
+        List<Integer> aUserIds = Mockito.mock(List.class);
+        UserFilterDTO filter = new UserFilterDTO(Collections.emptyList(), null, null, null);
+        //UserFilterDTO filter = Mockito.mock(UserFilterDTO.class);
+        //public UserFilterDTO(List<String> asInterests, String sCountry, String sRegion, String sProvince) {
+        /*
+        Mockito.when(filter.get_asInterests()).thenReturn(new ArrayList<String>(Arrays.asList("Música", "Videojuegos")));
+        Mockito.when(filter.get_sCountry()).thenReturn(null);
+        Mockito.when(filter.get_sRegion()).thenReturn(null);
+        Mockito.when(filter.get_sProvince()).thenReturn(null);
+
+         */
+        //Mockito.when(_userRepository.findUserIdsByLocation()).thenReturn(aUserIds);
+        //when
+        System.out.println("Parametro enviado: " + String.valueOf(filter.get_asInterests()));
+        ResultActions response = _mockMvc.perform(post("/api/filterUsers/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(_objectMapper.writeValueAsString(filter)));
+        //List<Integer> result = _personController.filterUsers(filter, 0);
+        /*
+        ResultActions response = _mockMvc.perform(post("/api/filterUsers/1")
+                .param("asInterests", String.valueOf(filter.get_asInterests()))
+                .param("sCountry", filter.get_sCountry())
+                .param("sRegion", filter.get_sRegion())
+                .param("sProvince", filter.get_sProvince()));
+
+         */
+
+        //then
+        response.andDo(print())
+                .andExpect(status().is2xxSuccessful());
 
     }
 

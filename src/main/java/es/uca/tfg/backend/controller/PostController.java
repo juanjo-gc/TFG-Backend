@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class PostController {
 
+
     @Autowired
     private PostRepository _postRepository;
 
@@ -36,9 +37,7 @@ public class PostController {
         Post post = new Post(dtopost.get_sText(), _userRepository.findBy_iId(dtopost.get_iUserId()));
         System.out.println(post.get_sText());
         System.out.println(post.get_user().get_sUsername());
-        post = _postRepository.save(post);
-
-        return post;
+        return _postRepository.save(post);
     }
 
 
@@ -72,11 +71,11 @@ public class PostController {
                 .sorted(Comparator.comparing(Post::get_tCreatedAt).reversed())         // Ordenados por fecha (el primero el más reciente)
                 .collect(Collectors.toList());
 
-        /*
+
         for(Post post: orderedPosts) {
             System.out.println("Texto: " + post.get_sText() + "| Fecha: " + post.get_tCreatedAt());
         }
-         */
+
 
 
         return orderedPosts;
@@ -133,14 +132,15 @@ public class PostController {
             reply.set_repliesTo(optionalPost.get());
             optionalPost.get().get_setReplies().add(reply);
             _postRepository.save(optionalPost.get());
-            reply = _postRepository.save(reply);
-            for(Post postReply: optionalPost.get().get_setReplies()) {
-                System.out.println("Texto de la respuesta: " + postReply.get_sText());
-            }
-            return reply;
+            return _postRepository.save(reply);
         } else  {
             return new Post();
         }
     }
+
+
+
+
+
 
 }

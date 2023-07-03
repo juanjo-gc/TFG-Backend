@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "http://localhost:8080")
 @RequestMapping("/api")
 public class MessageController {
+
     @Autowired
     private MessageRepository _messageRepository;
     @Autowired
@@ -53,7 +54,6 @@ public class MessageController {
             for(User messagedUser: aUsersWithActiveChat.stream().distinct().collect(Collectors.toList())) {
                 Page<Message> pageMessage = _messageRepository.findLastIssuerRecipientMessage(user, messagedUser, PageRequest.of(0, 1));
                 Message message = pageMessage.get().findFirst().get();
-                System.out.println("Emisor: " + message.get_issuer().get_sUsername() + " Receptor: " + message.get_recipient().get_sUsername() + " Mensaje: " + message.get_sText());
                 aLastMessages.add(message);
             }
 
@@ -62,10 +62,12 @@ public class MessageController {
             return Collections.emptyList();
         }
     }
+    /*
     @GetMapping("/getMessagedUsers")
     public List<User> messagedUsers() {
         return _messageRepository.findMessagedUsers(_userRepository.findBy_iId(2));
     }
+     */
 
     @GetMapping("/getConversation/{userId}/{targetId}")
     public List<Message> getConversation(@PathVariable("userId") int iUserId, @PathVariable("targetId") int iTargetId) {
@@ -78,4 +80,7 @@ public class MessageController {
             return Collections.emptyList();
         }
     }
+
+
+
 }

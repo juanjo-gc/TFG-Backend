@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "http://localhost:8080")
 @RequestMapping("/api")
 public class PersonController {
-
     @Autowired
     private PersonService _personService;
     @Autowired
@@ -126,11 +125,13 @@ public class PersonController {
         System.out.println("Nº de intereses actuales del usuario: " + user.get_setInterests().size());
 
         user.get_setInterests().clear();
+        List<Interest> aInterests = Collections.emptyList();
 
         for(int i = 0; i < aSInterests.length; i++) {
             System.out.println("Añadiendo interes: " + _interestRepository.findBy_sName(aSInterests[i]).get_sName());
-            user.get_setInterests().add(_interestRepository.findBy_sName(aSInterests[i]));
+            aInterests.add(_interestRepository.findBy_sName(aSInterests[i]));
         }
+        user.set_setInterests(aInterests.stream().collect(Collectors.toSet()));
         user = _userRepository.save(user);
 
         return user;
@@ -151,7 +152,7 @@ public class PersonController {
      */
 
     @PostMapping("/uploadProfileImage")
-    public String saveProfileImage(@RequestParam("id") int iId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+    public User saveProfileImage(@RequestParam("id") int iId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         User user = _userRepository.findBy_iId(iId);
         System.out.println(_sUploadPath);
         Path path = Paths.get(_sUploadPath);
@@ -172,7 +173,7 @@ public class PersonController {
         imagePath = _imagePathRepository.save(imagePath);
         user.set_profileImagePath(imagePath);
         user = _userRepository.save(user);
-        return "Guardado";
+        return user;
     }
 
     @PostMapping("/uploadImages")
@@ -287,10 +288,6 @@ public class PersonController {
     @GetMapping("/getFollowers/{username}")
     public List<User> getFollowers(@PathVariable("username") String sUsername) {
         User user = _userRepository.findBy_sUsername(sUsername);
-        System.out.println(sUsername);
-        for(User follower: user.get_setFollowers()) {
-            System.out.println(follower.get_sUsername());
-        }
         return user.get_iId() != 0 ? user.get_setFollowers().stream().toList() : Collections.emptyList();
     }
 
@@ -319,17 +316,10 @@ public class PersonController {
             aiFilteredUserIdsByInterest = _userRepository.findAllIds();
         }
 
-        System.out.println("Antes de filtro: " + aiFilteredUserIds.toString() + " (Llegó la ID "+ iUserId);
-
         aiFilteredUserIds = aiFilteredUserIds.stream().filter(iId -> aiFilteredUserIdsByInterest.contains(iId) && iId != iUserId).collect(Collectors.toList());
-
-        System.out.println("Despues de filtro: " + aiFilteredUserIds.toString());
 
         List<Integer> aiFollowedIds = _userRepository.findFollowingUserIds(_userRepository.findBy_iId(iUserId));
 
-        System.out.println("Despues de filtro 2: " + aiFilteredUserIds.stream().filter(iId -> !aiFollowedIds.contains(Integer.valueOf(iId))).collect(Collectors.toList()).toString());
-
-        //TODO filtrar las ids para que no se envíen las ids de los usuarios seguidos por quien envia la peticion
         return aiFilteredUserIds.stream().filter(iId -> !aiFollowedIds.contains(Integer.valueOf(iId))).collect(Collectors.toList());
     }
 
