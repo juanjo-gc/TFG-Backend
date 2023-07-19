@@ -1,9 +1,13 @@
 package es.uca.tfg.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -20,9 +24,13 @@ public class Event {
 
     @NotNull
     @Column(name = "celebratedAt")
-    private LocalDateTime _tCelebratedAt;
+    private LocalDate _tCelebratedAt;
 
-    @Column(name = "description")
+    @NotNull
+    @Column(name = "celebrationHour")
+    private LocalTime _tCelebrationHour;
+
+    @Column(name = "description", columnDefinition = "BLOB")
     private String _sDescription;
 
     @NotNull
@@ -33,19 +41,38 @@ public class Event {
     @NotNull
     @ManyToMany
     @JoinColumn(name = "assistant_id")
+    @JsonIgnore
     private Set<User> _setAssistants;
 
     @ManyToMany
     @JoinColumn(name = "interest_id")
-    private Set<Interest> _setInterest;
+    @JsonIgnore
+    private Set<Interest> _setInterests;
 
     @OneToOne
     @JoinColumn(name = "headerphoto_id")
     private ImagePath _headerPhoto;
 
     @ManyToOne
-    @JoinColumn(name = "localization_id")
-    private Localization _localization;
+    @JoinColumn(name = "location_id")
+    private Location _location;
+
+    public Event() {}
+
+    public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer, Set<Interest> setInterests, ImagePath headerPhoto, Location location) {
+        _sTitle = sTitle;
+        _tCelebratedAt = tCelebratedAt;
+        _tCelebrationHour = tCelebrationHour;
+        _sDescription = sDescription;
+        _organizer = organizer;
+        _headerPhoto = headerPhoto;
+        _location = location;
+        if(setInterests != null)
+            _setInterests = setInterests;
+        else
+            _setInterests = new HashSet<>();
+        _setAssistants = new HashSet<>();
+    }
 
     public int get_iId() {
         return _iId;
@@ -59,11 +86,15 @@ public class Event {
         _sTitle = sTitle;
     }
 
-    public LocalDateTime get_tCelebratedAt() {
+    public LocalDate get_tCelebratedAt() {
         return _tCelebratedAt;
     }
 
-    public void set_tCelebratedAt(LocalDateTime tCelebratedAt) {
+    public LocalTime get_tCelebrationHour() {
+        return _tCelebrationHour;
+    }
+
+    public void set_tCelebratedAt(LocalDate tCelebratedAt) {
         _tCelebratedAt = tCelebratedAt;
     }
 
@@ -92,11 +123,11 @@ public class Event {
     }
 
     public Set<Interest> get_setInterest() {
-        return _setInterest;
+        return _setInterests;
     }
 
     public void set_setInterest(Set<Interest> setInterest) {
-        _setInterest = setInterest;
+        _setInterests = setInterest;
     }
 
     public ImagePath get_headerPhoto() {
@@ -107,11 +138,11 @@ public class Event {
         _headerPhoto = headerPhoto;
     }
 
-    public Localization get_localization() {
-        return _localization;
+    public Location get_localization() {
+        return _location;
     }
 
-    public void set_localization(Localization localization) {
-        _localization = localization;
+    public void set_localization(Location location) {
+        _location = location;
     }
 }

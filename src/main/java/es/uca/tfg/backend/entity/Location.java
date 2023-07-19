@@ -5,10 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Columns;
 
 @Entity
-public class Localization {
+public class Location {
 
     @Id
     @GeneratedValue
@@ -18,13 +17,19 @@ public class Localization {
     @Column(name = "name")
     private String _sName;
 
-    @NotNull
     @Column(name = "latitude")
-    private double _dLatitude;
+    private float _fLatitude;
 
-    @NotNull
     @Column(name = "longitude")
-    private double _dLongitude;
+    private float _fLongitude;
+
+    public Location() {}
+
+    public Location(String sName, double dLatitude, double dLongitude) {
+        _sName = sName;
+        _fLatitude = (float) (dLatitude * 1000000) / 1000000;
+        _fLongitude = (float) (dLongitude * 1000000) / 1000000;
+    }
 
     public int get_iId() {
         return _iId;
@@ -38,19 +43,19 @@ public class Localization {
         _sName = sName;
     }
 
-    public double get_dLatitude() {
-        return _dLatitude;
+    public double get_fLatitude() {
+        return _fLatitude;
     }
 
-    public void set_dLatitude(double dLatitude) {
-        _dLatitude = dLatitude;
+    public void set_fLatitude(float dLatitude) {
+        _fLatitude = dLatitude;
     }
 
-    public double get_dLongitude() {
-        return _dLongitude;
+    public float get_fLongitude() {
+        return _fLongitude;
     }
 
-    public void set_dLongitude(double dLongitude) {
-        _dLongitude = dLongitude;
+    public void set_fLongitude(float dLongitude) {
+        _fLongitude = dLongitude;
     }
 }
