@@ -24,8 +24,10 @@ public class EventDTO {
 
     private float _dLongitude;
 
+    private String _sProvinceName;
+
     public EventDTO(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, Integer iOrganizerId, Set<String> setInterests, String sLocationName,
-                    float dLatitude, float dLongitude) {
+                    float dLatitude, float dLongitude, String sProvinceName) {
         _sTitle = sTitle;
         _tCelebratedAt = tCelebratedAt;
         _tCelebrationHour = tCelebrationHour;
@@ -35,6 +37,7 @@ public class EventDTO {
         _sLocationName = sLocationName;
         _dLatitude = dLatitude;
         _dLongitude = dLongitude;
+        _sProvinceName = sProvinceName;
     }
 
     public String get_sTitle() {
@@ -70,4 +73,6 @@ public class EventDTO {
     public float get_dLongitude() {
         return _dLongitude;
     }
+
+    public String get_sProvinceName() { return _sProvinceName; }
 }

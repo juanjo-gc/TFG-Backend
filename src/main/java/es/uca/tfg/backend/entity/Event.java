@@ -1,6 +1,7 @@
 package es.uca.tfg.backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -138,11 +139,11 @@ public class Event {
         _headerPhoto = headerPhoto;
     }
 
-    public Location get_localization() {
+    public Location get_location() {
         return _location;
     }
 
-    public void set_localization(Location location) {
+    public void set_location(Location location) {
         _location = location;
     }
 }

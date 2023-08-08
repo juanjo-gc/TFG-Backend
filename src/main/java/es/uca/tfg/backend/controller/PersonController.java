@@ -10,6 +10,8 @@ import es.uca.tfg.backend.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -291,13 +293,14 @@ public class PersonController {
         return user.get_iId() != 0 ? user.get_setFollowers().stream().toList() : Collections.emptyList();
     }
 
-    @GetMapping("/findUsers/{username}")
+    @GetMapping("/findFirst7Users/{username}")
     public List<User> getUsersByUsername(@PathVariable("username") String sUsername) {
         return _userRepository.findFirst7By_sUsernameStartsWith(sUsername);
     }
 
-    @PostMapping(value = "/filterUsers/{userId}")
-    public List<Integer> filterUsers(@RequestBody UserFilterDTO filter, @PathVariable("userId") int iUserId) {
+    @PostMapping(value = "/filterUsers/{userId}/{pageNumber}")
+    public Page<Integer> filterUsers(@RequestBody UserFilterDTO filter, @PathVariable("userId") int iUserId, @PathVariable("pageNumber") int iPageNumber) {
+        /*
         List<Integer> aiFilteredUserIdsByInterest;
         List<Integer> aiFilteredUserIds = _userRepository.findUserIdsByLocation(
                 _provinceRepository.findBy_sName(filter.get_sProvince()),
@@ -321,6 +324,17 @@ public class PersonController {
         List<Integer> aiFollowedIds = _userRepository.findFollowingUserIds(_userRepository.findBy_iId(iUserId));
 
         return aiFilteredUserIds.stream().filter(iId -> !aiFollowedIds.contains(Integer.valueOf(iId))).collect(Collectors.toList());
+        */
+
+
+        int iNumberOfInterests = filter.get_asInterests().size();
+        return _userRepository.findFilteredUsers(_provinceRepository.findBy_sName(filter.get_sProvince()), _regionRepository.findBy_sName(filter.get_sRegion()), _countryRepository.findBy_sName(filter.get_sCountry()),
+                iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(filter.get_asInterests().get(0)) : null,
+                iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(filter.get_asInterests().get(1)) : null,
+                iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(filter.get_asInterests().get(2)) : null,
+                iUserId, PageRequest.of(iPageNumber, 10));
+
+
     }
 
     /*

@@ -1,9 +1,6 @@
 package es.uca.tfg.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -23,12 +20,17 @@ public class Location {
     @Column(name = "longitude")
     private float _fLongitude;
 
+    @ManyToOne
+    @JoinColumn(name = "province_id")
+    private Province _province;
+
     public Location() {}
 
-    public Location(String sName, double dLatitude, double dLongitude) {
+    public Location(String sName, double dLatitude, double dLongitude, Province province) {
         _sName = sName;
         _fLatitude = (float) (dLatitude * 1000000) / 1000000;
         _fLongitude = (float) (dLongitude * 1000000) / 1000000;
+        _province = province;
     }
 
     public int get_iId() {
@@ -58,4 +60,8 @@ public class Location {
     public void set_fLongitude(float dLongitude) {
         _fLongitude = dLongitude;
     }
+
+    public Province get_province() { return _province; }
+
+    public void set_province(Province province) { _province = province; }
 }
