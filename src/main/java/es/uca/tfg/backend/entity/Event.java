@@ -54,9 +54,17 @@ public class Event {
     @JoinColumn(name = "headerphoto_id")
     private ImagePath _headerPhoto;
 
+    @OneToMany
+    @JoinColumn(name = "photos")
+    @JsonIgnore
+    private Set<ImagePath> _setPhotos;
+
     @ManyToOne
     @JoinColumn(name = "location_id")
     private Location _location;
+
+    @Column(name = "isOnline")
+    private boolean _bIsOnline;
 
     public Event() {}
 
@@ -73,6 +81,23 @@ public class Event {
         else
             _setInterests = new HashSet<>();
         _setAssistants = new HashSet<>();
+        _bIsOnline = false;
+    }
+
+    public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer, Set<Interest> setInterests, ImagePath headerPhoto, boolean _bIsOnline) {
+        _sTitle = sTitle;
+        _tCelebratedAt = tCelebratedAt;
+        _tCelebrationHour = tCelebrationHour;
+        _sDescription = sDescription;
+        _organizer = organizer;
+        _headerPhoto = headerPhoto;
+        _location = null;
+        if(setInterests != null)
+            _setInterests = setInterests;
+        else
+            _setInterests = new HashSet<>();
+        _setAssistants = new HashSet<>();
+        _bIsOnline = true;
     }
 
     public int get_iId() {
@@ -131,6 +156,8 @@ public class Event {
         _setInterests = setInterest;
     }
 
+    public Set<ImagePath> get_setPhotos() { return _setPhotos; }
+
     public ImagePath get_headerPhoto() {
         return _headerPhoto;
     }
@@ -145,5 +172,25 @@ public class Event {
 
     public void set_location(Location location) {
         _location = location;
+    }
+
+    public boolean is_bIsOnline() {
+        return _bIsOnline;
+    }
+
+    public void set_tCelebrationHour(LocalTime tCelebrationHour) {
+        _tCelebrationHour = tCelebrationHour;
+    }
+
+    public Set<Interest> get_setInterests() {
+        return _setInterests;
+    }
+
+    public void set_setInterests(Set<Interest> setInterests) {
+        _setInterests = setInterests;
+    }
+
+    public void set_bIsOnline(boolean bIsOnline) {
+        _bIsOnline = bIsOnline;
     }
 }

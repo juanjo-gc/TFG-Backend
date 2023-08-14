@@ -17,8 +17,8 @@ public class ImagePath {
     @Column(name = "name")
     private String _sName;
 
-    @OneToOne(mappedBy = "_profileImagePath")
-    private User _user;
+    //@OneToOne(mappedBy = "_profileImagePath")
+    //private User _user;
 
     public ImagePath() {}
     public ImagePath(String sName) {
@@ -36,6 +36,7 @@ public class ImagePath {
     public void set_sName(String _sName) {
         this._sName = _sName;
     }
+    /*
 
     public User get_user() {
         return _user;
@@ -44,4 +45,6 @@ public class ImagePath {
     public void set_user(User _user) {
         this._user = _user;
     }
+
+     */
 }

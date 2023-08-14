@@ -25,9 +25,10 @@ public class EventDTO {
     private float _dLongitude;
 
     private String _sProvinceName;
+    private boolean _bIsOnline;
 
     public EventDTO(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, Integer iOrganizerId, Set<String> setInterests, String sLocationName,
-                    float dLatitude, float dLongitude, String sProvinceName) {
+                    float dLatitude, float dLongitude, String sProvinceName, boolean bIsOnline) {
         _sTitle = sTitle;
         _tCelebratedAt = tCelebratedAt;
         _tCelebrationHour = tCelebrationHour;
@@ -38,7 +39,25 @@ public class EventDTO {
         _dLatitude = dLatitude;
         _dLongitude = dLongitude;
         _sProvinceName = sProvinceName;
+        _bIsOnline = bIsOnline;
     }
+
+    /*
+    public EventDTO(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, Integer iOrganizerId, Set<String> setInterests, boolean bIsOnline) {
+        _sTitle = sTitle;
+        _tCelebratedAt = tCelebratedAt;
+        _tCelebrationHour = tCelebrationHour;
+        _sDescription = sDescription;
+        _iOrganizerId = iOrganizerId;
+        _setInterests = setInterests;
+        _sLocationName = null;
+        _dLatitude = 0;
+        _dLongitude = 0;
+        _sProvinceName = null;
+        _bIsOnline = bIsOnline;
+    }
+
+     */
 
     public String get_sTitle() {
         return _sTitle;
@@ -75,4 +94,6 @@ public class EventDTO {
     }
 
     public String get_sProvinceName() { return _sProvinceName; }
+
+    public boolean is_bIsOnline() { return _bIsOnline; }
 }

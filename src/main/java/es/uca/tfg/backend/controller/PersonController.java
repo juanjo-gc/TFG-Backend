@@ -171,7 +171,7 @@ public class PersonController {
         multipartFile.transferTo(file);
 
         ImagePath imagePath = new ImagePath(sFilename);
-        imagePath.set_user(user);
+        //imagePath.set_user(user);
         imagePath = _imagePathRepository.save(imagePath);
         user.set_profileImagePath(imagePath);
         user = _userRepository.save(user);
@@ -189,7 +189,7 @@ public class PersonController {
             aMultipartFile[i].transferTo(file);
             System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sUploadPath);
             ImagePath imagePath = new ImagePath(sFilename);
-            imagePath.set_user(user);
+            //imagePath.set_user(user);
             imagePath = _imagePathRepository.save(imagePath);
             user.get_setImagePath().add(imagePath);
             user = _userRepository.save(user);
@@ -204,7 +204,6 @@ public class PersonController {
         String sImageName = "GenericAvatar.png";
         if(user.get_profileImagePath() != null)
             sImageName = user.get_profileImagePath().get_sName();
-        System.out.print(sImageName);
         File file = new File(_sUploadPath + sImageName);
         FileInputStream fileInputStream = new FileInputStream(file);
 

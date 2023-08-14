@@ -43,24 +43,33 @@ public class EventController {
     private CountryRepository _countryRepository;
 
     @PostMapping("/newEvent")
-    public void newEvent(@RequestBody EventDTO eventDTO) {
+    public int newEvent(@RequestBody EventDTO eventDTO) {
         Set<Interest> interests = new HashSet<>();
-        Optional<Location> optionalLocation = _locationRepository.findBy_sName(eventDTO.get_sLocationName());
         User organizer = _userRepository.findBy_iId(eventDTO.get_iOrganizerId());
-        Location location;
-        for(String sInterest: eventDTO.get_setInterests()) {
-            interests.add(_interestRepository.findBy_sName(sInterest));
-        }
-        if(optionalLocation.isPresent()) {
-            location = optionalLocation.get();
+        if(eventDTO.is_bIsOnline()) {
+            Event event = new Event(eventDTO.get_sTitle(), eventDTO.get_tCelebratedAt(), eventDTO.get_tCelebrationHour(), eventDTO.get_sDescription(), organizer,
+                    interests, null, true);
+            event.get_setAssistants().add(organizer);
+            event =  _eventRepository.save(event);
+            return event.get_iId();
         } else {
-            location = new Location(eventDTO.get_sLocationName(), eventDTO.get_dLatitude(), eventDTO.get_dLongitude(), _provinceRepository.findBy_sName(eventDTO.get_sProvinceName()));
-            location = _locationRepository.save(location);
+            Optional<Location> optionalLocation = _locationRepository.findBy_sName(eventDTO.get_sLocationName());
+            Location location;
+            for (String sInterest : eventDTO.get_setInterests()) {
+                interests.add(_interestRepository.findBy_sName(sInterest));
+            }
+            if (optionalLocation.isPresent()) {
+                location = optionalLocation.get();
+            } else {
+                location = new Location(eventDTO.get_sLocationName(), eventDTO.get_dLatitude(), eventDTO.get_dLongitude(), _provinceRepository.findBy_sName(eventDTO.get_sProvinceName()));
+                location = _locationRepository.save(location);
+            }
+            Event event = new Event(eventDTO.get_sTitle(), eventDTO.get_tCelebratedAt(), eventDTO.get_tCelebrationHour(), eventDTO.get_sDescription(), organizer,
+                    interests, null, location);
+            event.get_setAssistants().add(organizer);
+            event =  _eventRepository.save(event);
+            return event.get_iId();
         }
-        Event event = new Event(eventDTO.get_sTitle(), eventDTO.get_tCelebratedAt(), eventDTO.get_tCelebrationHour(), eventDTO.get_sDescription(), organizer,
-                interests, null, location);
-        event.get_setAssistants().add(organizer);
-        event =  _eventRepository.save(event);
     }
 
     @GetMapping("/getEvent/{eventId}")
@@ -133,5 +142,36 @@ public class EventController {
                 iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
                 iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
                 LocalDate.now(), PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()));
+    }
+
+    @PostMapping("/updateEvent/{eventId}")
+    public int updateEvent(@RequestBody EventDTO eventDTO, @PathVariable("eventId") int iEventId) {
+        Optional<Event> optionalEvent = _eventRepository.findById(iEventId);
+        Optional<Location> optionalLocation = _locationRepository.findBy_sName(eventDTO.get_sLocationName());
+        Location location;
+        Set<Interest> setInterests = new HashSet<>();
+        if(optionalEvent.isPresent()) {
+            Event event = optionalEvent.get();
+            event.set_sTitle(eventDTO.get_sTitle());
+            event.set_sDescription(eventDTO.get_sDescription());
+            if (optionalLocation.isPresent()) {
+                location = optionalLocation.get();
+            } else {
+                location = new Location(eventDTO.get_sLocationName(), eventDTO.get_dLatitude(), eventDTO.get_dLongitude(), _provinceRepository.findBy_sName(eventDTO.get_sProvinceName()));
+                location = _locationRepository.save(location);
+            }
+            event.set_location(location);
+            event.set_tCelebratedAt(eventDTO.get_tCelebratedAt());
+            event.set_tCelebrationHour(eventDTO.get_tCelebrationHour());
+            for(String sInterest: eventDTO.get_setInterests()) {
+                setInterests.add(_interestRepository.findBy_sName(sInterest));
+            }
+            event.set_setInterests(setInterests);
+            event.set_bIsOnline(eventDTO.is_bIsOnline());
+            event = _eventRepository.save(event);
+            return event.get_iId();
+        } else {
+            return 0;
+        }
     }
 }
