@@ -66,6 +66,13 @@ public class Event {
     @Column(name = "isOnline")
     private boolean _bIsOnline;
 
+    /*
+    @OneToMany
+    @JoinColumn(name = "comments_id")
+    private Set<Comment> _setComments;
+
+     */
+
     public Event() {}
 
     public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer, Set<Interest> setInterests, ImagePath headerPhoto, Location location) {
@@ -193,4 +200,15 @@ public class Event {
     public void set_bIsOnline(boolean bIsOnline) {
         _bIsOnline = bIsOnline;
     }
+
+    /*
+    public Set<Comment> get_setComments() {
+        return _setComments;
+    }
+
+    public void set_setComments(Set<Comment> _setComments) {
+        this._setComments = _setComments;
+    }
+
+     */
 }

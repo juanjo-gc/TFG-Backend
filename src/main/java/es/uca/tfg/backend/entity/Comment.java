@@ -3,6 +3,8 @@ package es.uca.tfg.backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
+
 @Entity
 public class Comment {
 
@@ -24,6 +26,19 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "event_id")
     private Event _event;
+
+    @NotNull
+    @Column(name = "datetime")
+    private LocalDateTime _tDatetime;
+
+    public Comment(String sText, User user, Event event) {
+        _sText = sText;
+        _user = user;
+        _event = event;
+        _tDatetime = LocalDateTime.now();
+    }
+
+    public Comment() {}
 
     public int get_iId() {
         return _iId;
@@ -51,5 +66,9 @@ public class Comment {
 
     public void set_event(Event event) {
         _event = event;
+    }
+
+    public LocalDateTime get_tDatetime() {
+        return _tDatetime;
     }
 }
