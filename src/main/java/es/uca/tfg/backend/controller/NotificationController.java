@@ -1,16 +1,13 @@
 package es.uca.tfg.backend.controller;
 
-import es.uca.tfg.backend.entity.Event;
-import es.uca.tfg.backend.entity.Notification;
-import es.uca.tfg.backend.entity.Post;
-import es.uca.tfg.backend.entity.User;
+import es.uca.tfg.backend.entity.*;
 import es.uca.tfg.backend.repository.*;
 import es.uca.tfg.backend.rest.NotificationDTO;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -37,14 +34,22 @@ public class NotificationController {
     //     public Notification(String sInfo, User recipient, TypeNotification type, User issuer, Post post) {
 
     @PostMapping("/newNotification")
-    public Notification createNotification(NotificationDTO notificationDTO) {
+    public Notification createNotification(@RequestBody NotificationDTO notificationDTO) {
         Optional<User> optionalRecipient = _userRepository.findById(notificationDTO.get_iRecipientId());
         Optional<User> optionalIssuer = _userRepository.findById(notificationDTO.get_iIssuerId());
         Optional<Event> optionalEvent = _eventRepository.findById(notificationDTO.get_iEventId());
         Optional<Post> optionalPost = _postRepository.findById(notificationDTO.get_iPostId());
-
         if (Objects.equals(notificationDTO.get_sType(), "NewFollow")) {
             if (optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
+                System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType());
+                return _notificationRepository.save(new Notification(notificationDTO.get_sInfo(), optionalRecipient.get(),
+                        _typeNotificationRepository.findBy_sName(notificationDTO.get_sType()), optionalIssuer.get()));
+            } else {
+                return new Notification();
+            }
+        } else if (Objects.equals(notificationDTO.get_sType(), "FollowRequest") || Objects.equals(notificationDTO.get_sType(), "FollowRequestAccepted")) {
+            if (optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
+                System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType());
                 return _notificationRepository.save(new Notification(notificationDTO.get_sInfo(), optionalRecipient.get(),
                         _typeNotificationRepository.findBy_sName(notificationDTO.get_sType()), optionalIssuer.get()));
             } else {
@@ -53,7 +58,8 @@ public class NotificationController {
         } else if (Objects.equals(notificationDTO.get_sType(), "NewEventAssistant") ||
                 Objects.equals(notificationDTO.get_sType(), "NewEventComment") ||
                 Objects.equals(notificationDTO.get_sType(), "NewEventPhoto")) {
-            if (optionalIssuer.isPresent() && optionalRecipient.isPresent() && optionalPost.isPresent()) {
+            if (optionalIssuer.isPresent() && optionalRecipient.isPresent() && optionalEvent.isPresent()) {
+                System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType());
                 return _notificationRepository.save(new Notification(notificationDTO.get_sInfo(), optionalRecipient.get(),
                         _typeNotificationRepository.findBy_sName(notificationDTO.get_sType()), optionalIssuer.get(), optionalEvent.get()));
             } else {
@@ -61,6 +67,7 @@ public class NotificationController {
             }
         } else if (Objects.equals(notificationDTO.get_sType(), "NewMessages")) {
             if (optionalRecipient.isPresent()) {
+                System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType());
                 return _notificationRepository.save(new Notification(notificationDTO.get_sInfo(), optionalRecipient.get(),
                         _typeNotificationRepository.findBy_sName(notificationDTO.get_sType())));
             } else {
@@ -68,9 +75,10 @@ public class NotificationController {
             }
         } else if (Objects.equals(notificationDTO.get_sType(), "NewPostLike") ||
                 Objects.equals(notificationDTO.get_sType(), "NewPostComment")) {
-            if (optionalRecipient.isPresent() && optionalPost.isPresent()) {
+            if (optionalRecipient.isPresent() && optionalIssuer.isPresent() && optionalPost.isPresent()) {
+                System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType() + " post: " + optionalPost.get().get_iId());
                 return _notificationRepository.save(new Notification(notificationDTO.get_sInfo(), optionalRecipient.get(),
-                        _typeNotificationRepository.findBy_sName(notificationDTO.get_sType())));
+                        _typeNotificationRepository.findBy_sName(notificationDTO.get_sType()), optionalIssuer.get(), optionalPost.get()));
             } else {
                 return new Notification();
             }
@@ -79,4 +87,45 @@ public class NotificationController {
             return new Notification();
         }
     }
+
+    @GetMapping("/getUserNotifications/{userId}/{pageNumber}")
+    public Page<Notification> getUserNotifications(@PathVariable("userId") int iUserId, @PathVariable("pageNumber") int iPageNumber) {
+        return _notificationRepository.findUserNotifications(_userRepository.findBy_iId(iUserId), PageRequest.of(iPageNumber, 20));
+    }
+    @GetMapping("getNotification/{id}")
+    public Notification getNotification(@PathVariable("id") int iId) {
+        Optional<Notification> optionalNotification = _notificationRepository.findById(iId);
+        return optionalNotification.isPresent() ? optionalNotification.get() : new Notification();
+    }
+
+    @GetMapping("/checkPendingFollow/{issuerId}/{recipientId}")
+    public boolean checkPendingFollow(@PathVariable("issuerId") int iIssuerId,@PathVariable("recipientId") int iRecipientId) {
+        Optional<User> optionalIssuer = _userRepository.findById(iIssuerId);
+        Optional<User> optionalRecipient = _userRepository.findById(iRecipientId);
+        //Para que esté pendiente la solicitud, deberá existir un FollowRequest, pero no un FollowRequestAccepted
+        if(optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
+            return _notificationRepository.findByIssuerAndRecipientAndType(optionalIssuer.get(), optionalRecipient.get(), _typeNotificationRepository.findBy_sName("FollowRequest")).isPresent() &&
+                    !_notificationRepository.findByIssuerAndRecipientAndType(optionalRecipient.get(), optionalIssuer.get(), _typeNotificationRepository.findBy_sName("FollowRequestAccepted")).isPresent();
+        } else {
+            return false;
+        }
+    }
+
+    @PatchMapping("/deleteNotification/{issuerId}/{recipientId}/{type}")
+    public void deleteNotification(@PathVariable("issuerId") int iIssuerId,@PathVariable("recipientId") int iRecipientId, @PathVariable("type") String sType) {
+        Optional<User> optionalIssuer = _userRepository.findById(iIssuerId);
+        Optional<User> optionalRecipient = _userRepository.findById(iRecipientId);
+        if(optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
+            _notificationRepository.delete(_notificationRepository.findByIssuerAndRecipientAndType(optionalIssuer.get(), optionalRecipient.get(), _typeNotificationRepository.findBy_sName(sType)).get());
+        }
+    }
+
+    @PatchMapping("/deleteNotificationById/{notificationId}")
+    public void deleteNotificatinById(@PathVariable("notificationId") int iNotificationId) {
+        Optional<Notification> optionalNotification = _notificationRepository.findById(iNotificationId);
+        if(optionalNotification.isPresent()) {
+            _notificationRepository.delete(optionalNotification.get());
+        }
+    }
+
 }

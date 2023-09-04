@@ -33,7 +33,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     List<Integer> findEventIdsByLocation(@Param("province") Province province, @Param("region") Region region, @Param("country") Country country);
 
 
-    @Query("SELECT DISTINCT e FROM Event e, Region r, Country c WHERE ( :province IS NULL OR :province = e._location._province ) AND" +
+    @Query("SELECT DISTINCT e FROM Event e WHERE ( :province IS NULL OR :province = e._location._province ) AND" +
             "( :region IS NULL OR e._location._province._region = :region)  AND" +
             "( :country IS NULL OR e._location._province._region._country = :country ) AND" +
             "( :interest1 IS NULL OR :interest1 MEMBER OF e._setInterests ) AND " +
@@ -43,6 +43,17 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     Page<Event> findEventIdsByFilters(@Param("province") Province province, @Param("region") Region region, @Param("country") Country country,
                                       @Param("interest1") Interest interest1, @Param("interest2") Interest interest2, @Param("interest3") Interest interest3,
                                       @Param("date") LocalDate tDate, Pageable pageable);
+
+    @Query("SELECT e FROM Event e WHERE e._bIsOnline = true")
+    List<Event> findOnlineEvents();
+
+    @Query("SELECT e FROM Event e WHERE e._bIsOnline = TRUE AND" +
+            "( :interest1 IS NULL OR :interest1 MEMBER OF e._setInterests ) AND " +
+            "( :interest2 IS NULL OR :interest2 MEMBER OF e._setInterests ) AND " +
+            "( :interest3 IS NULL OR :interest3 MEMBER OF e._setInterests ) AND" +
+            "( CURRENT_DATE <= e._tCelebratedAt  )")
+    Page<Event> findOnlineEventIdsByFilter(@Param("interest1") Interest interest1, @Param("interest2") Interest interest2, @Param("interest3") Interest interest3,
+                                           Pageable pageable);
     @Query("SELECT e FROM Event e WHERE e._tCelebratedAt >= :localdate")
     List<Event> findEventsBeforeDate(@Param("localdate")  LocalDate localDate);
 

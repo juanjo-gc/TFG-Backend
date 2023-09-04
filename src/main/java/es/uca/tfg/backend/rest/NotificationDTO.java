@@ -18,7 +18,19 @@ public class NotificationDTO {
 
     private String _sType;
 
-    public NotificationDTO() {}
+    //public NotificationDTO() {}
+
+    public NotificationDTO(String sInfo, int iRecipientId, int iIssuerId, int iPostId, int iEventId, String sType) {
+        _sInfo = sInfo;
+        _iRecipientId = iRecipientId;
+        _iIssuerId = iIssuerId;
+        _iPostId = iPostId;
+        _iEventId = iEventId;
+        _sType = sType;
+    }
+
+
+    /*
 
     public NotificationDTO(String sInfo, int iRecipientId, String sType, int iIssuerId) {
         _sInfo = sInfo;
@@ -28,6 +40,7 @@ public class NotificationDTO {
         _iEventId = 0;
         _iPostId = 0;
     }
+
     public NotificationDTO(String sInfo, int iRecipientId, String sType, int iIssuerId, int iEventId) {
         _sInfo = sInfo;
         _iRecipientId = iRecipientId;
@@ -52,6 +65,8 @@ public class NotificationDTO {
         _iEventId = 0;
         _iPostId = iPostId;
     }
+
+     */
 
     public int get_iId() {
         return _iId;

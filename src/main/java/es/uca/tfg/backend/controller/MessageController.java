@@ -34,6 +34,7 @@ public class MessageController {
         pusher.setCluster("eu");
         pusher.setEncrypted(true);
     }
+
     @PostMapping("/newMessage")
     public Message newMessage(@RequestBody MessageDTO messageDTO) {
         System.out.println("Llega peticion con mensaje: " + messageDTO.get_sText());
@@ -44,14 +45,14 @@ public class MessageController {
 
     @GetMapping("/getLastMessages/{userId}")
     public List<Message> getLastMessages(@PathVariable("userId") int iUserId) {
-        Optional<User> optUser = _userRepository.findById(iUserId);
-        if(optUser.isPresent()) {
-            User user = optUser.get();
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
             List<User> aUsersWithActiveChat = _messageRepository.findMessagedUsers(user);
             aUsersWithActiveChat.addAll(_messageRepository.findUserWhoMessagedCurrentUser(user));
             List<Message> aLastMessages = new ArrayList<>();
 
-            for(User messagedUser: aUsersWithActiveChat.stream().distinct().collect(Collectors.toList())) {
+            for (User messagedUser : aUsersWithActiveChat.stream().distinct().collect(Collectors.toList())) {
                 Page<Message> pageMessage = _messageRepository.findLastIssuerRecipientMessage(user, messagedUser, PageRequest.of(0, 1));
                 Message message = pageMessage.get().findFirst().get();
                 aLastMessages.add(message);
@@ -71,16 +72,27 @@ public class MessageController {
 
     @GetMapping("/getConversation/{userId}/{targetId}")
     public List<Message> getConversation(@PathVariable("userId") int iUserId, @PathVariable("targetId") int iTargetId) {
-        Optional<User> optUser = _userRepository.findById(iUserId);
-        Optional<User> optTargetUser = _userRepository.findById(iTargetId);
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        Optional<User> optionalTargetUser = _userRepository.findById(iTargetId);
 
-        if(optUser.isPresent() && optTargetUser.isPresent()) {
-            return _messageRepository.findConversation(optUser.get(), optTargetUser.get());
+        if (optionalUser.isPresent() && optionalTargetUser.isPresent()) {
+            return _messageRepository.findConversation(optionalUser.get(), optionalTargetUser.get());
         } else {
             return Collections.emptyList();
         }
     }
 
+    @PatchMapping("/setSeenMessages/{userId}/{targetId}")
+    public void setSeenMessages(@PathVariable("userId") int iUserId, @PathVariable("targetId") int iTargetId) {
 
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        Optional<User> optionalTargetUser = _userRepository.findById(iTargetId);
 
+        if (optionalUser.isPresent() && optionalTargetUser.isPresent()) {
+            for (Message message : _messageRepository.findNotSeenMessages(optionalUser.get(), optionalTargetUser.get())) {
+                message.set_bSeen(true);
+                _messageRepository.save(message);
+            }
+        }
+    }
 }

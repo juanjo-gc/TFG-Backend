@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import es.uca.tfg.backend.BackendApplication;
 import es.uca.tfg.backend.repository.*;
+import es.uca.tfg.backend.service.EventService;
 import es.uca.tfg.backend.service.PersonService;
 import es.uca.tfg.backend.service.PostService;
 import org.junit.runner.RunWith;
@@ -37,6 +38,8 @@ public abstract class AbstractTest {
     @MockBean
     protected PostService _postService;
     @MockBean
+    protected EventService _eventService;
+    @MockBean
     protected UserRepository _userRepository;
     @MockBean
     protected PersonRepository _personRepository;
@@ -51,9 +54,19 @@ public abstract class AbstractTest {
     @MockBean
     protected ProvinceRepository _provinceRepository;
     @MockBean
+    protected LocationRepository _locationRepository;
+    @MockBean
     protected MessageRepository _messageRepository;
     @MockBean
     protected  PostRepository _postRepository;
+    @MockBean
+    protected CommentRepository _commentRepository;
+    @MockBean
+    protected EventRepository _eventRepository;
+    @MockBean
+    protected NotificationRepository _notificationRepository;
+    @MockBean
+    protected TypeNotificationRepository _typeNotificationRepository;
     @MockBean
     protected FileInputStream _fileInputStream;
 

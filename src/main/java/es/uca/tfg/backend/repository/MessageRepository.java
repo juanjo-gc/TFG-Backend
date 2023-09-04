@@ -25,6 +25,10 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("SELECT m._issuer FROM Message m WHERE m._recipient = :user GROUP BY m._issuer")
     List<User> findUserWhoMessagedCurrentUser(@Param("user") User user);
 
+    @Query("SELECT m FROM Message m WHERE (m._issuer = :issuer AND m._recipient = :recipient) OR (m._issuer = :recipient AND m._recipient = :issuer) AND  (NOT m._bSeen)" +
+            "ORDER BY m._tSentAt ASC")
+    List<Message> findNotSeenMessages(@Param("issuer") User issuer, @Param("recipient") User recipient);
+
 
 
 

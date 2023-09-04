@@ -70,14 +70,6 @@ public class PostController {
                 .filter(p -> p.get_tCreatedAt().isAfter(LocalDateTime.now().minusDays(10)))     //Publicaciones de hace menos de 10 días
                 .sorted(Comparator.comparing(Post::get_tCreatedAt).reversed())         // Ordenados por fecha (el primero el más reciente)
                 .collect(Collectors.toList());
-
-
-        for(Post post: orderedPosts) {
-            System.out.println("Texto: " + post.get_sText() + "| Fecha: " + post.get_tCreatedAt());
-        }
-
-
-
         return orderedPosts;
     }
 
@@ -121,7 +113,7 @@ public class PostController {
     @GetMapping("/getReplies/{postId}")
     public List<Post> getPostReplies(@PathVariable("postId") int iPostId) {
         Optional<Post> optionalPost = _postRepository.findById(iPostId);
-        return optionalPost.isPresent() ? optionalPost.get().get_setReplies().stream().toList() : Collections.emptyList();
+        return optionalPost.isPresent() ? _postRepository.findPostReplies(optionalPost.get()) : Collections.emptyList();
     }
 
     @PostMapping("/newReply/{postId}")

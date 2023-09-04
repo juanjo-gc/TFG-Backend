@@ -3,6 +3,9 @@ package es.uca.tfg.backend.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Entity
 public class Notification {
 
@@ -18,6 +21,10 @@ public class Notification {
     @NotNull
     @Column(name = "seen")
     private boolean _bSeen;
+
+    @NotNull
+    @Column(name = "createdAt")
+    private LocalDateTime _tCreatedAt;
 
     @NotNull
     @ManyToOne
@@ -41,6 +48,8 @@ public class Notification {
     @JoinColumn(name = "type_id")
     private TypeNotification _type;
 
+
+
     public Notification() {}
 
     //Type 1: Only issuer
@@ -48,6 +57,7 @@ public class Notification {
         _sInfo = sInfo;
         _recipient = recipient;
         _bSeen = false;
+        _tCreatedAt = LocalDateTime.now();
         _type = type;
         _issuer = issuer;
         _event = null;
@@ -58,6 +68,7 @@ public class Notification {
         _sInfo = sInfo;
         _recipient = recipient;
         _bSeen = false;
+        _tCreatedAt = LocalDateTime.now();
         _type = type;
         _issuer = issuer;
         _event = event;
@@ -68,6 +79,7 @@ public class Notification {
         _sInfo = sInfo;
         _recipient = recipient;
         _bSeen = false;
+        _tCreatedAt = LocalDateTime.now();
         _type = type;
         _issuer = null;
         _event = null;
@@ -78,6 +90,7 @@ public class Notification {
         _sInfo = sInfo;
         _recipient = recipient;
         _bSeen = false;
+        _tCreatedAt = LocalDateTime.now();
         _type = type;
         _issuer = issuer;
         _event = null;
@@ -94,6 +107,14 @@ public class Notification {
 
     public boolean is_bSeen() {
         return _bSeen;
+    }
+
+    public LocalDateTime get_tCreatedAt() {
+        return _tCreatedAt;
+    }
+
+    public Event get_event() {
+        return _event;
     }
 
     public User get_recipient() {

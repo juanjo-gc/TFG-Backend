@@ -30,6 +30,9 @@ public class Message {
     @JoinColumn(name = "recipient_id")
     private User _recipient;
 
+    @Column(name = "seen")
+    private boolean _bSeen;
+
     public Message() {}
 
     public Message(String sText, User issuer, User recipient) {
@@ -37,6 +40,7 @@ public class Message {
         _issuer = issuer;
         _recipient = recipient;
         _tSentAt = LocalDateTime.now();
+        _bSeen = false;
     }
 
     public int get_iId() {
@@ -70,5 +74,13 @@ public class Message {
 
     public void set_recipient(User recipient) {
         _recipient = recipient;
+    }
+
+    public boolean is_bSeen() {
+        return _bSeen;
+    }
+
+    public void set_bSeen(boolean bSeen) {
+        _bSeen = bSeen;
     }
 }

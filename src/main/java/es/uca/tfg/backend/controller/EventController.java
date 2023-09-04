@@ -2,10 +2,7 @@ package es.uca.tfg.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import es.uca.tfg.backend.entity.Event;
-import es.uca.tfg.backend.entity.Interest;
-import es.uca.tfg.backend.entity.Location;
-import es.uca.tfg.backend.entity.User;
+import es.uca.tfg.backend.entity.*;
 import es.uca.tfg.backend.repository.*;
 import es.uca.tfg.backend.rest.EventDTO;
 import es.uca.tfg.backend.rest.EventFilterDTO;
@@ -41,6 +38,8 @@ public class EventController {
     private RegionRepository _regionRepository;
     @Autowired
     private CountryRepository _countryRepository;
+    @Autowired
+    private MessageRepository _messageRepository;
 
     @PostMapping("/newEvent")
     public int newEvent(@RequestBody EventDTO eventDTO) {
@@ -137,11 +136,32 @@ public class EventController {
         int iNumberOfInterests = eventFilterDTO.get_asInterests().size();
         ObjectMapper objectMapper = new ObjectMapper();
         System.out.println(objectMapper.writeValueAsString(eventFilterDTO));
-        return _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()),
-                iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
-                iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
-                iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
-                LocalDate.now(), PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()));
+        if(eventFilterDTO.get_bIsOnline()) {
+            for(Event event: _eventRepository.findOnlineEvents()) {
+                System.out.println(event.get_sTitle());
+            }
+            return _eventRepository.findOnlineEventIdsByFilter(
+                    iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
+                    iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
+                    iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
+                    PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()));
+        } else {
+
+            for(Event event: _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()),
+                    iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
+                    iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
+                    iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
+                    LocalDate.now(), PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()))) {
+                System.out.println(event.get_sTitle());
+                System.out.println("Hoy es antes de la fecha de celebración? " + event.get_tCelebratedAt().isAfter(LocalDate.now()));
+            }
+
+            return _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()),
+                    iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
+                    iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
+                    iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
+                    LocalDate.now(), PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()));
+        }
     }
 
     @PostMapping("/updateEvent/{eventId}")
