@@ -44,6 +44,7 @@ public class EventController {
     @PostMapping("/newEvent")
     public int newEvent(@RequestBody EventDTO eventDTO) {
         Set<Interest> interests = new HashSet<>();
+        System.out.println("EventoDTO: " + eventDTO.toString());
         User organizer = _userRepository.findBy_iId(eventDTO.get_iOrganizerId());
         if(eventDTO.is_bIsOnline()) {
             Event event = new Event(eventDTO.get_sTitle(), eventDTO.get_tCelebratedAt(), eventDTO.get_tCelebrationHour(), eventDTO.get_sDescription(), organizer,
@@ -95,8 +96,10 @@ public class EventController {
         User user = _userRepository.findBy_iId(iUserId);
         boolean bIsAssisting = false;
         if(event.get_setAssistants().contains(user)) {
+            System.out.println("Ya esta el usuario apuntado");
             event.get_setAssistants().remove(user);
         } else {
+            System.out.println("El usuario no estaba apuntado");
            bIsAssisting = event.get_setAssistants().add(user);
         }
         event = _eventRepository.save(event);
@@ -115,10 +118,9 @@ public class EventController {
         if(!optionalEvent.isPresent()) {
             return Collections.emptyList();
         } else {
-            List<User> aFilteredUsers = _userRepository.findBy_sUsernameStartsWith(sUsername);
-            Event event = optionalEvent.get();
-
-            return aFilteredUsers.stream().filter(user ->  event.get_setAssistants().contains(user)).collect(Collectors.toList());
+            //List<User> aFilteredUsers = _userRepository.findBy_sUsernameStartsWith(sUsername);
+            //return aFilteredUsers.stream().filter(user ->  optionalEvent.get().get_setAssistants().contains(user)).collect(Collectors.toList());
+            return _eventRepository.findFilteredAssistantsByName(sUsername);
         }
     }
 
@@ -167,20 +169,25 @@ public class EventController {
     @PostMapping("/updateEvent/{eventId}")
     public int updateEvent(@RequestBody EventDTO eventDTO, @PathVariable("eventId") int iEventId) {
         Optional<Event> optionalEvent = _eventRepository.findById(iEventId);
-        Optional<Location> optionalLocation = _locationRepository.findBy_sName(eventDTO.get_sLocationName());
-        Location location;
         Set<Interest> setInterests = new HashSet<>();
         if(optionalEvent.isPresent()) {
             Event event = optionalEvent.get();
             event.set_sTitle(eventDTO.get_sTitle());
             event.set_sDescription(eventDTO.get_sDescription());
-            if (optionalLocation.isPresent()) {
-                location = optionalLocation.get();
+            if(eventDTO.is_bIsOnline()) {
+                event.set_bIsOnline(true);
+                event.set_location(null);
             } else {
-                location = new Location(eventDTO.get_sLocationName(), eventDTO.get_dLatitude(), eventDTO.get_dLongitude(), _provinceRepository.findBy_sName(eventDTO.get_sProvinceName()));
-                location = _locationRepository.save(location);
+                Optional<Location> optionalLocation = _locationRepository.findBy_sName(eventDTO.get_sLocationName());
+                Location location;
+                if (optionalLocation.isPresent()) {
+                    location = optionalLocation.get();
+                } else {
+                    location = new Location(eventDTO.get_sLocationName(), eventDTO.get_dLatitude(), eventDTO.get_dLongitude(), _provinceRepository.findBy_sName(eventDTO.get_sProvinceName()));
+                    location = _locationRepository.save(location);
+                }
+                event.set_location(location);
             }
-            event.set_location(location);
             event.set_tCelebratedAt(eventDTO.get_tCelebratedAt());
             event.set_tCelebrationHour(eventDTO.get_tCelebrationHour());
             for(String sInterest: eventDTO.get_setInterests()) {

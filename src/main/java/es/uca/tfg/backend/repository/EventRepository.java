@@ -20,7 +20,10 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("SELECT e.id FROM Event e")
     List<Integer> findAllEventIds();
 
+
     List<Integer> findBy_sTitleLike(@Param("title") String sTitle);
+    @Query("SELECT u FROM Event e, User u WHERE u._sUsername LIKE %:name AND u MEMBER OF e._setAssistants")
+    List<User> findFilteredAssistantsByName(@Param("name") String sName);
 
     @Query("SELECT e.id FROM Event e WHERE ( :interest1 IS NULL OR :interest1 MEMBER OF e._setInterests ) AND" +
             "( :interest2 IS NULL OR :interest2 MEMBER OF e._setInterests ) AND" +

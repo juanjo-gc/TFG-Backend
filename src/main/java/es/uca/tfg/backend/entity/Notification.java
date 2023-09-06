@@ -52,7 +52,7 @@ public class Notification {
 
     public Notification() {}
 
-    //Type 1: Only issuer
+    //Tipo 1: Solo issuer
     public Notification(String sInfo, User recipient, TypeNotification type, User issuer) {
         _sInfo = sInfo;
         _recipient = recipient;
@@ -63,7 +63,7 @@ public class Notification {
         _event = null;
         _post = null;
     }
-    //Type 2: issuer and event
+    //Tipo 2: issuer y event
     public Notification(String sInfo, User recipient, TypeNotification type, User issuer, Event event) {
         _sInfo = sInfo;
         _recipient = recipient;
@@ -74,7 +74,7 @@ public class Notification {
         _event = event;
         _post = null;
     }
-    //Type 3: None
+    //Tipo 3: Nada
     public Notification(String sInfo, User recipient, TypeNotification type) {
         _sInfo = sInfo;
         _recipient = recipient;
@@ -85,7 +85,7 @@ public class Notification {
         _event = null;
         _post = null;
     }
-    //Type 4: issuer and Post
+    //Tipo 4: issuer y Post
     public Notification(String sInfo, User recipient, TypeNotification type, User issuer, Post post) {
         _sInfo = sInfo;
         _recipient = recipient;

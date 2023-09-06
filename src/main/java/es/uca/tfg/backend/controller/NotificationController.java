@@ -95,6 +95,7 @@ public class NotificationController {
     @GetMapping("getNotification/{id}")
     public Notification getNotification(@PathVariable("id") int iId) {
         Optional<Notification> optionalNotification = _notificationRepository.findById(iId);
+        System.out.println("Notif presente? " + optionalNotification.isPresent() + " con ID " + optionalNotification.get().get_iId());
         return optionalNotification.isPresent() ? optionalNotification.get() : new Notification();
     }
 
@@ -104,6 +105,10 @@ public class NotificationController {
         Optional<User> optionalRecipient = _userRepository.findById(iRecipientId);
         //Para que esté pendiente la solicitud, deberá existir un FollowRequest, pero no un FollowRequestAccepted
         if(optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
+            Optional<Notification> notification = _notificationRepository.findByIssuerAndRecipientAndType(optionalIssuer.get(), optionalRecipient.get(), _typeNotificationRepository.findBy_sName("FollowRequest"));
+            Optional<Notification> notificationFQA = _notificationRepository.findByIssuerAndRecipientAndType(optionalRecipient.get(), optionalIssuer.get(), _typeNotificationRepository.findBy_sName("FollowRequestAccepted"));
+            System.out.println("Notificacion presente? " + notification.isPresent() + " FQA presente? " + notificationFQA.isPresent());
+
             return _notificationRepository.findByIssuerAndRecipientAndType(optionalIssuer.get(), optionalRecipient.get(), _typeNotificationRepository.findBy_sName("FollowRequest")).isPresent() &&
                     !_notificationRepository.findByIssuerAndRecipientAndType(optionalRecipient.get(), optionalIssuer.get(), _typeNotificationRepository.findBy_sName("FollowRequestAccepted")).isPresent();
         } else {

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 
+
 public class EventDTO {
 
     private String _sTitle;
@@ -26,6 +27,8 @@ public class EventDTO {
 
     private String _sProvinceName;
     private boolean _bIsOnline;
+
+    public EventDTO() {}
 
     public EventDTO(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, Integer iOrganizerId, Set<String> setInterests, String sLocationName,
                     float dLatitude, float dLongitude, String sProvinceName, boolean bIsOnline) {
