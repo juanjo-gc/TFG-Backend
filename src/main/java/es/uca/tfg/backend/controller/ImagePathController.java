@@ -1,11 +1,7 @@
 package es.uca.tfg.backend.controller;
 
-import es.uca.tfg.backend.entity.Event;
-import es.uca.tfg.backend.entity.ImagePath;
-import es.uca.tfg.backend.entity.User;
-import es.uca.tfg.backend.repository.EventRepository;
-import es.uca.tfg.backend.repository.ImagePathRepository;
-import es.uca.tfg.backend.repository.UserRepository;
+import es.uca.tfg.backend.entity.*;
+import es.uca.tfg.backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
@@ -35,8 +31,16 @@ public class ImagePathController {
     private UserRepository _userRepository;
     @Autowired
     private EventRepository _eventRepository;
+    @Autowired
+    private TicketRepository _ticketRepository;
+    @Autowired
+    private ReplyRepository _replyRepository;
 
     private String _sEventsUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\events\\";
+    private String _sTicketsUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\tickets\\";
+    private String _sReplyUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\replies\\";
+
+
 
 
 
@@ -112,6 +116,91 @@ public class ImagePathController {
     @ResponseBody
     public ResponseEntity<InputStreamResource> getImagePath(@PathVariable("imageName") String sImageName) throws FileNotFoundException {
         File file = new File(_sEventsUploadPath + sImageName);
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(new InputStreamResource(fileInputStream));
+    }
+
+    @PostMapping("/uploadTicketImage")
+    public boolean saveTicketImage(@RequestParam("id") int iTicketId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+        Optional<Ticket> optionalTicket = _ticketRepository.findById(iTicketId);
+        Path path = Paths.get(_sTicketsUploadPath);
+
+        if(optionalTicket.isPresent()) {
+            Ticket ticket = optionalTicket.get();
+            /*
+            if (ticket.get_imagePath() != null) {
+                File file = new File(_sTicketsUploadPath + event.get_headerPhoto().get_sName());
+                file.delete();
+            }
+             */
+
+            String sFilename = ticket.get_iId() + "-" + multipartFile.getOriginalFilename();
+            File file = new File(_sTicketsUploadPath + sFilename);
+            System.out.println("Guardando la imagen con nombre: " + sFilename);
+            System.out.println("Ruta: " + path.toString());
+            multipartFile.transferTo(file);
+
+            ImagePath imagePath = new ImagePath(sFilename);
+            imagePath = _imagePathRepository.save(imagePath);
+            ticket.set_imagePath(imagePath);
+            ticket = _ticketRepository.save(ticket);
+            return ticket.get_imagePath() != null ? true : false;
+        } else {
+            return false;
+        }
+    }
+
+    @PostMapping("/uploadReplyImage")
+    public boolean saveReplyImage(@RequestParam("id") int iReplyId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+        Optional<Reply> optionalReply = _replyRepository.findById(iReplyId);
+        Path path = Paths.get(_sReplyUploadPath);
+
+        if(optionalReply.isPresent()) {
+            Reply reply = optionalReply .get();
+            /*
+            if (ticket.get_imagePath() != null) {
+                File file = new File(_sTicketsUploadPath + event.get_headerPhoto().get_sName());
+                file.delete();
+            }
+             */
+
+            String sFilename = reply.get_iId() + "-" + multipartFile.getOriginalFilename();
+            File file = new File(_sReplyUploadPath + sFilename);
+            System.out.println("Guardando la imagen con nombre: " + sFilename);
+            System.out.println("Ruta: " + path.toString());
+            multipartFile.transferTo(file);
+
+            ImagePath imagePath = new ImagePath(sFilename);
+            imagePath = _imagePathRepository.save(imagePath);
+            reply.set_imagePath(imagePath);
+            reply = _replyRepository.save(reply);
+            return reply.get_imagePath() != null ? true : false;
+        } else {
+            return false;
+        }
+    }
+
+    @GetMapping("/getTicketImage/{id}")
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> getTicketImage(@PathVariable("id") int iTicketId) throws FileNotFoundException {
+        Optional<Ticket> optionalTicket = _ticketRepository.findById(iTicketId);
+
+        File file = new File(_sTicketsUploadPath + optionalTicket.get().get_imagePath().get_sName());
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(new InputStreamResource(fileInputStream));
+    }
+
+    @GetMapping("/getReplyImage/{id}")
+    @ResponseBody
+    public ResponseEntity<InputStreamResource> getReplyImage(@PathVariable("id") int iReplyId) throws FileNotFoundException {
+        Optional<Reply> optionalReply = _replyRepository.findById(iReplyId);
+        File file = new File(_sReplyUploadPath + optionalReply.get().get_imagePath().get_sName());
         FileInputStream fileInputStream = new FileInputStream(file);
 
         return ResponseEntity.ok()

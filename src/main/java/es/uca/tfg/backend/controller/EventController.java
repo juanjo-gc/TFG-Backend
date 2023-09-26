@@ -201,4 +201,9 @@ public class EventController {
             return 0;
         }
     }
+
+    @GetMapping("/countEvents")
+    public long countEvents() {
+        return _eventRepository.count();
+    }
 }

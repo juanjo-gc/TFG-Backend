@@ -95,4 +95,9 @@ public class MessageController {
             }
         }
     }
+
+    @GetMapping("/countMessages")
+    public long countMessages() {
+        return _messageRepository.count();
+    }
 }

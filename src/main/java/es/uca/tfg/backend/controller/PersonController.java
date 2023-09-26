@@ -336,6 +336,11 @@ public class PersonController {
 
     }
 
+    @GetMapping("/countUsers")
+    public long countUsers() {
+        return _userRepository.count();
+    }
+
     /*
     @GetMapping("/removeImages")
     public void removeImages() {

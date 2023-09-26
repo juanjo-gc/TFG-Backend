@@ -130,7 +130,10 @@ public class PostController {
         }
     }
 
-
+    @GetMapping("/countPosts")
+    public long countPosts() {
+        return _postRepository.count();
+    }
 
 
 
