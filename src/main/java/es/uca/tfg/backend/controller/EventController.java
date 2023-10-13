@@ -149,7 +149,7 @@ public class EventController {
                     PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()));
         } else {
 
-            for(Event event: _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()),
+            for(Event event: _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()).get(), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()).get(),
                     iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
                     iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
                     iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
@@ -158,7 +158,7 @@ public class EventController {
                 System.out.println("Hoy es antes de la fecha de celebración? " + event.get_tCelebratedAt().isAfter(LocalDate.now()));
             }
 
-            return _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()),
+            return _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()).get(), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()).get(),
                     iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
                     iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
                     iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,

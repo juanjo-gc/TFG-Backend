@@ -3,15 +3,18 @@ package es.uca.tfg.backend.controller;
 import es.uca.tfg.backend.entity.Admin;
 import es.uca.tfg.backend.entity.Category;
 import es.uca.tfg.backend.entity.Person;
+import es.uca.tfg.backend.entity.Ticket;
 import es.uca.tfg.backend.repository.AdminRepository;
 import es.uca.tfg.backend.repository.CategoryRepository;
 import es.uca.tfg.backend.repository.PersonRepository;
+import es.uca.tfg.backend.repository.TicketRepository;
 import es.uca.tfg.backend.rest.CategoryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
@@ -22,6 +25,8 @@ public class CategoryController {
     private CategoryRepository _categoryRepository;
     @Autowired
     private PersonRepository _personRepository;
+    @Autowired
+    private TicketRepository _ticketRepository;
 
     @GetMapping("/getAllCategories")
     public List<Category> getAllCategories() {
@@ -29,9 +34,30 @@ public class CategoryController {
     }
 
     @PostMapping("/createCategory")
-    public boolean createCategory(@RequestBody CategoryDTO categoryDTO) {
-        System.out.println("Llega: " + categoryDTO.get_sName());
-        Category category = _categoryRepository.save(new Category(categoryDTO.get_sName(), categoryDTO.get_sDisplayName()));
-        return category.get_iId() != 0;
+    public Category createCategory(@RequestBody CategoryDTO categoryDTO) {
+        Category category = _categoryRepository.save(new Category(categoryDTO.get_sName()));
+        return category;
+    }
+
+    @PatchMapping("/updateCategory/{id}")
+    public Category updateCategory(@RequestBody CategoryDTO categoryDTO, @PathVariable("id") int iCategoryId) {
+        Optional<Category> optionalCategory = _categoryRepository.findById(iCategoryId);
+        if(optionalCategory.isPresent()) {
+            Category category = optionalCategory.get();
+            category.set_sName(categoryDTO.get_sName());
+            return _categoryRepository.save(category);
+        } else {
+            return new Category();
+        }
+    }
+
+    @DeleteMapping("/deleteCategory/{id}")
+    public void deleteCategory(@PathVariable("id") int iCategoryId) {
+        List<Ticket> aTicketsWithThisCategory = _ticketRepository.findBy_category(_categoryRepository.findById(iCategoryId).get());
+        Optional<Category> newCategory = _categoryRepository.findBy_sName("Borrada previamente");
+        for(Ticket ticket: aTicketsWithThisCategory) {
+            ticket.set_category(newCategory.get());
+        }
+        _categoryRepository.deleteById(iCategoryId);
     }
 }

@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -27,6 +29,8 @@ public class NotificationController {
     private EventRepository _eventRepository;
     @Autowired
     private PostRepository _postRepository;
+    @Autowired
+    private PersonRepository _personRepository;
 
     //    public Notification(String sInfo, User recipient, TypeNotification type, User issuer) {
     //    public Notification(String sInfo, User recipient, TypeNotification type, User issuer, Event event) {
@@ -39,6 +43,8 @@ public class NotificationController {
         Optional<User> optionalIssuer = _userRepository.findById(notificationDTO.get_iIssuerId());
         Optional<Event> optionalEvent = _eventRepository.findById(notificationDTO.get_iEventId());
         Optional<Post> optionalPost = _postRepository.findById(notificationDTO.get_iPostId());
+
+        System.out.println("Llega notificaion con tipo: " + notificationDTO.get_sType() + (Objects.equals(notificationDTO.get_sType(), "BehaviorWarning")));
         if (Objects.equals(notificationDTO.get_sType(), "NewFollow")) {
             if (optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
                 System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType());
@@ -47,7 +53,8 @@ public class NotificationController {
             } else {
                 return new Notification();
             }
-        } else if (Objects.equals(notificationDTO.get_sType(), "FollowRequest") || Objects.equals(notificationDTO.get_sType(), "FollowRequestAccepted")) {
+        } else if (Objects.equals(notificationDTO.get_sType(), "FollowRequest") || Objects.equals(notificationDTO.get_sType(), "FollowRequestAccepted")
+                    || (Objects.equals(notificationDTO.get_sType(), "BehaviorWarning"))) {
             if (optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
                 System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType());
                 return _notificationRepository.save(new Notification(notificationDTO.get_sInfo(), optionalRecipient.get(),
@@ -82,7 +89,6 @@ public class NotificationController {
             } else {
                 return new Notification();
             }
-
         } else {
             return new Notification();
         }
@@ -130,6 +136,16 @@ public class NotificationController {
         Optional<Notification> optionalNotification = _notificationRepository.findById(iNotificationId);
         if(optionalNotification.isPresent()) {
             _notificationRepository.delete(optionalNotification.get());
+        }
+    }
+
+    @GetMapping("/getUserWarnings/{userId}")
+    public List<Notification> getUserWarnings(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if(optionalUser.isPresent()) {
+            return _notificationRepository.findUserWarnings(optionalUser.get());
+        } else {
+            return Collections.emptyList();
         }
     }
 

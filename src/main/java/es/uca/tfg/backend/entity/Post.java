@@ -23,6 +23,9 @@ public class Post {
     @Column(name = "createdAt")
     private LocalDateTime _tCreatedAt;
 
+    @Column(name = "deleteDate")
+    private LocalDateTime _tDeleteDate;
+
     @NotNull
     @ManyToOne
     private User _user;
@@ -55,6 +58,7 @@ public class Post {
         _setReplies = Collections.emptySet();
         _iLikes = 0;
         _repliesTo = null;
+        _tDeleteDate = null;
     }
 
     public int get_iId() {
@@ -112,6 +116,10 @@ public class Post {
     public void set_iLikes(int _iLikes) {
         this._iLikes = _iLikes;
     }
+
+    public LocalDateTime get_tDeleteDate() { return _tDeleteDate; }
+
+    public void set_tDeleteDate(LocalDateTime tDeleteDate) { _tDeleteDate = tDeleteDate; }
 
     public static class PostComparator implements Comparator<Post> {
         @Override

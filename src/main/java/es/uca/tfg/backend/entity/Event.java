@@ -34,6 +34,9 @@ public class Event {
     @Column(name = "description", columnDefinition = "BLOB")
     private String _sDescription;
 
+    @Column(name = "deleteDate")
+    private LocalDateTime _tDeleteDate;
+
     @NotNull
     @ManyToOne
     @JoinColumn(name = "organizer_id")
@@ -89,6 +92,7 @@ public class Event {
             _setInterests = new HashSet<>();
         _setAssistants = new HashSet<>();
         _bIsOnline = false;
+        _tDeleteDate = null;
     }
 
     public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer, Set<Interest> setInterests, ImagePath headerPhoto, boolean _bIsOnline) {
@@ -105,6 +109,7 @@ public class Event {
             _setInterests = new HashSet<>();
         _setAssistants = new HashSet<>();
         _bIsOnline = true;
+        _tDeleteDate = null;
     }
 
     public int get_iId() {
@@ -200,6 +205,10 @@ public class Event {
     public void set_bIsOnline(boolean bIsOnline) {
         _bIsOnline = bIsOnline;
     }
+
+    public LocalDateTime get_tDeleteDate() { return _tDeleteDate; }
+
+    public void set_tDeleteDate(LocalDateTime tDeleteDate) { _tDeleteDate = tDeleteDate; }
 
     /*
     public Set<Comment> get_setComments() {

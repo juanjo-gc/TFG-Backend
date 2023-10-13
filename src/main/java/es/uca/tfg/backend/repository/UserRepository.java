@@ -43,4 +43,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                                  @Param("interest1") Interest interest1, @Param("interest2") Interest interest2, @Param("interest3") Interest interest3,
                                  @Param("userId") int iUserId,
                                  Pageable pageable);
+
+    List<User> findBy_province(Province province);
 }

@@ -11,4 +11,5 @@ public interface ProvinceRepository extends JpaRepository<Province, Integer> {
     Province findBy_sName(String sName);
     @Query("SELECT p._sName FROM Province p")
     List<String> findProvinceNames();
+
 }

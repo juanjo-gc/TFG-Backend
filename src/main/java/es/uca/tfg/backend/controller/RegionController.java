@@ -1,11 +1,17 @@
 package es.uca.tfg.backend.controller;
 
+import es.uca.tfg.backend.entity.Country;
+import es.uca.tfg.backend.entity.Region;
+import es.uca.tfg.backend.entity.Region;
+import es.uca.tfg.backend.repository.CountryRepository;
 import es.uca.tfg.backend.repository.RegionRepository;
+import es.uca.tfg.backend.rest.RegionDTO;
+import es.uca.tfg.backend.service.RegionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
@@ -13,6 +19,44 @@ import org.springframework.web.bind.annotation.RestController;
 public class RegionController {
 
     @Autowired
-    RegionRepository _regionRepository;
+    private RegionRepository _regionRepository;
+
+    @Autowired
+    private CountryRepository _countryRepository;
+    @Autowired
+    private RegionService _regionService;
+
+    @GetMapping("/getAllRegions")
+    public List<Region> getAllRegions() {
+        return _regionRepository.findAll();
+    }
+
+    @PostMapping("/createRegion")
+    public Region createRegion(@RequestBody RegionDTO regionDTO) {
+        Optional<Country> optionalCountry = _countryRepository.findBy_sName(regionDTO.get_sCountry());
+        if(optionalCountry.isPresent())
+            return _regionRepository.save(new Region(regionDTO.get_sName(), optionalCountry.get()));
+        else
+            return new Region();
+    }
+
+    @PatchMapping("/updateRegion/{id}")
+    public Region updateRegion(@RequestBody RegionDTO regionDTO, @PathVariable("id") int iRegionId) {
+        Optional<Region> optionalRegion = _regionRepository.findById(iRegionId);
+        Optional<Country> optionalCountry = _countryRepository.findBy_sName(regionDTO.get_sCountry());
+        if(optionalRegion.isPresent() && optionalCountry.isPresent()) {
+            Region region = optionalRegion.get();
+            region.set_sName(regionDTO.get_sName());
+            region.set_country(optionalCountry.get());
+            return _regionRepository.save(region);
+        } else {
+            return new Region();
+        }
+    }
+
+    @DeleteMapping("/deleteRegion/{id}")
+    public void deleteRegion(@PathVariable("id") int iRegionId) {
+        _regionService.delete(iRegionId);
+    }
 
 }

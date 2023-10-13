@@ -24,6 +24,10 @@ public class User extends Person {
     @Column(name = "birthDate")
     private Date _tBirthDate;
 
+    @Column(name = "suspended")
+    boolean _bIsSuspended;
+
+
     @ManyToMany
     @JoinTable(name = "User_Interests")
     @Column(name = "interests")
@@ -75,6 +79,7 @@ public class User extends Person {
         _setImagePath = Collections.emptySet();
         _profileImagePath = new ImagePath();
         _province = new Province();
+        _bIsSuspended = false;
     }
 
     public User(String sEmail, String sPassword, String sUsername, String sRole, String sName, Date tBirthDate) {
@@ -84,6 +89,7 @@ public class User extends Person {
         _bIsPrivate = false;
         _setInterests = Collections.emptySet();
         _setImagePath = Collections.emptySet();
+        _bIsSuspended = false;
     }
 
     public String get_sName() {
@@ -186,4 +192,8 @@ public class User extends Person {
     public Set<Post> get_setPosts() { return _setPosts; }
 
     public void set_setPosts(Set<Post> _setPosts) { this._setPosts = _setPosts; }
+
+    public boolean is_bIsSuspended() { return _bIsSuspended; }
+
+    public void set_bIsSuspended(boolean bIsSuspended) { _bIsSuspended = bIsSuspended; }
 }

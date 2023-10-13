@@ -6,6 +6,7 @@ import es.uca.tfg.backend.rest.TicketDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,6 +74,16 @@ public class TicketController {
             return optionalTicket.get().is_bIsOpen();
         } else {
             return false;
+        }
+    }
+
+    @GetMapping("/getUserReports/{userId}")
+    public List<Ticket> getUserReports(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if(optionalUser.isPresent()) {
+            return _ticketRepository.findUserReports(optionalUser.get());
+        } else {
+            return Collections.emptyList();
         }
     }
 }

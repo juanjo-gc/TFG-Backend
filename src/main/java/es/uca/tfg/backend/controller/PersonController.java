@@ -327,7 +327,7 @@ public class PersonController {
 
 
         int iNumberOfInterests = filter.get_asInterests().size();
-        return _userRepository.findFilteredUsers(_provinceRepository.findBy_sName(filter.get_sProvince()), _regionRepository.findBy_sName(filter.get_sRegion()), _countryRepository.findBy_sName(filter.get_sCountry()),
+        return _userRepository.findFilteredUsers(_provinceRepository.findBy_sName(filter.get_sProvince()), _regionRepository.findBy_sName(filter.get_sRegion()).get(), _countryRepository.findBy_sName(filter.get_sCountry()).get(),
                 iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(filter.get_asInterests().get(0)) : null,
                 iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(filter.get_asInterests().get(1)) : null,
                 iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(filter.get_asInterests().get(2)) : null,
@@ -339,6 +339,19 @@ public class PersonController {
     @GetMapping("/countUsers")
     public long countUsers() {
         return _userRepository.count();
+    }
+
+    @PatchMapping("/suspendReactivateAccount/{userId}/{suspend}")
+    public boolean suspendReactivateAccount(@PathVariable("userId") int iUserId, @PathVariable("suspend") int iSuspend) {
+        boolean bSuspend = iSuspend == 1;
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if (optionalUser.isPresent()) {
+            optionalUser.get().set_bIsSuspended(bSuspend);
+            _userRepository.save(optionalUser.get());
+            return optionalUser.get().is_bIsSuspended();
+        } else {
+            return false;
+        }
     }
 
     /*

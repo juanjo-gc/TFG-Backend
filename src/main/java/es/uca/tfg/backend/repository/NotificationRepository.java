@@ -20,5 +20,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
     @Query("SELECT n FROM Notification n WHERE n._issuer = :issuer AND n._recipient = :recipient AND n._type = :type")
     Optional<Notification> findByIssuerAndRecipientAndType(@Param("issuer") User issuer, @Param("recipient") User recipient, @Param("type") TypeNotification type);
 
-
+    @Query("SELECT n FROM Notification n WHERE n._recipient = :user AND n._type = 'BehaviorWarning'")
+    List<Notification> findUserWarnings(@Param("user") User user);
 }

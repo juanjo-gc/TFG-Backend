@@ -5,10 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CountryRepository extends JpaRepository<Country, Integer> {
 
-    Country findBy_sName(String sName);
+    Optional<Country> findBy_sName(String sName);
     @Query("SELECT c._sName FROM Country c")
     List<String> findCountryNames();
 }

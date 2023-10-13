@@ -156,4 +156,8 @@ public class Ticket {
     public Post get_post() {
         return _post;
     }
+
+    public Category get_category() { return _category; }
+
+    public void set_category(Category category) { _category = category; }
 }

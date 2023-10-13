@@ -13,18 +13,13 @@ public class Category {
     private int _iId;
 
     @NotNull
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String _sName;
-
-    @NotNull
-    @Column(name = "displayName")
-    private String _sDisplayName;
 
     public Category() {}
 
-    public Category(String sName, String sDisplayName) {
+    public Category(String sName) {
         _sName = sName;
-        _sDisplayName = sDisplayName;
     }
 
     public int get_iId() {
@@ -35,5 +30,7 @@ public class Category {
         return _sName;
     }
 
-    public String get_sDisplayName() { return _sDisplayName; }
+    public void set_sName(String sName) {
+        _sName = sName;
+    }
 }
