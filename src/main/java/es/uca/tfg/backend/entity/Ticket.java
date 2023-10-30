@@ -89,7 +89,7 @@ public class Ticket {
         _post = null;
         _category = category;
     }
-    /*
+
     public Ticket(String sSubject, String sDescription, Admin admin, User issuer, User reported, Event event, Post post, Category category) {
         _tCreationDate = LocalDateTime.now();
         _bIsOpen = true;
@@ -103,7 +103,7 @@ public class Ticket {
         _category = category;
     }
 
-     */
+
 
     public int get_iId() {
         return _iId;

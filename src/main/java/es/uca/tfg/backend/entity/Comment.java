@@ -31,11 +31,15 @@ public class Comment {
     @Column(name = "datetime")
     private LocalDateTime _tDatetime;
 
+    @Column(name = "deleteDate")
+    private LocalDateTime _tDeleteDate;
+
     public Comment(String sText, User user, Event event) {
         _sText = sText;
         _user = user;
         _event = event;
         _tDatetime = LocalDateTime.now();
+        _tDeleteDate = null;
     }
 
     public Comment() {}
@@ -71,4 +75,8 @@ public class Comment {
     public LocalDateTime get_tDatetime() {
         return _tDatetime;
     }
+
+    public LocalDateTime get_tDeleteDate() { return _tDeleteDate; }
+
+    public void set_tDeleteDate(LocalDateTime tDeleteDate) { _tDeleteDate = tDeleteDate; }
 }

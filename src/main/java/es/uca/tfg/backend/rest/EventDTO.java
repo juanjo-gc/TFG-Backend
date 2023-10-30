@@ -1,5 +1,7 @@
 package es.uca.tfg.backend.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
@@ -30,8 +32,10 @@ public class EventDTO {
 
     public EventDTO() {}
 
-    public EventDTO(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, Integer iOrganizerId, Set<String> setInterests, String sLocationName,
-                    float dLatitude, float dLongitude, String sProvinceName, boolean bIsOnline) {
+    public EventDTO(@JsonProperty("sTitle") String sTitle, @JsonProperty("tCelebratedAt") LocalDate tCelebratedAt, @JsonProperty("tCelebrationHour") LocalTime tCelebrationHour,
+                    @JsonProperty("sDescription") String sDescription, @JsonProperty("iOrganizerId") Integer iOrganizerId, @JsonProperty("setInterests") Set<String> setInterests,
+                    @JsonProperty("sLocationName") String sLocationName, @JsonProperty("dLatitude") float dLatitude, @JsonProperty("dLongitude") float dLongitude,
+                    @JsonProperty("sProvinceName") String sProvinceName, @JsonProperty("bIsOnline") boolean bIsOnline) {
         _sTitle = sTitle;
         _tCelebratedAt = tCelebratedAt;
         _tCelebrationHour = tCelebrationHour;

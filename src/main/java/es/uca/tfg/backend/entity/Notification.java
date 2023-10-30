@@ -33,7 +33,7 @@ public class Notification {
 
     @ManyToOne
     @JoinColumn(name = "issuer_id")
-    private User _issuer;
+    private Person _issuer;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
@@ -53,7 +53,7 @@ public class Notification {
     public Notification() {}
 
     //Tipo 1: Solo issuer
-    public Notification(String sInfo, User recipient, TypeNotification type, User issuer) {
+    public Notification(String sInfo, User recipient, TypeNotification type, Person issuer) {
         _sInfo = sInfo;
         _recipient = recipient;
         _bSeen = false;
@@ -64,7 +64,7 @@ public class Notification {
         _post = null;
     }
     //Tipo 2: issuer y event
-    public Notification(String sInfo, User recipient, TypeNotification type, User issuer, Event event) {
+    public Notification(String sInfo, User recipient, TypeNotification type, Person issuer, Event event) {
         _sInfo = sInfo;
         _recipient = recipient;
         _bSeen = false;
@@ -86,7 +86,7 @@ public class Notification {
         _post = null;
     }
     //Tipo 4: issuer y Post
-    public Notification(String sInfo, User recipient, TypeNotification type, User issuer, Post post) {
+    public Notification(String sInfo, User recipient, TypeNotification type, Person issuer, Post post) {
         _sInfo = sInfo;
         _recipient = recipient;
         _bSeen = false;
@@ -121,7 +121,7 @@ public class Notification {
         return _recipient;
     }
 
-    public User get_issuer() {
+    public Person get_issuer() {
         return _issuer;
     }
 

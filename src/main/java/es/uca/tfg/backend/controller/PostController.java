@@ -123,11 +123,29 @@ public class PostController {
             Post reply = new Post(postDTO.get_sText(), _userRepository.findBy_iId(postDTO.get_iUserId()));
             reply.set_repliesTo(optionalPost.get());
             optionalPost.get().get_setReplies().add(reply);
+            optionalPost.get().set_iReplies(optionalPost.get().get_setReplies().size());
             _postRepository.save(optionalPost.get());
             return _postRepository.save(reply);
         } else  {
             return new Post();
         }
+    }
+
+    @PatchMapping("/softDeleteOrRestorePost/{postId}")
+    public boolean softDeletePost(@PathVariable("postId") int iPostId) {
+        Optional<Post> optionalPost = _postRepository.findById(iPostId);
+        if(optionalPost.isPresent()) {
+            if(Objects.equals(optionalPost.get().get_tDeleteDate(), null))
+                optionalPost.get().set_tDeleteDate(LocalDateTime.now());
+            else
+                optionalPost.get().set_tDeleteDate(null);
+
+            System.out.println("Fecha borrado: " + optionalPost.get().get_tDeleteDate());
+            return _postRepository.save(optionalPost.get()).get_tDeleteDate() != null;
+        } else {
+            return false;
+        }
+
     }
 
     @GetMapping("/countPosts")

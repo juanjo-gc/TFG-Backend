@@ -4,6 +4,7 @@ import es.uca.tfg.backend.entity.*;
 import es.uca.tfg.backend.repository.*;
 import es.uca.tfg.backend.rest.TicketDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
@@ -39,18 +40,34 @@ public class TicketController {
         System.out.println("Categoria: " + ticketDTO.get_sCategory());
         if(optionalIssuer.isPresent() && optionalAdmin.isPresent()) {
             switch(ticketDTO.get_sCategory()) {
-                case "ReportUser":
+                case "Denunciar un usuario":
                     Optional<User> optionalReported = _userRepository.findById(ticketDTO.get_iReportedId());
                     if(optionalReported.isPresent() && optionalCategory.isPresent()) {
                         ticket = _ticketRepository.save(new Ticket(ticketDTO.get_sSubject(), ticketDTO.get_sDescription(), optionalAdmin.get(),
                                 optionalIssuer.get(), optionalReported.get(), optionalCategory.get()));
                     }
                     break;
-                case "ReportBug":
+                case "Reportar un error":
                     if(optionalCategory.isPresent()) {
                         ticket = _ticketRepository.save(new Ticket(ticketDTO.get_sSubject(), ticketDTO.get_sDescription(), optionalAdmin.get(),
                                 optionalIssuer.get(), optionalCategory.get()));
                     }
+                    break;
+                case "Denunciar una publicación":
+                    Optional<Post> optionalPost = _postRepository.findById(ticketDTO.get_iPostId());
+                    System.out.println(ticketDTO.get_sDescription());
+                    if(optionalPost.isPresent() && optionalCategory.isPresent()) {
+                        ticket = _ticketRepository.save(new Ticket(ticketDTO.get_sSubject(), ticketDTO.get_sDescription(), optionalAdmin.get(), optionalIssuer.get(),
+                                null, null, optionalPost.get(), optionalCategory.get()));
+                    }
+                    break;
+                case "Denunciar un evento":
+                    Optional<Event> optionalEvent = _eventRepository.findById(ticketDTO.get_iEventId());
+                    if(optionalEvent.isPresent() && optionalCategory.isPresent()) {
+                        ticket = _ticketRepository.save(new Ticket(ticketDTO.get_sSubject(), ticketDTO.get_sDescription(), optionalAdmin.get(), optionalIssuer.get(), null,
+                                optionalEvent.get(), null, optionalCategory.get()));
+                    }
+                    break;
             }
 
             return ticket.get_iId();
@@ -82,6 +99,16 @@ public class TicketController {
         Optional<User> optionalUser = _userRepository.findById(iUserId);
         if(optionalUser.isPresent()) {
             return _ticketRepository.findUserReports(optionalUser.get());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @GetMapping("/getAdminTickets/{adminId}")
+    public List<Ticket> getAdminTickets(@PathVariable("adminId") int iAdminId) {
+        Optional<Admin> optionalAdmin = _adminRepository.findById(iAdminId);
+        if (optionalAdmin.isPresent()) {
+            return _ticketRepository.findBy_admin(optionalAdmin.get());
         } else {
             return Collections.emptyList();
         }

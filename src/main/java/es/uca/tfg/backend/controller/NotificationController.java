@@ -40,7 +40,7 @@ public class NotificationController {
     @PostMapping("/newNotification")
     public Notification createNotification(@RequestBody NotificationDTO notificationDTO) {
         Optional<User> optionalRecipient = _userRepository.findById(notificationDTO.get_iRecipientId());
-        Optional<User> optionalIssuer = _userRepository.findById(notificationDTO.get_iIssuerId());
+        Optional<Person> optionalIssuer = _personRepository.findById(notificationDTO.get_iIssuerId());
         Optional<Event> optionalEvent = _eventRepository.findById(notificationDTO.get_iEventId());
         Optional<Post> optionalPost = _postRepository.findById(notificationDTO.get_iPostId());
 
@@ -54,7 +54,7 @@ public class NotificationController {
                 return new Notification();
             }
         } else if (Objects.equals(notificationDTO.get_sType(), "FollowRequest") || Objects.equals(notificationDTO.get_sType(), "FollowRequestAccepted")
-                    || (Objects.equals(notificationDTO.get_sType(), "BehaviorWarning"))) {
+                    || (Objects.equals(notificationDTO.get_sType(), "BehaviorWarning") || (Objects.equals(notificationDTO.get_sType(), "Announcement")))) {
             if (optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
                 System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType());
                 return _notificationRepository.save(new Notification(notificationDTO.get_sInfo(), optionalRecipient.get(),

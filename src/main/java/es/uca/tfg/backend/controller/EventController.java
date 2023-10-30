@@ -14,6 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,11 +45,11 @@ public class EventController {
     @PostMapping("/newEvent")
     public int newEvent(@RequestBody EventDTO eventDTO) {
         Set<Interest> interests = new HashSet<>();
-        System.out.println("EventoDTO: " + eventDTO.toString());
+        System.out.println("EventoDTO: " + eventDTO.get_sTitle());
         User organizer = _userRepository.findBy_iId(eventDTO.get_iOrganizerId());
         if(eventDTO.is_bIsOnline()) {
             Event event = new Event(eventDTO.get_sTitle(), eventDTO.get_tCelebratedAt(), eventDTO.get_tCelebrationHour(), eventDTO.get_sDescription(), organizer,
-                    interests, null, true);
+                    interests, null, null, true);
             event.get_setAssistants().add(organizer);
             event =  _eventRepository.save(event);
             return event.get_iId();
@@ -61,11 +62,11 @@ public class EventController {
             if (optionalLocation.isPresent()) {
                 location = optionalLocation.get();
             } else {
-                location = new Location(eventDTO.get_sLocationName(), eventDTO.get_dLatitude(), eventDTO.get_dLongitude(), _provinceRepository.findBy_sName(eventDTO.get_sProvinceName()));
-                location = _locationRepository.save(location);
+                System.out.println("Nombre localiz: " + eventDTO.get_sLocationName() + " lat: " + eventDTO.get_dLatitude() + " lon: " + eventDTO.get_dLongitude() + " Prov: " + eventDTO.get_sProvinceName());
+                location = _locationRepository.save(new Location(eventDTO.get_sLocationName(), eventDTO.get_dLatitude(), eventDTO.get_dLongitude(), _provinceRepository.findBy_sName(eventDTO.get_sProvinceName())));
             }
             Event event = new Event(eventDTO.get_sTitle(), eventDTO.get_tCelebratedAt(), eventDTO.get_tCelebrationHour(), eventDTO.get_sDescription(), organizer,
-                    interests, null, location);
+                    interests, null, location, false);
             event.get_setAssistants().add(organizer);
             event =  _eventRepository.save(event);
             return event.get_iId();
@@ -199,6 +200,22 @@ public class EventController {
             return event.get_iId();
         } else {
             return 0;
+        }
+    }
+
+    @PatchMapping("softDeleteOrRestoreEvent/{eventId}")
+    public boolean softDeleteOrRestoreEvent(@PathVariable("eventId") int iEventId) {
+        Optional<Event> optionalEvent = _eventRepository.findById(iEventId);
+        if(optionalEvent.isPresent()) {
+            if(Objects.equals(optionalEvent.get().get_tDeleteDate(), null))
+                optionalEvent.get().set_tDeleteDate(LocalDateTime.now());
+            else
+                optionalEvent.get().set_tDeleteDate(null);
+
+            System.out.println("Fecha borrado: " + optionalEvent.get().get_tDeleteDate());
+            return _eventRepository.save(optionalEvent.get()).get_tDeleteDate() != null;
+        } else {
+            return false;
         }
     }
 

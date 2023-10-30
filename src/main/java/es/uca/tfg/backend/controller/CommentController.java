@@ -2,6 +2,7 @@ package es.uca.tfg.backend.controller;
 
 import es.uca.tfg.backend.entity.Comment;
 import es.uca.tfg.backend.entity.Event;
+import es.uca.tfg.backend.entity.Post;
 import es.uca.tfg.backend.entity.User;
 import es.uca.tfg.backend.repository.CommentRepository;
 import es.uca.tfg.backend.repository.EventRepository;
@@ -10,8 +11,10 @@ import es.uca.tfg.backend.rest.CommentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @RestController
@@ -45,6 +48,22 @@ public class CommentController {
             return _commentRepository.findOrderedCommentsByDatetime(optionalEvent.get());
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    @PatchMapping("softDeleteOrRestoreComment/{commentId}")
+    public boolean softDeleteOrRestoreComment(@PathVariable("commentId") int iCommentId) {
+        Optional<Comment> optionalComment = _commentRepository.findById(iCommentId);
+        if(optionalComment.isPresent()) {
+            if(Objects.equals(optionalComment.get().get_tDeleteDate(), null))
+                optionalComment.get().set_tDeleteDate(LocalDateTime.now());
+            else
+                optionalComment.get().set_tDeleteDate(null);
+
+            System.out.println("Fecha borrado: " + optionalComment.get().get_tDeleteDate());
+            return _commentRepository.save(optionalComment.get()).get_tDeleteDate() != null;
+        } else {
+            return false;
         }
     }
 }

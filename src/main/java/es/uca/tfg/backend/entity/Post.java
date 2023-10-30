@@ -19,6 +19,10 @@ public class Post {
     @Column(name = "text")
     private String _sText;
 
+    private int _iLikes;
+
+    private int _iReplies;
+
     @NotNull
     @Column(name = "createdAt")
     private LocalDateTime _tCreatedAt;
@@ -46,7 +50,6 @@ public class Post {
     @JsonIgnore
     private Set<User> _setLikes;
 
-    private int _iLikes;
 
     public Post() {}
 
@@ -57,6 +60,7 @@ public class Post {
         _setLikes = Collections.emptySet();
         _setReplies = Collections.emptySet();
         _iLikes = 0;
+        _iReplies = 0;
         _repliesTo = null;
         _tDeleteDate = null;
     }
@@ -116,6 +120,10 @@ public class Post {
     public void set_iLikes(int _iLikes) {
         this._iLikes = _iLikes;
     }
+
+    public int get_iReplies() { return _iReplies; }
+
+    public void set_iReplies(int iReplies) { _iReplies = iReplies; }
 
     public LocalDateTime get_tDeleteDate() { return _tDeleteDate; }
 

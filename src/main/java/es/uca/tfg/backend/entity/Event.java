@@ -78,7 +78,8 @@ public class Event {
 
     public Event() {}
 
-    public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer, Set<Interest> setInterests, ImagePath headerPhoto, Location location) {
+    public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer,
+                 Set<Interest> setInterests, ImagePath headerPhoto, Location location, boolean bIsOnline) {
         _sTitle = sTitle;
         _tCelebratedAt = tCelebratedAt;
         _tCelebrationHour = tCelebrationHour;
@@ -91,10 +92,11 @@ public class Event {
         else
             _setInterests = new HashSet<>();
         _setAssistants = new HashSet<>();
-        _bIsOnline = false;
+        _bIsOnline = bIsOnline;
         _tDeleteDate = null;
     }
 
+    /*
     public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer, Set<Interest> setInterests, ImagePath headerPhoto, boolean _bIsOnline) {
         _sTitle = sTitle;
         _tCelebratedAt = tCelebratedAt;
@@ -111,6 +113,8 @@ public class Event {
         _bIsOnline = true;
         _tDeleteDate = null;
     }
+
+     */
 
     public int get_iId() {
         return _iId;
