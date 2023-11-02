@@ -66,11 +66,15 @@ public class PostController {
             List<Post> followedUserPosts = _postRepository.findBy_user(followed);
             orderedPosts.addAll(followedUserPosts);
         }
-        orderedPosts = orderedPosts.stream()
-                .filter(p -> p.get_tCreatedAt().isAfter(LocalDateTime.now().minusDays(10)))     //Publicaciones de hace menos de 10 días
-                .sorted(Comparator.comparing(Post::get_tCreatedAt).reversed())         // Ordenados por fecha (el primero el más reciente)
-                .collect(Collectors.toList());
-        return orderedPosts;
+        if(!orderedPosts.isEmpty()) {
+            orderedPosts = orderedPosts.stream()
+                    .filter(p -> p.get_tCreatedAt().isAfter(LocalDateTime.now().minusDays(10)))     //Publicaciones de hace menos de 10 días
+                    .sorted(Comparator.comparing(Post::get_tCreatedAt).reversed())         // Ordenados por fecha (el primero el más reciente)
+                    .collect(Collectors.toList());
+            return orderedPosts;
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @PostMapping("/setLike/{postId}/{userId}")

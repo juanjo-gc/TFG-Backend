@@ -33,6 +33,8 @@ public class PersonController {
     @Autowired
     private UserRepository _userRepository;
     @Autowired
+    private AdminRepository _adminRepository;
+    @Autowired
     private PersonRepository _personRepository;
     @Autowired
     private InterestRepository _interestRepository;
@@ -100,6 +102,7 @@ public class PersonController {
     @GetMapping("/getUserFromUsername/{username}")
     public User getUserFromUsername(@PathVariable("username") String sUsername) {
         System.out.println(sUsername);
+        _adminRepository.save(new Admin("admin@admin.com", "admin", "Admin", "Admin"));
         User user = _userRepository.findBy_sUsername(sUsername);
         return user != null ? user : new User();
     }

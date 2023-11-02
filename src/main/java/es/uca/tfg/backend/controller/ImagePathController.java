@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -208,4 +209,26 @@ public class ImagePathController {
                 .body(new InputStreamResource(fileInputStream));
     }
 
+    @GetMapping("/getUploader/{imageId}")
+    public User getUploader(@PathVariable("imageId") int iImageId) {
+        Optional<ImagePath> optionalImage = _imagePathRepository.findById(iImageId);
+        return optionalImage.isPresent() ? optionalImage.get().get_user() : new User();
+    }
+
+    @PatchMapping("/softDeleteOrRestoreImage/{imageId}")
+    public boolean softDeleteOrRestoreImage(@PathVariable("imageId") int iImageId) {
+        Optional<ImagePath> optionalImage = _imagePathRepository.findById(iImageId);
+        if (optionalImage.isPresent()) {
+            ImagePath image = optionalImage.get();
+            if (image.get_tDeleteDate() == null) {
+                image.set_tDeleteDate(LocalDateTime.now());
+            } else {
+                image.set_tDeleteDate(null);
+            }
+            _imagePathRepository.save(image);
+            return image.get_tDeleteDate() != null;
+        } else {
+            return false;
+        }
+    }
 }
