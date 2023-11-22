@@ -82,9 +82,10 @@ public class User extends Person {
         _bIsSuspended = false;
     }
 
-    public User(String sEmail, String sPassword, String sUsername, String sRole, String sName, Date tBirthDate) {
+    public User(String sEmail, String sPassword, String sUsername, String sDescription, String sRole, String sName, Date tBirthDate) {
         super(sEmail, sPassword, sUsername, sRole);
         _sName = sName;
+        _sDescription = sDescription;
         _tBirthDate = tBirthDate;
         _bIsPrivate = false;
         _setInterests = Collections.emptySet();

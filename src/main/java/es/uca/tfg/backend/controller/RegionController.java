@@ -10,6 +10,7 @@ import es.uca.tfg.backend.service.RegionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,12 @@ public class RegionController {
     @GetMapping("/getAllRegions")
     public List<Region> getAllRegions() {
         return _regionRepository.findAll();
+    }
+
+    @GetMapping("/getCountryRegions/{countryId}")
+    public List<Region> getCountryRegions(@PathVariable("countryId") int iCountryId) {
+        Optional<Country> optionalCountry = _countryRepository.findById(iCountryId);
+        return optionalCountry.isPresent() ? optionalCountry.get().get_setRegions().stream().toList() : Collections.emptyList();
     }
 
     @PostMapping("/createRegion")

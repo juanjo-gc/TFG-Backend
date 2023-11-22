@@ -55,7 +55,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
             "( :interest2 IS NULL OR :interest2 MEMBER OF e._setInterests ) AND " +
             "( :interest3 IS NULL OR :interest3 MEMBER OF e._setInterests ) AND" +
             "( CURRENT_DATE <= e._tCelebratedAt  )")
-    Page<Event> findOnlineEventIdsByFilter(@Param("interest1") Interest interest1, @Param("interest2") Interest interest2, @Param("interest3") Interest interest3,
+    Page<Event> findOnlineEventsByFilter(@Param("interest1") Interest interest1, @Param("interest2") Interest interest2, @Param("interest3") Interest interest3,
                                            Pageable pageable);
     @Query("SELECT e FROM Event e WHERE e._tCelebratedAt >= :localdate")
     List<Event> findEventsBeforeDate(@Param("localdate")  LocalDate localDate);

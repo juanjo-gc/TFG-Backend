@@ -8,6 +8,8 @@ import es.uca.tfg.backend.rest.PostDTO;
 import es.uca.tfg.backend.service.PostService;
 import es.uca.tfg.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -57,9 +59,15 @@ public class PostController {
 
 
 
-    @GetMapping("/getTimelinePosts/{id}")
-    public List<Post> getTimelinePosts(@PathVariable("id") int iUserId) {
-        User user = _userRepository.findBy_iId(iUserId);
+    @GetMapping("/getTimelinePosts/{id}/{pageNumber}")
+    public Page<Post> getTimelinePosts(@PathVariable("id") int iUserId, @PathVariable("pageNumber") int iPageNumber) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if(optionalUser.isPresent()) {
+            return _postRepository.findTimelinePosts(optionalUser.get(), PageRequest.of(iPageNumber, 30));
+        } else {
+            return Page.empty();
+        }
+        /*
         List<Post> orderedPosts = _postRepository.findBy_user(user);
 
         for(User followed: user.get_setFollowing()) {
@@ -75,6 +83,8 @@ public class PostController {
         } else {
             return Collections.emptyList();
         }
+
+         */
     }
 
     @PostMapping("/setLike/{postId}/{userId}")
@@ -114,10 +124,10 @@ public class PostController {
         return optionalPost.isPresent() ? optionalPost.get().get_setLikes().stream().toList() : Collections.emptyList();
     }
 
-    @GetMapping("/getReplies/{postId}")
-    public List<Post> getPostReplies(@PathVariable("postId") int iPostId) {
+    @GetMapping("/getReplies/{postId}/{pageNumber}")
+    public Page<Post> getPostReplies(@PathVariable("postId") int iPostId, @PathVariable("pageNumber") int iPageNumber) {
         Optional<Post> optionalPost = _postRepository.findById(iPostId);
-        return optionalPost.isPresent() ? _postRepository.findPostReplies(optionalPost.get()) : Collections.emptyList();
+        return optionalPost.isPresent() ? _postRepository.findPostReplies(optionalPost.get(), PageRequest.of(iPageNumber, 5)) : Page.empty();
     }
 
     @PostMapping("/newReply/{postId}")
@@ -150,6 +160,11 @@ public class PostController {
             return false;
         }
 
+    }
+    @GetMapping("/getLikedPosts/{userId}")
+    public Set<Post> getLikedPosts(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        return optionalUser.isPresent() ? optionalUser.get().get_setPosts() : Collections.emptySet();
     }
 
     @GetMapping("/countPosts")

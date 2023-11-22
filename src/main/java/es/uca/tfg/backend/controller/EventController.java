@@ -47,6 +47,9 @@ public class EventController {
         Set<Interest> interests = new HashSet<>();
         System.out.println("EventoDTO: " + eventDTO.get_sTitle());
         User organizer = _userRepository.findBy_iId(eventDTO.get_iOrganizerId());
+        for (String sInterest : eventDTO.get_setInterests()) {
+            interests.add(_interestRepository.findBy_sName(sInterest));
+        }
         if(eventDTO.is_bIsOnline()) {
             Event event = new Event(eventDTO.get_sTitle(), eventDTO.get_tCelebratedAt(), eventDTO.get_tCelebrationHour(), eventDTO.get_sDescription(), organizer,
                     interests, null, null, true);
@@ -56,9 +59,6 @@ public class EventController {
         } else {
             Optional<Location> optionalLocation = _locationRepository.findBy_sName(eventDTO.get_sLocationName());
             Location location;
-            for (String sInterest : eventDTO.get_setInterests()) {
-                interests.add(_interestRepository.findBy_sName(sInterest));
-            }
             if (optionalLocation.isPresent()) {
                 location = optionalLocation.get();
             } else {
@@ -140,16 +140,24 @@ public class EventController {
         ObjectMapper objectMapper = new ObjectMapper();
         System.out.println(objectMapper.writeValueAsString(eventFilterDTO));
         if(eventFilterDTO.get_bIsOnline()) {
-            for(Event event: _eventRepository.findOnlineEvents()) {
+            /*
+            for(Event event: _eventRepository.findOnlineEventsByFilter(
+                    iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
+                    iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
+                    iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
+                    PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()))) {
                 System.out.println(event.get_sTitle());
             }
-            return _eventRepository.findOnlineEventIdsByFilter(
+             */
+            for(Interest interest: _eventRepository.findById(1352).get().get_setInterest())
+                System.out.println(interest.get_sName());
+            return _eventRepository.findOnlineEventsByFilter(
                     iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
                     iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
                     iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
                     PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()));
         } else {
-
+    /*
             for(Event event: _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()).get(), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()).get(),
                     iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
                     iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
@@ -159,7 +167,16 @@ public class EventController {
                 System.out.println("Hoy es antes de la fecha de celebración? " + event.get_tCelebratedAt().isAfter(LocalDate.now()));
             }
 
-            return _eventRepository.findEventIdsByFilters(_provinceRepository.findBy_sName(eventFilterDTO.get_sProvince()), _regionRepository.findBy_sName(eventFilterDTO.get_sRegion()).get(), _countryRepository.findBy_sName(eventFilterDTO.get_sCountry()).get(),
+     */
+
+            Optional<Province> optionalProvince = _provinceRepository.findByName(eventFilterDTO.get_sProvince());
+            Optional<Region> optionalRegion = _regionRepository.findBy_sName(eventFilterDTO.get_sRegion());
+            Optional<Country> optionalCountry = _countryRepository.findBy_sName(eventFilterDTO.get_sCountry());
+
+            return _eventRepository.findEventIdsByFilters(
+                    optionalProvince.isPresent() ? optionalProvince.get() : null,
+                    optionalRegion.isPresent() ? optionalRegion.get() : null,
+                    optionalCountry.isPresent() ? optionalCountry.get() : null,
                     iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
                     iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
                     iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,

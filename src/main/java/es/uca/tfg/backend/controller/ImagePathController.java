@@ -226,9 +226,11 @@ public class ImagePathController {
                 image.set_tDeleteDate(null);
             }
             _imagePathRepository.save(image);
-            return image.get_tDeleteDate() != null;
+            return image.get_tDeleteDate() != null; //Si se borra, devuelve true. Si se restaura, false
         } else {
             return false;
         }
     }
+
+
 }

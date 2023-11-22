@@ -36,12 +36,6 @@ public class ProvinceController {
         return _provinceRepository.findAll();
     }
 
-    @GetMapping("/getCountryRegions/{countryId}")
-    public List<Region> getCountryRegions(@PathVariable("countryId") int iCountryId) {
-        Optional<Country> optionalCountry = _countryRepository.findById(iCountryId);
-        return optionalCountry.isPresent() ? optionalCountry.get().get_setRegions().stream().toList() : Collections.emptyList();
-    }
-
     @GetMapping("/getRegionProvinces/{regionId}")
     public List<Province> getRegionProvinces(@PathVariable("regionId") int iRegionId) {
         Optional<Region> optionalRegion = _regionRepository.findById(iRegionId);

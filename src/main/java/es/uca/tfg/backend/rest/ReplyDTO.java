@@ -1,5 +1,7 @@
 package es.uca.tfg.backend.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ReplyDTO {
 
     private int _iPersonId;
@@ -8,7 +10,7 @@ public class ReplyDTO {
 
     private int _iTicketId;
 
-    public ReplyDTO(int iPersonId, String sText, int iTicketId) {
+    public ReplyDTO(@JsonProperty("iPersonId") int iPersonId, @JsonProperty("sText") String sText, @JsonProperty("iTicketId") int iTicketId) {
         _iPersonId = iPersonId;
         _sText = sText;
         _iTicketId = iTicketId;

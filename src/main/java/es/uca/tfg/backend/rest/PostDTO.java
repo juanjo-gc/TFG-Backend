@@ -1,10 +1,12 @@
 package es.uca.tfg.backend.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class PostDTO {
     private String _sText;
     private int _iUserId;
 
-    public PostDTO(String sText, int iUserId) {
+    public PostDTO(@JsonProperty("sText") String sText, @JsonProperty("iUserId") int iUserId) {
         _sText = sText;
         _iUserId = iUserId;
     }
