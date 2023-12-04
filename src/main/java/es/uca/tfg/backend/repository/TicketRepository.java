@@ -20,4 +20,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     List<Ticket> findUserReports(@Param("reported") User reported);
 
     List<Ticket> findBy_admin(Admin admin);
+
+    List<Ticket> findBy_issuer(User issuer);
 }

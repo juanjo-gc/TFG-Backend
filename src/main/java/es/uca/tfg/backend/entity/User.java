@@ -3,7 +3,6 @@ package es.uca.tfg.backend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.mapping.Array;
 
 
 import java.util.Collections;
@@ -74,6 +73,11 @@ public class User extends Person {
     @JsonIgnore
     private Set<Message> _setReceivedMessages;
 
+    @ManyToMany
+    @JsonIgnore
+    private Set<User> _setBlockedBy;
+
+
     public User() {
         _setInterests = Collections.emptySet();
         _setImagePath = Collections.emptySet();
@@ -82,7 +86,7 @@ public class User extends Person {
         _bIsSuspended = false;
     }
 
-    public User(String sEmail, String sPassword, String sUsername, String sDescription, String sRole, String sName, Date tBirthDate) {
+    public User(String sEmail, String sPassword, String sUsername, String sDescription, String sRole, String sName, Date tBirthDate, Province province) {
         super(sEmail, sPassword, sUsername, sRole);
         _sName = sName;
         _sDescription = sDescription;
@@ -91,6 +95,7 @@ public class User extends Person {
         _setInterests = Collections.emptySet();
         _setImagePath = Collections.emptySet();
         _bIsSuspended = false;
+        _province = province;
     }
 
     public String get_sName() {
@@ -197,4 +202,8 @@ public class User extends Person {
     public boolean is_bIsSuspended() { return _bIsSuspended; }
 
     public void set_bIsSuspended(boolean bIsSuspended) { _bIsSuspended = bIsSuspended; }
+
+    public Set<User> get_setBlockedBy() { return _setBlockedBy; }
+
+
 }

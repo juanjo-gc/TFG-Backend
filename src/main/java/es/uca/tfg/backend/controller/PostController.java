@@ -164,7 +164,7 @@ public class PostController {
     @GetMapping("/getLikedPosts/{userId}")
     public Set<Post> getLikedPosts(@PathVariable("userId") int iUserId) {
         Optional<User> optionalUser = _userRepository.findById(iUserId);
-        return optionalUser.isPresent() ? optionalUser.get().get_setPosts() : Collections.emptySet();
+        return optionalUser.isPresent() ? optionalUser.get().get_setLikedPosts() : Collections.emptySet();
     }
 
     @GetMapping("/countPosts")
@@ -172,7 +172,12 @@ public class PostController {
         return _postRepository.count();
     }
 
-
+    @GetMapping("/checkLike/{postId}/{userId}")
+    public boolean checkLike(@PathVariable("postId") int iPostId, @PathVariable("userId") int iUserId) {
+        Post post = _postRepository.findById(iPostId).get();
+        User user = _userRepository.findById(iUserId).get();
+        return post.get_setLikes().contains(user);
+    }
 
 
 }

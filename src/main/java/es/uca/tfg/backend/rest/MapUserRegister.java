@@ -9,14 +9,16 @@ public class MapUserRegister {
     private String _sPassword;
     private Date _tBirthDate;
     private String _sMessage;
+    private String _sProvince;
 
-    public MapUserRegister(String sEmail, String sName, String sUsername, String sPassword, Date tBirthDate) {
+    public MapUserRegister(String sEmail, String sName, String sUsername, String sPassword, Date tBirthDate, String sProvince) {
         _sEmail = sEmail;
         _sName = sName;
         _sUsername = sUsername;
         _sPassword = sPassword;
         _tBirthDate = tBirthDate;
         _sMessage = "";
+        _sProvince = sProvince;
     }
 
     public String get_sEmail() {
@@ -42,4 +44,6 @@ public class MapUserRegister {
     public void set_sMessage(String _sMessage) {
         this._sMessage = _sMessage;
     }
+
+    public String get_sProvince() { return _sProvince; }
 }

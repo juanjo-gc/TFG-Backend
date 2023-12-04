@@ -61,16 +61,18 @@ public class PersonController {
 
 
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
+
     @PostMapping("/register")
     public String registerNewUser(@RequestBody MapUserRegister mapUserRegister) {
         String sMessage;
         System.out.println(mapUserRegister.get_sEmail());
         System.out.println(mapUserRegister.get_sPassword());
 
-        if(_personRepository.countBy_sUsername(mapUserRegister.get_sUsername()) == 0) {
+        if (_personRepository.countBy_sUsername(mapUserRegister.get_sUsername()) == 0) {
+
             User user = _personRepository.save(new User(mapUserRegister.get_sEmail(), mapUserRegister.get_sPassword(),
-                                                        mapUserRegister.get_sUsername(), "", "user", mapUserRegister.get_sName(),
-                                                        mapUserRegister.get_tBirthDate()));
+                    mapUserRegister.get_sUsername(), "", "user", mapUserRegister.get_sName(),
+                    mapUserRegister.get_tBirthDate(), _provinceRepository.findBy_sName(mapUserRegister.get_sProvince())));
             //mapUserRegister.set_sMessage("Usuario creado correctamente.");
             sMessage = "Usuario creado correctamente.";
         } else {
@@ -82,7 +84,7 @@ public class PersonController {
 
     @PostMapping("/checkUser")
     public boolean isUsernameTaken(@RequestBody UserChecker.UsernameChecker usernameChecker) {
-        if(_personRepository.countBy_sUsername(usernameChecker.get_sUsername()) != 0) {
+        if (_personRepository.countBy_sUsername(usernameChecker.get_sUsername()) != 0) {
             usernameChecker.set_bIsUsernameTaken(true);
         }
         return usernameChecker.is_bIsUsernameTaken();
@@ -90,7 +92,7 @@ public class PersonController {
 
     @PostMapping("/checkEmail")
     public boolean isEmailTaken(@RequestBody UserChecker.EmailChecker emailChecker) {
-        if(_personRepository.countBy_sEmail(emailChecker.get_sEmail()) != 0) {
+        if (_personRepository.countBy_sEmail(emailChecker.get_sEmail()) != 0) {
             emailChecker.set_bIsEmailTaken(true);
         }
         return emailChecker.is_bIsEmailTaken();
@@ -134,7 +136,7 @@ public class PersonController {
     public User updateUserDetails(@RequestBody UserDTO userDTO) {
         Optional<User> optionalUser = _userRepository.findById(userDTO.get_iUserId());
         Optional<Province> optionalProvince = _provinceRepository.findById(userDTO.get_iProvinceId());
-        if(optionalUser.isPresent() && optionalProvince.isPresent()) {
+        if (optionalUser.isPresent() && optionalProvince.isPresent()) {
             optionalUser.get().set_sName(userDTO.get_sName());
             optionalUser.get().set_sUsername(userDTO.get_sUsername());
             optionalUser.get().set_province(optionalProvince.get());
@@ -147,7 +149,7 @@ public class PersonController {
     @PostMapping("/updateUserDescription")
     public User updateUserInformation(@RequestBody UserDTO userDTO) {
         Optional<User> optionalUser = _userRepository.findById(userDTO.get_iUserId());
-        if(optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             optionalUser.get().set_sDescription(userDTO.get_sDescription());
             return _userRepository.save(optionalUser.get());
         } else {
@@ -159,7 +161,7 @@ public class PersonController {
     @PostMapping("/uploadInterests")
     public Set<Interest> saveInterests(@RequestParam("id") int iId, @RequestParam("interests[]") String[] aSInterests) {
 
-        for(int i = 0; i < aSInterests.length; i++) {
+        for (int i = 0; i < aSInterests.length; i++) {
             System.out.println("ID: " + iId + " longitud del vector: " + aSInterests.length + " Elemento del vector: " + aSInterests[i]);
         }
         User user = _userRepository.findBy_iId(iId);
@@ -167,7 +169,7 @@ public class PersonController {
 
         user.get_setInterests().clear();
 
-        for(int i = 0; i < aSInterests.length; i++) {
+        for (int i = 0; i < aSInterests.length; i++) {
             System.out.println("Añadiendo interes: " + _interestRepository.findBy_sName(aSInterests[i]).get_sName());
             user.get_setInterests().add(_interestRepository.findBy_sName(aSInterests[i]));
         }
@@ -186,12 +188,12 @@ public class PersonController {
     public User updateUserPrivacityOptions(@RequestBody UserDTO userDTO) {
         Optional<User> optionalUser = _userRepository.findById(userDTO.get_iUserId());
         boolean bErrorHappened = false;
-        if(optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.set_sEmail(userDTO.get_sEmail());
             user.set_bIsPrivate(userDTO.is_bIsPrivate());
-            if(userDTO.get_sCurrentPassword() != null) {
-                if(user.checkPassword(userDTO.get_sCurrentPassword())) {
+            if (userDTO.get_sCurrentPassword() != null) {
+                if (user.checkPassword(userDTO.get_sCurrentPassword())) {
                     user.set_sPassword(DigestUtils.md5DigestAsHex((userDTO.get_sNewPassword() + user.get_sPasswordSalt()).getBytes()));
                 } else {
                     bErrorHappened = true;
@@ -227,7 +229,7 @@ public class PersonController {
         String sFilename = user.get_iId() + "profileImg-" + multipartFile.getOriginalFilename();
         Optional<ImagePath> optionalImagePath = _imagePathRepository.findBy_sName(sFilename);
         ImagePath imagePath = new ImagePath(sFilename);
-        if(optionalImagePath.isPresent()) {
+        if (optionalImagePath.isPresent()) {
             optionalImagePath.get().set_tDeleteDate(null);
             user.get_profileImagePath().set_tDeleteDate(LocalDateTime.now());
             imagePath = optionalImagePath.get();
@@ -249,7 +251,7 @@ public class PersonController {
         User user = _userRepository.findBy_iId(iId);
         System.out.println(_sUploadPath);
 
-        for(int i = 0; i < aMultipartFile.length; i++) {
+        for (int i = 0; i < aMultipartFile.length; i++) {
             String sFilename = user.get_iId() + "-" + aMultipartFile[i].getOriginalFilename();
             File file = new File(_sUploadPath + sFilename);
             aMultipartFile[i].transferTo(file);
@@ -267,7 +269,7 @@ public class PersonController {
     public ImagePath uploadUserImage(@RequestParam("userId") int iUserId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         Optional<User> optionalUser = _userRepository.findById(iUserId);
         System.out.println();
-        if(optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             String sFilename = user.get_iId() + "-" + multipartFile.getOriginalFilename();
             File file = new File(_sUploadPath + sFilename);
@@ -286,7 +288,7 @@ public class PersonController {
     public ResponseEntity<InputStreamResource> getProfileImage(@PathVariable("id") int iId) throws FileNotFoundException {
         User user = _userRepository.findBy_iId(iId);
         String sImageName = "GenericAvatar.png";
-        if(user.get_profileImagePath() != null)
+        if (user.get_profileImagePath() != null)
             sImageName = user.get_profileImagePath().get_sName();
         File file = new File(_sUploadPath + sImageName);
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -341,7 +343,7 @@ public class PersonController {
         User user = _userRepository.findBy_iId(iUserId);
         User userToFollow = _userRepository.findBy_iId(iFollowId);
 
-        if(user.get_setFollowing().contains(userToFollow)) {
+        if (user.get_setFollowing().contains(userToFollow)) {
             user.get_setFollowing().remove(userToFollow);
             System.out.println("Deja de seguir");
         } else {
@@ -437,6 +439,38 @@ public class PersonController {
             return false;
         }
     }
+
+    //Devuelve true si el usuario ha desbloqueado al otro usuario
+    @PatchMapping("/blockUnblockUser/{userId}/{blockedId}")
+    public boolean blockUnblockUser(@PathVariable("userId") int iUserId, @PathVariable("blockedId") int iBlockedId) {
+        User user = _userRepository.findById(iUserId).get();
+        User blocked = _userRepository.findById(iBlockedId).get();
+        boolean bIsBlocked = blocked.get_setBlockedBy().contains(user);
+        if (!bIsBlocked) {      // No bloqueado
+            blocked.get_setBlockedBy().add(user);
+            blocked.get_setFollowing().remove(user);
+            user.get_setFollowing().remove(blocked);    // Solo hace falta actualizar y guardar la parte directa
+            _userRepository.save(user);
+        } else {    // Ya estaba bloqueado
+            blocked.get_setBlockedBy().remove(user);
+        }
+        _userRepository.save(blocked);
+        return !bIsBlocked;
+    }
+
+    @GetMapping("/checkBlock/{userId}/{blockedId}")
+    public boolean checkBlock(@PathVariable("userId") int iUserId, @PathVariable("blockedId") int iBlockedId) {
+        User user = _userRepository.findById(iUserId).get();
+        User blocked = _userRepository.findById(iBlockedId).get();
+        return blocked.get_setBlockedBy().contains(user);
+    }
+
+    @GetMapping("/getBlockedByUsers/{userId}")
+    public Set<User> getBlockedBy(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        return optionalUser.isPresent() ? optionalUser.get().get_setBlockedBy() : Collections.emptySet();
+    }
+
 
     /*
     @GetMapping("/removeImages")

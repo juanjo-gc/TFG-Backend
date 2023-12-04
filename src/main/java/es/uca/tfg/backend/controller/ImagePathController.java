@@ -155,7 +155,7 @@ public class ImagePathController {
     }
 
     @PostMapping("/uploadReplyImage")
-    public boolean saveReplyImage(@RequestParam("id") int iReplyId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
+    public ImagePath saveReplyImage(@RequestParam("id") int iReplyId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         Optional<Reply> optionalReply = _replyRepository.findById(iReplyId);
         Path path = Paths.get(_sReplyUploadPath);
 
@@ -178,9 +178,9 @@ public class ImagePathController {
             imagePath = _imagePathRepository.save(imagePath);
             reply.set_imagePath(imagePath);
             reply = _replyRepository.save(reply);
-            return reply.get_imagePath() != null ? true : false;
+            return imagePath;
         } else {
-            return false;
+            return new ImagePath();
         }
     }
 

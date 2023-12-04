@@ -16,7 +16,7 @@ public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("SELECT m FROM Message m WHERE (m._issuer = :issuer AND m._recipient = :recipient) OR (m._issuer = :recipient AND m._recipient = :issuer) ORDER BY m._tSentAt ASC")
     List<Message> findConversation(@Param("issuer") User issuer, @Param("recipient") User recipient);
 
-    @Query("SELECT m FROM Message m WHERE (m._issuer = :issuer AND m._recipient = :recipient) OR (m._issuer = :recipient AND m._recipient = :issuer) ORDER BY m._tSentAt DESC")
+    @Query("SELECT m FROM Message m WHERE (m._issuer = :issuer AND m._recipient = :recipient) OR (m._issuer = :recipient AND m._recipient = :issuer) ORDER BY m._tSentAt ASC")
     Page<Message> findLastIssuerRecipientMessage(@Param("issuer") User issuer, @Param("recipient") User recipient, Pageable pageable);
 
     @Query("SELECT m._recipient FROM Message m WHERE m._issuer = :user GROUP BY m._recipient")

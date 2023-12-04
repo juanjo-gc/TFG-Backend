@@ -105,7 +105,7 @@ public class PersonControllerTest {
     void registerNewUserTest() throws Exception {
         //given
         //User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
-        MapUserRegister mapUserRegister = new MapUserRegister("example@gmail.com", "name", "username", "password", new Date());
+        MapUserRegister mapUserRegister = new MapUserRegister("example@gmail.com", "name", "username", "password", new Date(), "Cádiz");
         //given(_personService.update(any(Person.class))).willAnswer((invocationOnMock -> invocationOnMock.getArgument(0)));
         //when
         ResultActions response = _mockMvc.perform(post("/api/register")

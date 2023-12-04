@@ -113,4 +113,10 @@ public class TicketController {
             return Collections.emptyList();
         }
     }
+
+    @GetMapping("/getUserTickets/{userId}")
+    public List<Ticket> getUserTickets(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        return optionalUser.isPresent() ? _ticketRepository.findBy_issuer(optionalUser.get()) : Collections.emptyList();
+    }
 }
