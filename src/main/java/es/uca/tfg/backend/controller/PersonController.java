@@ -1,5 +1,8 @@
 package es.uca.tfg.backend.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import es.uca.tfg.backend.entity.*;
 import es.uca.tfg.backend.entity.ImagePath;
 import es.uca.tfg.backend.repository.*;
@@ -384,7 +387,7 @@ public class PersonController {
     }
 
     @PostMapping(value = "/filterUsers/{userId}/{pageNumber}")
-    public Page<Integer> filterUsers(@RequestBody UserFilterDTO filter, @PathVariable("userId") int iUserId, @PathVariable("pageNumber") int iPageNumber) {
+    public Page<Integer> filterUsers(@RequestBody UserFilterDTO filter, @PathVariable("userId") int iUserId, @PathVariable("pageNumber") int iPageNumber) throws JsonProcessingException {
         /*
         List<Integer> aiFilteredUserIdsByInterest;
         List<Integer> aiFilteredUserIds = _userRepository.findUserIdsByLocation(
@@ -413,11 +416,19 @@ public class PersonController {
 
 
         int iNumberOfInterests = filter.get_asInterests().size();
-        return _userRepository.findFilteredUsers(_provinceRepository.findBy_sName(filter.get_sProvince()), _regionRepository.findBy_sName(filter.get_sRegion()).get(), _countryRepository.findBy_sName(filter.get_sCountry()).get(),
+        Optional<Province> optionalProvince = _provinceRepository.findByName(filter.get_sProvince());
+        Optional<Region> optionalRegion = _regionRepository.findBy_sName(filter.get_sRegion());
+        Optional<Country> optionalCountry = _countryRepository.findBy_sName(filter.get_sCountry());
+        User user = _userRepository.findById(iUserId).get();
+        System.out.println(new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(filter));
+        return _userRepository.findFilteredUserIds(
+                optionalProvince.isPresent() ? optionalProvince.get() : null,
+                optionalRegion.isPresent() ? optionalRegion.get() : null,
+                optionalCountry.isPresent() ? optionalCountry.get() : null,
                 iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(filter.get_asInterests().get(0)) : null,
                 iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(filter.get_asInterests().get(1)) : null,
                 iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(filter.get_asInterests().get(2)) : null,
-                iUserId, PageRequest.of(iPageNumber, 10));
+                user, PageRequest.of(iPageNumber, 10));
 
 
     }

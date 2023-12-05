@@ -38,10 +38,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
             "( :interest1 IS NULL OR :interest1 MEMBER OF u._setInterests ) AND" +
             "( :interest2 IS NULL OR :interest2 MEMBER OF u._setInterests ) AND" +
             "( :interest3 IS NULL OR :interest3 MEMBER OF u._setInterests ) AND" +
-            "( :userId != u.id ) AND u._bIsSuspended = FALSE")
-    Page<Integer> findFilteredUsers(@Param("province") Province province, @Param("region") Region region, @Param("country") Country country,
+            "( :user != u ) AND u._bIsSuspended = FALSE")
+    Page<Integer> findFilteredUserIds(@Param("province") Province province, @Param("region") Region region, @Param("country") Country country,
                                  @Param("interest1") Interest interest1, @Param("interest2") Interest interest2, @Param("interest3") Interest interest3,
-                                 @Param("userId") int iUserId,
+                                 @Param("user") User user,
                                  Pageable pageable);
 
     List<User> findBy_province(Province province);
