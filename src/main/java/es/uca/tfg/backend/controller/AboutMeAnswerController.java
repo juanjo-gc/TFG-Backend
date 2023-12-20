@@ -41,7 +41,6 @@ public class AboutMeAnswerController {
                 optionalAnswer.get().set_sAnswer(answerDTO.get_sAnswer());
                 //System.out.println("Despues: " + answerDTO.get_sAnswer());
                 AboutMeAnswer answer = _answerRepository.save(optionalAnswer.get());
-                System.out.println("Despues de guardado: " + answer.get_sAnswer());
                 return true;
             } else {
                  _answerRepository.save(new AboutMeAnswer(answerDTO.get_sAnswer(), optionalQuestion.get(), optionalUser.get()));
@@ -81,4 +80,6 @@ public class AboutMeAnswerController {
             return Collections.emptyList();
         }
     }
+
+
 }

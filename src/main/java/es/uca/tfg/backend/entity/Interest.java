@@ -1,5 +1,6 @@
 package es.uca.tfg.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -19,6 +20,7 @@ public class Interest {
     private String _sName;
 
     @ManyToMany(mappedBy = "_setInterests")
+    @JsonIgnore
     private Set<User> _setUsers;
 
     public Interest() {}
@@ -37,4 +39,6 @@ public class Interest {
     public void set_sName(String _sName) {
         this._sName = _sName;
     }
+
+    public Set<User> get_setUsers() { return _setUsers; }
 }

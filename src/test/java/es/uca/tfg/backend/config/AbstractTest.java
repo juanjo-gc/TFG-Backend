@@ -5,9 +5,7 @@ import java.io.IOException;
 
 import es.uca.tfg.backend.BackendApplication;
 import es.uca.tfg.backend.repository.*;
-import es.uca.tfg.backend.service.EventService;
-import es.uca.tfg.backend.service.PersonService;
-import es.uca.tfg.backend.service.PostService;
+import es.uca.tfg.backend.service.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +20,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 //@RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 public abstract class AbstractTest {
@@ -39,6 +38,12 @@ public abstract class AbstractTest {
     protected PostService _postService;
     @MockBean
     protected EventService _eventService;
+    @MockBean
+    protected RegionService _regionService;
+    @MockBean
+    protected ProvinceService _provinceService;
+    @MockBean
+    protected CountryService _countryService;
     @MockBean
     protected UserRepository _userRepository;
     @MockBean
@@ -68,7 +73,23 @@ public abstract class AbstractTest {
     @MockBean
     protected TypeNotificationRepository _typeNotificationRepository;
     @MockBean
+    protected AboutMeAnswerRepository _aboutMeAnswerRepository;
+    @MockBean
+    protected AboutMeQuestionRepository _aboutMeQuestionRepository;
+    @MockBean
+    protected CategoryRepository _categoryRepository;
+    @MockBean
+    protected FAQRepository _faqRepository;
+    @MockBean
+    protected OperationRepository _operationRepository;
+    @MockBean
+    protected ReplyRepository _replyRepository;
+    @MockBean
+    protected TicketRepository _ticketRepository;
+    @MockBean
     protected FileInputStream _fileInputStream;
+    @MockBean
+    protected AdminRepository _adminRepository;
 
     protected void setUp() {
         _mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();

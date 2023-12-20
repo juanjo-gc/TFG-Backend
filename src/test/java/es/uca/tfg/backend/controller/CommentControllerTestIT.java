@@ -1,10 +1,9 @@
-package es.uca.tfg.backend.controller;
+package es.uca.tfg.backend.integration.controller;
 
 
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.Comment;
 import es.uca.tfg.backend.entity.Event;
-import es.uca.tfg.backend.entity.Message;
 import es.uca.tfg.backend.entity.User;
 import es.uca.tfg.backend.rest.CommentDTO;
 import org.junit.Before;
@@ -28,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest
 @RunWith(SpringRunner.class)
-public class CommentControllerTest extends AbstractTest {
+public class CommentControllerTestIT extends AbstractTest {
 
     @Override
     @Before

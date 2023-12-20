@@ -109,6 +109,8 @@ public class Notification {
         return _bSeen;
     }
 
+    public void set_bSeen(boolean bSeen) { _bSeen = bSeen; }
+
     public LocalDateTime get_tCreatedAt() {
         return _tCreatedAt;
     }

@@ -1,7 +1,6 @@
-package es.uca.tfg.backend.controller;
+package es.uca.tfg.backend.integration.controller;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.*;
 import es.uca.tfg.backend.rest.EventDTO;
@@ -9,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -29,7 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest
 @RunWith(SpringRunner.class)
-public class EventControllerTest extends AbstractTest {
+public class EventControllerTestIT extends AbstractTest {
 
     @Override
     @Before
@@ -101,7 +99,7 @@ public class EventControllerTest extends AbstractTest {
     @Test
     public void getEventWillReturnExistingEvent() throws Exception {
         //given
-        Event event = new Event("TestTitle", LocalDate.now(), LocalTime.now(), "Description", new User(), Collections.emptySet(), null, true);
+        Event event = new Event("TestTitle", LocalDate.now(), LocalTime.now(), "Description", new User(), Collections.emptySet(), null, null, true);
         Mockito.when(_eventRepository.findById(any(Integer.class))).thenReturn(Optional.of(event));
         //when
         ResultActions resultActions = _mockMvc.perform(get("/api/getEvent/1"));

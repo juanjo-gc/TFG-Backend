@@ -149,4 +149,22 @@ public class NotificationController {
         }
     }
 
+    @GetMapping("/countNewNotifications/{userId}")
+    public int countNewNotifications(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if(optionalUser.isPresent()) {
+            return _notificationRepository.countNewNotifications(optionalUser.get());
+        } else {
+            return -1;
+        }
+    }
+
+    @PatchMapping("/setSeen/{notificationId}")
+    public void setSeen(@PathVariable("notificationId") int iNotificationId) {
+        Optional<Notification> optionalNotification = _notificationRepository.findById(iNotificationId);
+        if(optionalNotification.isPresent()) {
+            optionalNotification.get().set_bSeen(true);
+            _notificationRepository.save(optionalNotification.get());
+        }
+    }
 }

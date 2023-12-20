@@ -60,4 +60,7 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("SELECT e FROM Event e WHERE e._tCelebratedAt >= :localdate")
     List<Event> findEventsBeforeDate(@Param("localdate")  LocalDate localDate);
 
+    @Query("SELECT e FROM Event e WHERE :interest MEMBER OF e._setInterests")
+    List<Event> findByInterest(@Param("interest") Interest interest);
+
 }

@@ -1,12 +1,10 @@
 package es.uca.tfg.backend.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
+@Table(indexes = { @Index(name = "UX_TypeNotification__name", columnList = "name") })
 public class TypeNotification {
 
     @Id
@@ -15,7 +13,7 @@ public class TypeNotification {
     private int _iId;
 
     @NotNull
-    @Column(name = "name")
+    @Column(name = "name", unique = true)
     private String _sName;
 
     public TypeNotification() {}

@@ -1,6 +1,5 @@
-package es.uca.tfg.backend.controller;
+package es.uca.tfg.backend.integration.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.*;
 import es.uca.tfg.backend.rest.NotificationDTO;
@@ -8,7 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
@@ -18,11 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -32,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest
 @RunWith(SpringRunner.class)
-public class NotificationControllerTest extends AbstractTest {
+public class NotificationControllerTestIT extends AbstractTest {
 
     @Override
     @Before
@@ -115,7 +111,7 @@ public class NotificationControllerTest extends AbstractTest {
     public void getUserNotificationsTest() throws Exception {
         //given
         //User user = Mockito.mock(User.class);
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
         Notification notification = new Notification("test", user, new TypeNotification("test"));
 
         //Page<Notification> notificationPage = new PageImpl<>(List.of());
@@ -133,7 +129,7 @@ public class NotificationControllerTest extends AbstractTest {
     @Test
     public void getNotificationTest() throws Exception {
         //given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
         TypeNotification typeNotification = new TypeNotification("test");
         Notification notification = new Notification("test", user, typeNotification);
         Mockito.when(_notificationRepository.findById(any(Integer.class))).thenReturn(Optional.of(notification));

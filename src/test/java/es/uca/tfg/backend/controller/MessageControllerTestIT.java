@@ -1,46 +1,34 @@
-package es.uca.tfg.backend.controller;
+package es.uca.tfg.backend.integration.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.Message;
+import es.uca.tfg.backend.entity.Province;
 import es.uca.tfg.backend.entity.User;
-import es.uca.tfg.backend.repository.MessageRepository;
 import es.uca.tfg.backend.rest.MessageDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.sql.Array;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest
 @RunWith(SpringRunner.class)
-public class MessageControllerTest extends AbstractTest {
+public class MessageControllerTestIT extends AbstractTest {
 
     @Override
     @Before
@@ -123,8 +111,8 @@ public class MessageControllerTest extends AbstractTest {
 
     @Test
     public void getLastMessagesWillReturnSomeMessages() throws Exception {
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
-        User messagedUser = new User("messaged@gmail.com", "password", "messaged", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
+        User messagedUser = new User("messaged@gmail.com", "password", "messaged", "descriptin", "user", "name", new Date(), new Province());
         List<User> users = new ArrayList<>();
         users.add(messagedUser);
 
@@ -149,8 +137,8 @@ public class MessageControllerTest extends AbstractTest {
     @Test
     public void getConversationWillSuccess() throws Exception {
         //given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
-        User target = new User("messaged@gmail.com", "password", "messaged", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
+        User target = new User("messaged@gmail.com", "password", "messaged", "descriptin", "user", "name", new Date(), new Province());
         Optional<User> optionalUser = Optional.of(user);
         Optional<User> optionalTarget = Optional.of(target);
         ArrayList<Message> aMessages = new ArrayList<>();
@@ -171,8 +159,8 @@ public class MessageControllerTest extends AbstractTest {
 
     @Test
     public void testGetConversation() throws Exception {
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
-        User target = new User("messaged@gmail.com", "password", "messaged", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
+        User target = new User("messaged@gmail.com", "password", "messaged", "descriptin", "user", "name", new Date(), new Province());
 
         List<Message> aMessages = new ArrayList<>();
         for(int i = 0; i < 5; i++)

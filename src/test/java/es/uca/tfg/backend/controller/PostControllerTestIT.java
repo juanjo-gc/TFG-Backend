@@ -1,31 +1,20 @@
-package es.uca.tfg.backend.controller;
+package es.uca.tfg.backend.integration.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.Post;
+import es.uca.tfg.backend.entity.Province;
 import es.uca.tfg.backend.entity.User;
-import es.uca.tfg.backend.repository.PostRepository;
 import es.uca.tfg.backend.rest.PostDTO;
-import es.uca.tfg.backend.service.PostService;
-import jakarta.validation.constraints.AssertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.Result;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -37,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest
 @RunWith(SpringRunner.class)
-public class PostControllerTest extends AbstractTest {
+public class PostControllerTestIT extends AbstractTest {
 
     @Override
     @Before
@@ -122,7 +111,7 @@ public class PostControllerTest extends AbstractTest {
     @Test
     public void getPostWillSuccess() throws Exception {
         //given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
         Post post = new Post("test", user);
         Optional<Post> optionalPost = Optional.of(post);
         Mockito.when(_postRepository.findById(anyInt())).thenReturn(optionalPost);
@@ -139,7 +128,7 @@ public class PostControllerTest extends AbstractTest {
         //given
         Set<User> aUsers = new HashSet<>();
         for(int i = 0; i < 3; i++) {
-            aUsers.add(new User("example" + (i+1) + "@gmail.com", "password", "username" + (i+1), "user", "name", new Date()));
+            aUsers.add(new User("example" + (i+1) + "@gmail.com", "password", "username" + (i+1), "description", "user", "name", new Date(), new Province()));
         }
         Post post = Mockito.mock(Post.class);
         Optional<Post> optionalPost = Optional.of(post);
@@ -159,7 +148,7 @@ public class PostControllerTest extends AbstractTest {
         Set<Post> aPosts = new HashSet<>();
         for(int i = 0; i < 3; i++) {
             aPosts.add(new Post("test" + (i+1),
-                    new User("example" + (i+1) + "@gmail.com", "password", "username" + (i+1), "user", "name", new Date())));
+                    new User("example" + (i+1) + "@gmail.com", "password", "username" + (i+1), "description", "user", "name", new Date(), new Province())));
         }
         Post post = Mockito.mock(Post.class);
         Optional<Post> optionalPost = Optional.of(post);

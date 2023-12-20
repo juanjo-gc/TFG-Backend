@@ -49,8 +49,6 @@ public class ImagePath {
         _tDeleteDate = tDeleteDate;
     }
 
-
-
     public User get_user() {
         return _user;
     }

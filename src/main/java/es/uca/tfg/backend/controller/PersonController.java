@@ -62,6 +62,15 @@ public class PersonController {
     @Autowired
     private AboutMeQuestionRepository _questionRepository;
 
+    @Autowired
+    private CategoryRepository _categoryRepository;
+
+    @Autowired
+    private TypeNotificationRepository _typeNotificationRepository;
+
+    @Autowired
+    private FAQRepository _faqRepository;
+
 
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
 
@@ -75,7 +84,7 @@ public class PersonController {
 
             User user = _personRepository.save(new User(mapUserRegister.get_sEmail(), mapUserRegister.get_sPassword(),
                     mapUserRegister.get_sUsername(), "", "user", mapUserRegister.get_sName(),
-                    mapUserRegister.get_tBirthDate(), _provinceRepository.findBy_sName(mapUserRegister.get_sProvince())));
+                    mapUserRegister.get_tBirthDate(), mapUserRegister.get_sProvince() == null ? null : _provinceRepository.findBy_sName(mapUserRegister.get_sProvince())));
             //mapUserRegister.set_sMessage("Usuario creado correctamente.");
             sMessage = "Usuario creado correctamente.";
         } else {
@@ -139,10 +148,10 @@ public class PersonController {
     public User updateUserDetails(@RequestBody UserDTO userDTO) {
         Optional<User> optionalUser = _userRepository.findById(userDTO.get_iUserId());
         Optional<Province> optionalProvince = _provinceRepository.findById(userDTO.get_iProvinceId());
-        if (optionalUser.isPresent() && optionalProvince.isPresent()) {
+        if (optionalUser.isPresent()) {
             optionalUser.get().set_sName(userDTO.get_sName());
             optionalUser.get().set_sUsername(userDTO.get_sUsername());
-            optionalUser.get().set_province(optionalProvince.get());
+            optionalUser.get().set_province(optionalProvince.isPresent() ? optionalProvince.get() : null);
             return _userRepository.save(optionalUser.get());
         } else {
             return new User();
@@ -164,18 +173,14 @@ public class PersonController {
     @PostMapping("/uploadInterests")
     public Set<Interest> saveInterests(@RequestParam("id") int iId, @RequestParam("interests[]") String[] aSInterests) {
 
-        for (int i = 0; i < aSInterests.length; i++) {
-            System.out.println("ID: " + iId + " longitud del vector: " + aSInterests.length + " Elemento del vector: " + aSInterests[i]);
-        }
         User user = _userRepository.findBy_iId(iId);
-        System.out.println("Nº de intereses actuales del usuario: " + user.get_setInterests().size());
 
-        user.get_setInterests().clear();
-
+        //user.get_setInterests().clear();
+        Set<Interest> aInterests = new HashSet<>();
         for (int i = 0; i < aSInterests.length; i++) {
-            System.out.println("Añadiendo interes: " + _interestRepository.findBy_sName(aSInterests[i]).get_sName());
-            user.get_setInterests().add(_interestRepository.findBy_sName(aSInterests[i]));
+            aInterests.add(_interestRepository.findBy_sName(aSInterests[i]));
         }
+        user.set_setInterests(aInterests);
         user = _userRepository.save(user);
 
         return user.get_setInterests();
@@ -226,26 +231,24 @@ public class PersonController {
             File file = new File(_sUploadPath + user.get_profileImagePath().get_sName());
             file.delete();
         }
-
          */
-
-        String sFilename = user.get_iId() + "profileImg-" + multipartFile.getOriginalFilename();
-        Optional<ImagePath> optionalImagePath = _imagePathRepository.findBy_sName(sFilename);
-        ImagePath imagePath = new ImagePath(sFilename);
-        if (optionalImagePath.isPresent()) {
-            optionalImagePath.get().set_tDeleteDate(null);
+        String sFilename = user.get_iId() + "-profileImg-" + multipartFile.getOriginalFilename();
+        //Optional<ImagePath> optionalImagePath = _imagePathRepository.findBy_sName(sFilename);
+        ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
+        if (user.get_profileImagePath() != null) {          // Tenía foto de perfil
             user.get_profileImagePath().set_tDeleteDate(LocalDateTime.now());
-            imagePath = optionalImagePath.get();
         } else {
-            File file = new File(_sUploadPath + sFilename);
+            File file = new File(_sUploadPath + sFilename + "-" + imagePath.get_iId());
             System.out.println("Guardando la imagen con nombre: " + sFilename);
             System.out.println("Ruta: " + path.toString());
             multipartFile.transferTo(file);
         }
         imagePath.set_user(user);
-        imagePath = _imagePathRepository.save(imagePath);
+        imagePath.set_sName(sFilename + "-" + imagePath.get_iId());
         user.set_profileImagePath(imagePath);
+        user.get_profileImagePath().set_sName(sFilename + "-" + imagePath.get_iId());
         user = _userRepository.save(user);
+
         return imagePath;
     }
 
@@ -256,12 +259,14 @@ public class PersonController {
 
         for (int i = 0; i < aMultipartFile.length; i++) {
             String sFilename = user.get_iId() + "-" + aMultipartFile[i].getOriginalFilename();
+            ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
+            sFilename = sFilename + "-" + imagePath.get_iId();
+            imagePath.set_sName(sFilename);
             File file = new File(_sUploadPath + sFilename);
             aMultipartFile[i].transferTo(file);
             System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sUploadPath);
-            ImagePath imagePath = new ImagePath(sFilename);
+
             //imagePath.set_user(user);
-            imagePath = _imagePathRepository.save(imagePath);
             user.get_setImagePath().add(imagePath);
             user = _userRepository.save(user);
         }
@@ -482,6 +487,37 @@ public class PersonController {
         return optionalUser.isPresent() ? optionalUser.get().get_setBlockedBy() : Collections.emptySet();
     }
 
+    @GetMapping("/loadDB")
+    public void loadDB() {
+        System.out.println("Recibida petición de inicialización de bd");
+        System.out.println("Nº admins: " + _adminRepository.count());
+
+        if(_adminRepository.count() == 0) {
+            System.out.println("Inicializando base de datos...");
+            _adminRepository.save(new Admin("admin@admin.com", "admin", "admin", "Admin"));
+            Country country = _countryRepository.save(new Country("España"));
+            Region region =_regionRepository.save(new Region("Andalucía", country));
+            for(String sName: List.of("Cádiz", "Huelva", "Sevilla", "Málaga", "Córdoba", "Jaén", "Granada", "Almería"))
+                _provinceRepository.save(new Province(sName, region));
+            for(String sName: List.of("Borrada previamente", "Denunciar un evento", "Denunciar una publicación", "Denunciar un usuario", "Reportar un error"))
+                _categoryRepository.save(new Category(sName));
+            for(String sName: List.of("Música", "Videojuegos", "Deportes", "Arte"))
+                _interestRepository.save(new Interest(sName));
+            for(String sName: List.of("NewFollow", "FollowRequest", "NewEventAssistant", "NewEventComment", "NewEventPhoto", "NewMessage", "NewPostLike", "NewPostComment", "FollowRequestAccepted", "BehaviorWarning", "Announcement"))
+                _typeNotificationRepository.save(new TypeNotification(sName));
+            for(String sQuestion: List.of("¿Cuál es tu comida favorita?", "Qué tipo de música escuchas?", "¿Cuál es tu artista musical favorito?", "Cuál es tu principal hobby?", "¿Qué te gusta hacer cuando quedas con amigos?", "¿Cómo te definirías en una frase?", "¿Qué es lo que más valoras en una persona?"))
+                _questionRepository.save(new AboutMeQuestion(sQuestion));
+            _faqRepository.save(new FAQ("Pregunta frecuente 1", "Respuesta 1"));
+            _faqRepository.save(new FAQ("Pregunta frecuente 2", "Respuesta 2"));
+            _faqRepository.save(new FAQ("Pregunta frecuente 3", "Respuesta 3"));
+
+        } else {
+        System.out.println("La base de datos ya estaba inicializada");
+        }
+
+    }
+}
+
 
     /*
     @GetMapping("/removeImages")
@@ -508,23 +544,7 @@ public class PersonController {
 
      */
 
-    @GetMapping("/customGet")
-    void customGet() {
-        /*
-        Country country = _countryRepository.save(new Country("España"));
-        _regionRepository.save(new Region("Andalucía", country));
-        _regionRepository.save(new Region("Comunidad Valenciana", country));
-        _provinceRepository.save(new Province("Cádiz", _regionRepository.findById(1).get()));
-        _provinceRepository.save(new Province("Sevilla", _regionRepository.findById(1).get()));
-        _provinceRepository.save(new Province("Málaga", _regionRepository.findById(1).get()));
-        User user = _userRepository.findBy_iId(2);
-        user.set_province(_provinceRepository.findById(1).get());
-        _userRepository.save(user);
 
-         */
-        System.out.println(_userRepository.findUserIdsByOptionalInterests(null, null, null).toString());
-
-    }
         /*
     Esto funciona pero no es la mejor manera
     @GetMapping("getImages")
@@ -539,4 +559,4 @@ public class PersonController {
         return encodedString;
     }
      */
-}
+

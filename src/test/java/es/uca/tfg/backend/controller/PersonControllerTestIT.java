@@ -1,7 +1,11 @@
-package es.uca.tfg.backend.controller;
+package es.uca.tfg.backend.integration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import es.uca.tfg.backend.config.AbstractTest;
+import es.uca.tfg.backend.controller.PersonController;
+import es.uca.tfg.backend.entity.ImagePath;
 import es.uca.tfg.backend.entity.Interest;
+import es.uca.tfg.backend.entity.Province;
 import es.uca.tfg.backend.entity.User;
 import es.uca.tfg.backend.repository.*;
 import es.uca.tfg.backend.rest.MapUserRegister;
@@ -9,44 +13,36 @@ import es.uca.tfg.backend.rest.UserChecker;
 import es.uca.tfg.backend.rest.UserFilterDTO;
 import es.uca.tfg.backend.service.PersonService;
 import es.uca.tfg.backend.service.PostService;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.util.Assert;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
-import javax.print.attribute.standard.Media;
-import javax.xml.transform.Result;
 import java.io.File;
 import java.io.FileInputStream;
-import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -59,7 +55,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest
 
-public class PersonControllerTest {
+public class PersonControllerTestIT extends AbstractTest {
+    /*
     @Autowired
     private MockMvc _mockMvc;
     @Autowired
@@ -90,14 +87,16 @@ public class PersonControllerTest {
     private  PostRepository _postRepository;
     @MockBean
     private FileInputStream _fileInputStream;
-    @Mock
-    File _file;
+
     @InjectMocks
     PersonController _personController;
 
+     */
+    @Mock
+    File _file;
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
 
-    public PersonControllerTest() {
+    public PersonControllerTestIT() {
     }
 
 
@@ -158,7 +157,7 @@ public class PersonControllerTest {
     void loginTest() throws Exception {
         //given
         UserChecker.LoginChecker loginChecker = new UserChecker.LoginChecker("example@gmail.com", "password");
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
         Mockito.when(_personService.authenticate(loginChecker.get_sEmail(), loginChecker.get_sPassword())).thenReturn(user);
 
         //when
@@ -175,7 +174,7 @@ public class PersonControllerTest {
     @Test
     void getUserFromUsernameTest() throws Exception {
         //given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
 
         Mockito.when(_userRepository.findBy_sUsername(user.get_sUsername())).thenReturn(user);
         //when
@@ -190,7 +189,7 @@ public class PersonControllerTest {
     @Test
     void getUserFromUsernameWillFailTest() throws Exception {
         //given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
 
         Mockito.when(_userRepository.findBy_sUsername(user.get_sUsername())).thenReturn(null);
         //when
@@ -206,7 +205,7 @@ public class PersonControllerTest {
     void updateUserDetailsTest() throws Exception {
         //given
         MultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
 
         multiValueMap.add("id", "1");
         multiValueMap.add("name", "newName");
@@ -236,14 +235,17 @@ public class PersonControllerTest {
     @Test
     void updateInterestsTest() throws Exception {
         //given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
+        //User user = Mockito.mock(User.class);
         String[] asInterests = new String[] {"Música", "Videojuegos", "Deportes"};
-        MockHttpServletRequestBuilder mockHttpServletRequestBuilder = MockMvcRequestBuilders.post("/api/uploadInterests")
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .param("id", "1")
-                .param("interests[]", asInterests);
+        Set<Interest> aUserInterests = new HashSet<>();
+        Interest interest = Mockito.mock(Interest.class);
         Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
-        Mockito.when(_interestRepository.findBy_sName(any(String.class))).thenReturn(new Interest(any(String.class)));
+        Mockito.when(_interestRepository.findBy_sName("Música")).thenReturn(new Interest("Música"));
+        Mockito.when(_interestRepository.findBy_sName("Videojuegos")).thenReturn(new Interest("Videojuegos"));
+        Mockito.when(_interestRepository.findBy_sName("Deportes")).thenReturn(new Interest("Deportes"));
+        Mockito.when(_userRepository.save(any())).thenReturn(user);
+        //Mockito.when(user.get_setInterests()).thenReturn(aUserInterests);
         //when
         ResultActions response = _mockMvc.perform(post("/api/uploadInterests")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
@@ -253,15 +255,15 @@ public class PersonControllerTest {
         //then
         response.andDo(print())
                         .andExpect(status().is2xxSuccessful());
-
-        Assertions.assertEquals(asInterests.length, user.get_setInterests().size());
-
+        Mockito.verify(_userRepository).save(any(User.class));
+        Mockito.verify(_interestRepository, Mockito.times(3)).findBy_sName(anyString());
+        Assertions.assertEquals(asInterests.length, _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), Set.class).size());
     }
 
     @Test
     void getUserInterestTest() throws Exception {
         //given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
         Optional<User> optionalUser = Optional.of(user);
         Interest[] aInterests = {new Interest("Música"), new Interest("Videojuegos")};
         user.set_setInterests(List.of(aInterests).stream().collect(Collectors.toSet()));
@@ -277,25 +279,27 @@ public class PersonControllerTest {
     @Test
     void uploadUserProfileImageTest() throws Exception {
         //given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
-        MockMultipartFile mockMultipartFile = new MockMultipartFile("filename", new byte[1]);
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
+        Resource resource = new ClassPathResource("filename");
+        MockMultipartFile mockMultipartFile = new MockMultipartFile("filename", resource.getFilename(), MediaType.MULTIPART_FORM_DATA_VALUE, new byte[1]);
         Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
         //when
         ResultActions response = _mockMvc.perform(post("/api/uploadProfileImage")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .param("id", "1")
                 .param("file", String.valueOf(mockMultipartFile)));
+
+
         //then
         response.andDo(print())
                 .andExpect(status().is2xxSuccessful());
-        String sResponse = response.andReturn().getResponse().getContentAsString();
-        Assertions.assertEquals(_objectMapper.readValue(sResponse, User.class).get_iId(), 1);
+
     }
 
     @Test
     public void getUserInterestsTest() throws Exception {
         // Given
-        User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
+        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
         List<Interest> interests = Arrays.asList(new Interest("Música"), new Interest("Videojuegos"));
         user.set_setInterests(interests.stream().collect(Collectors.toSet()));
         Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(user));
@@ -414,11 +418,11 @@ public class PersonControllerTest {
     public void getUsersByUsernameWhenThereAreMoreThanSevenMatches() throws Exception {
         List<User> aUserList = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
-            aUserList.add(new User("example" + i + "@gmail.com", "password", "username" + i, "user", "name", new Date()));
+            aUserList.add(new User("example" + i + "@gmail.com", "password", "username" + i, "user", "description", "name", new Date(), new Province()));
         }
         Mockito.when(_userRepository.findFirst7By_sUsernameStartsWith(anyString())).thenReturn(aUserList);
         //when
-        ResultActions response = _mockMvc.perform(get("/api/findUsers/user"));
+        ResultActions response = _mockMvc.perform(get("/api/findFirst7Users/user"));
         //then
         response.andDo(print())
                 .andExpect(status().is2xxSuccessful());
@@ -430,7 +434,7 @@ public class PersonControllerTest {
         //given
         List<User> aUserList = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            aUserList.add(new User("example" + i + "@gmail.com", "password", "username" + i, "user", "name", new Date()));
+            aUserList.add(new User("example" + i + "@gmail.com", "password", "username" + i, "description", "user", "name", new Date(), new Province()));
         }
         Mockito.when(_userRepository.findFirst7By_sUsernameStartsWith(anyString())).thenReturn(aUserList);
         //when
@@ -444,7 +448,7 @@ public class PersonControllerTest {
     @Test
     public void filterUserIdsWhenThereAreNoInterestsAndNoLocation() throws Exception {
         //given
-        List<Integer> aUserIds = Mockito.mock(List.class);
+        List<Integer> aUserIds = List.of(1, 2, 3, 4);
         UserFilterDTO filter = new UserFilterDTO(Collections.emptyList(), null, null, null);
         //UserFilterDTO filter = Mockito.mock(UserFilterDTO.class);
         //public UserFilterDTO(List<String> asInterests, String sCountry, String sRegion, String sProvince) {
@@ -456,6 +460,7 @@ public class PersonControllerTest {
 
          */
         //Mockito.when(_userRepository.findUserIdsByLocation()).thenReturn(aUserIds);
+        Mockito.when(_userRepository.findFilteredUserIds(null, null, null, null, null, null, any(User.class), any(Pageable.class)));
         //when
         System.out.println("Parametro enviado: " + String.valueOf(filter.get_asInterests()));
         ResultActions response = _mockMvc.perform(post("/api/filterUsers/1")

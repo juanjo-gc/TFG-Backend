@@ -1,36 +1,25 @@
-package es.uca.tfg.backend.controller;
+package es.uca.tfg.backend.integration.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.Country;
 import es.uca.tfg.backend.entity.Region;
-import es.uca.tfg.backend.entity.User;
-import es.uca.tfg.backend.repository.CountryRepository;
-import es.uca.tfg.backend.repository.ProvinceRepository;
-import es.uca.tfg.backend.repository.RegionRepository;
 import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @WebMvcTest
-public class ProvinceControllerTest extends AbstractTest {
+public class ProvinceControllerTestIT extends AbstractTest {
     /*
     @Autowired
     private MockMvc _mockMvc;

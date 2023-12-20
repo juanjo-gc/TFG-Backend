@@ -42,9 +42,6 @@ public class ImagePathController {
     private String _sReplyUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\replies\\";
 
 
-
-
-
     @PostMapping("/uploadEventHeaderImage")
     public boolean saveProfileImage(@RequestParam("id") int iId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         Event event = _eventRepository.findById(iId).get();
@@ -57,16 +54,17 @@ public class ImagePathController {
         }
 
         String sFilename = event.get_iId() + "-" + multipartFile.getOriginalFilename();
+        ImagePath imagePath = new ImagePath(sFilename);
+        imagePath.set_sName(sFilename + "-" + imagePath.get_iId());
         File file = new File(_sEventsUploadPath + sFilename);
         System.out.println("Guardando la imagen con nombre: " + sFilename);
         System.out.println("Ruta: " + path.toString());
         multipartFile.transferTo(file);
 
-        ImagePath imagePath = new ImagePath(sFilename);
         imagePath = _imagePathRepository.save(imagePath);
         event.set_headerPhoto(imagePath);
         event = _eventRepository.save(event);
-        return event.get_headerPhoto() != null ? true : false;
+        return event.get_headerPhoto() != null;
     }
 
     @PostMapping("/uploadEventImages")
@@ -76,11 +74,11 @@ public class ImagePathController {
 
         for(int i = 0; i < aMultipartFiles.length; i++) {
             String sFilename = event.get_iId() + "-" + aMultipartFiles[i].getOriginalFilename();
+            ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
+            sFilename = sFilename + "-" + imagePath.get_iId();
             File file = new File(_sEventsUploadPath + sFilename);
             aMultipartFiles[i].transferTo(file);
             System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sEventsUploadPath);
-            ImagePath imagePath = new ImagePath(sFilename);
-            imagePath = _imagePathRepository.save(imagePath);
             event.get_setPhotos().add(imagePath);
             event = _eventRepository.save(event);
         }

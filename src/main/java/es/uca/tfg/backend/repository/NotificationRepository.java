@@ -22,4 +22,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
 
     @Query("SELECT n FROM Notification n WHERE n._recipient = :user AND n._type._sName = 'BehaviorWarning'")
     List<Notification> findUserWarnings(@Param("user") User user);
+
+    @Query("SELECT COUNT(*) FROM Notification n WHERE :user = n._recipient AND n._bSeen = FALSE ")
+    int countNewNotifications(@Param("user") User user);
 }

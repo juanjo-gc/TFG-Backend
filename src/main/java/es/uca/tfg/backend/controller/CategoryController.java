@@ -57,6 +57,7 @@ public class CategoryController {
         Optional<Category> newCategory = _categoryRepository.findBy_sName("Borrada previamente");
         for(Ticket ticket: aTicketsWithThisCategory) {
             ticket.set_category(newCategory.get());
+            _ticketRepository.save(ticket);
         }
         _categoryRepository.deleteById(iCategoryId);
     }

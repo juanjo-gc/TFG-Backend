@@ -7,12 +7,14 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 
 @Entity
+@Table(indexes = { @Index(name = "UX_Province__name", columnList = "name") })
 public class Province {
     @Id
     @GeneratedValue
     private int _iId;
 
     @NotNull
+    @Column(name = "name", unique = true)
     private String _sName;
 
     @OneToMany(mappedBy = "_province")
