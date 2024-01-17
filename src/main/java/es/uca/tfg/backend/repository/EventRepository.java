@@ -63,4 +63,12 @@ public interface EventRepository extends JpaRepository<Event, Integer> {
     @Query("SELECT e FROM Event e WHERE :interest MEMBER OF e._setInterests")
     List<Event> findByInterest(@Param("interest") Interest interest);
 
+    @Query("SELECT e FROM Event e WHERE e._location._province = :province " +
+            "AND :user NOT MEMBER OF e._setAssistants")
+    Page<Event> findTop5LocatedEventsWithMoreAssistants(@Param("province") Province province, @Param("user") User user, Pageable pageable);
+
+    @Query("SELECT e FROM Event e WHERE e._bIsOnline = TRUE " +
+            "AND :user NOT MEMBER OF e._setAssistants ORDER BY COUNT(e._setAssistants) DESC")
+    Page<Event> findTop5OnlineEventsWithMoreAssistants(@Param("user") User user, Pageable pageable);
+
 }

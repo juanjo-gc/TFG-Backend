@@ -460,7 +460,7 @@ public class PersonControllerTestIT extends AbstractTest {
 
          */
         //Mockito.when(_userRepository.findUserIdsByLocation()).thenReturn(aUserIds);
-        Mockito.when(_userRepository.findFilteredUserIds(null, null, null, null, null, null, any(User.class), any(Pageable.class)));
+        Mockito.when(_userRepository.findFilteredUsers(null, null, null, null, null, null, any(User.class), any(Pageable.class)));
         //when
         System.out.println("Parametro enviado: " + String.valueOf(filter.get_asInterests()));
         ResultActions response = _mockMvc.perform(post("/api/filterUsers/1")

@@ -235,10 +235,11 @@ public class PersonController {
         String sFilename = user.get_iId() + "-profileImg-" + multipartFile.getOriginalFilename();
         //Optional<ImagePath> optionalImagePath = _imagePathRepository.findBy_sName(sFilename);
         ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
+        sFilename = imagePath.get_iId() + "-" + sFilename;
         if (user.get_profileImagePath() != null) {          // Tenía foto de perfil
             user.get_profileImagePath().set_tDeleteDate(LocalDateTime.now());
         } else {
-            File file = new File(_sUploadPath + sFilename + "-" + imagePath.get_iId());
+            File file = new File(_sUploadPath + sFilename);
             System.out.println("Guardando la imagen con nombre: " + sFilename);
             System.out.println("Ruta: " + path.toString());
             multipartFile.transferTo(file);
@@ -246,7 +247,7 @@ public class PersonController {
         imagePath.set_user(user);
         imagePath.set_sName(sFilename + "-" + imagePath.get_iId());
         user.set_profileImagePath(imagePath);
-        user.get_profileImagePath().set_sName(sFilename + "-" + imagePath.get_iId());
+        user.get_profileImagePath().set_sName(sFilename);
         user = _userRepository.save(user);
 
         return imagePath;
@@ -258,9 +259,9 @@ public class PersonController {
         System.out.println(_sUploadPath);
 
         for (int i = 0; i < aMultipartFile.length; i++) {
-            String sFilename = user.get_iId() + "-" + aMultipartFile[i].getOriginalFilename();
+            String sFilename = aMultipartFile[i].getOriginalFilename();
             ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
-            sFilename = sFilename + "-" + imagePath.get_iId();
+            sFilename = user.get_iId() + "-" +  imagePath.get_iId() + "-" + sFilename;
             imagePath.set_sName(sFilename);
             File file = new File(_sUploadPath + sFilename);
             aMultipartFile[i].transferTo(file);
@@ -392,7 +393,7 @@ public class PersonController {
     }
 
     @PostMapping(value = "/filterUsers/{userId}/{pageNumber}")
-    public Page<Integer> filterUsers(@RequestBody UserFilterDTO filter, @PathVariable("userId") int iUserId, @PathVariable("pageNumber") int iPageNumber) throws JsonProcessingException {
+    public Page<User> filterUsers(@RequestBody UserFilterDTO filter, @PathVariable("userId") int iUserId, @PathVariable("pageNumber") int iPageNumber) throws JsonProcessingException {
         /*
         List<Integer> aiFilteredUserIdsByInterest;
         List<Integer> aiFilteredUserIds = _userRepository.findUserIdsByLocation(
@@ -425,8 +426,8 @@ public class PersonController {
         Optional<Region> optionalRegion = _regionRepository.findBy_sName(filter.get_sRegion());
         Optional<Country> optionalCountry = _countryRepository.findBy_sName(filter.get_sCountry());
         User user = _userRepository.findById(iUserId).get();
-        System.out.println(new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(filter));
-        return _userRepository.findFilteredUserIds(
+        //System.out.println(new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(filter));
+        return _userRepository.findFilteredUsers(
                 optionalProvince.isPresent() ? optionalProvince.get() : null,
                 optionalRegion.isPresent() ? optionalRegion.get() : null,
                 optionalCountry.isPresent() ? optionalCountry.get() : null,

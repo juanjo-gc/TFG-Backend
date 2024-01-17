@@ -53,9 +53,10 @@ public class ImagePathController {
             file.delete();
         }
 
-        String sFilename = event.get_iId() + "-" + multipartFile.getOriginalFilename();
+        String sFilename = multipartFile.getOriginalFilename();
         ImagePath imagePath = new ImagePath(sFilename);
-        imagePath.set_sName(sFilename + "-" + imagePath.get_iId());
+        sFilename = event.get_iId() + "-" + imagePath.get_iId() + "-" + sFilename;
+        imagePath.set_sName(sFilename);
         File file = new File(_sEventsUploadPath + sFilename);
         System.out.println("Guardando la imagen con nombre: " + sFilename);
         System.out.println("Ruta: " + path.toString());

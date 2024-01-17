@@ -66,6 +66,12 @@ public class ProvinceController {
         }
     }
 
+    @GetMapping("/getUserProvince/{userId}")
+    public Province getUserProvince(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        return optionalUser.isPresent() ? optionalUser.get().get_province() : new Province();
+    }
+
     @DeleteMapping("/deleteProvince/{id}")
     public void deleteProvince(@PathVariable("id") int iProvinceId) {
         _provinceService.delete(iProvinceId);

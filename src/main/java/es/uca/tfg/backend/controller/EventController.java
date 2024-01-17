@@ -149,8 +149,7 @@ public class EventController {
                 System.out.println(event.get_sTitle());
             }
              */
-            for(Interest interest: _eventRepository.findById(1352).get().get_setInterest())
-                System.out.println(interest.get_sName());
+            
             return _eventRepository.findOnlineEventsByFilter(
                     iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(0)) : null,
                     iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(1)) : null,
@@ -182,6 +181,26 @@ public class EventController {
                     iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(eventFilterDTO.get_asInterests().get(2)) : null,
                     LocalDate.now(), PageRequest.of(iPageNumber, 5, Sort.by("_tCelebratedAt").ascending()));
         }
+    }
+
+    @GetMapping("/findHotEvents/{userId}")
+    public List<Event> findHotEvents(@PathVariable("userId") int iUserId) {
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if(optionalUser.isPresent()) {
+            if(optionalUser.get().get_province() != null) {
+                return _eventRepository.findTop5LocatedEventsWithMoreAssistants(optionalUser.get().get_province(), optionalUser.get(), PageRequest.of(0, 5)).get().toList();
+            } else {
+                return _eventRepository.findTop5OnlineEventsWithMoreAssistants(optionalUser.get(), PageRequest.of(0, 5)).get().toList();
+            }
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    @GetMapping("/getEventAssistantsNumber/{eventId}")
+    public int getEventsAssistantsNumber(@PathVariable("eventId") int iEventId) {
+        Optional<Event> optionalEvent = _eventRepository.findById(iEventId);
+        return optionalEvent.isPresent() ? optionalEvent.get().get_setAssistants().size() : -1;
     }
 
     @PostMapping("/updateEvent/{eventId}")
