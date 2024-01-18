@@ -295,6 +295,20 @@ public class PersonController {
     @GetMapping("/getProfileImage/{id}")
     @ResponseBody
     public ResponseEntity<InputStreamResource> getProfileImage(@PathVariable("id") int iId) throws FileNotFoundException {
+        Optional<User> optionalUser = _userRepository.findById(iId);
+        String sImageName = "GenericAvatar.png";
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (user.get_profileImagePath() != null)
+                sImageName = user.get_profileImagePath().get_sName();
+        }
+        File file = new File(_sUploadPath + sImageName);
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(new InputStreamResource(fileInputStream));
+        /*
         User user = _userRepository.findBy_iId(iId);
         String sImageName = "GenericAvatar.png";
         if (user.get_profileImagePath() != null)
@@ -305,6 +319,8 @@ public class PersonController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(new InputStreamResource(fileInputStream));
+
+         */
     }
 
     @GetMapping("/getImage/{imageName}")

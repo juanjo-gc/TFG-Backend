@@ -38,13 +38,17 @@ public class TicketController {
         Optional<Category> optionalCategory = _categoryRepository.findBy_sName(ticketDTO.get_sCategory());
         Ticket ticket = new Ticket();
         System.out.println("Categoria: " + ticketDTO.get_sCategory());
+        System.out.println("La comprobacion funciona? " + ticketDTO.get_sCategory().equals("Denunciar un usuario"));
         if(optionalIssuer.isPresent() && optionalAdmin.isPresent()) {
+            System.out.println("Entra en if. Lo siguiente es el switch");
             switch(ticketDTO.get_sCategory()) {
                 case "Denunciar un usuario":
                     Optional<User> optionalReported = _userRepository.findById(ticketDTO.get_iReportedId());
+                    System.out.println(optionalReported.get().get_iId());
                     if(optionalReported.isPresent() && optionalCategory.isPresent()) {
                         ticket = _ticketRepository.save(new Ticket(ticketDTO.get_sSubject(), ticketDTO.get_sDescription(), optionalAdmin.get(),
                                 optionalIssuer.get(), optionalReported.get(), optionalCategory.get()));
+                        System.out.println("Se ha creado la denuncia");
                     }
                     break;
                 case "Reportar un error":
