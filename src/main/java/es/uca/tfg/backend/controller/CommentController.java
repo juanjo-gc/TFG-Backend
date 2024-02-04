@@ -43,7 +43,6 @@ public class CommentController {
     @GetMapping("/getEventComments/{eventId}")
     public List<Comment> getEventComments(@PathVariable("eventId") int iEventId) {
         Optional<Event> optionalEvent = _eventrepository.findById(iEventId);
-        System.out.println("Llega id " + iEventId + " Id del evento: " + optionalEvent.get().get_iId() + " Evento presente? " + optionalEvent.isPresent());
         if(optionalEvent.isPresent()) {
             return _commentRepository.findOrderedCommentsByDatetime(optionalEvent.get());
         } else {

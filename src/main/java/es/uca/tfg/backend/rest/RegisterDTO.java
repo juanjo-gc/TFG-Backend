@@ -2,7 +2,7 @@ package es.uca.tfg.backend.rest;
 
 import java.util.Date;
 
-public class MapUserRegister {
+public class RegisterDTO {
     private String _sEmail;
     private String _sName;
     private String _sUsername;
@@ -11,7 +11,7 @@ public class MapUserRegister {
     private String _sMessage;
     private String _sProvince;
 
-    public MapUserRegister(String sEmail, String sName, String sUsername, String sPassword, Date tBirthDate, String sProvince) {
+    public RegisterDTO(String sEmail, String sName, String sUsername, String sPassword, Date tBirthDate, String sProvince) {
         _sEmail = sEmail;
         _sName = sName;
         _sUsername = sUsername;

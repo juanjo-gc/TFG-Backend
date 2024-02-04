@@ -53,12 +53,17 @@ public class CategoryController {
 
     @DeleteMapping("/deleteCategory/{id}")
     public void deleteCategory(@PathVariable("id") int iCategoryId) {
-        List<Ticket> aTicketsWithThisCategory = _ticketRepository.findBy_category(_categoryRepository.findById(iCategoryId).get());
-        Optional<Category> newCategory = _categoryRepository.findBy_sName("Borrada previamente");
-        for(Ticket ticket: aTicketsWithThisCategory) {
-            ticket.set_category(newCategory.get());
-            _ticketRepository.save(ticket);
+        Optional<Category> checkIfShouldBeDeleted = _categoryRepository.findById(iCategoryId);
+        if(checkIfShouldBeDeleted.isPresent()) {
+            if(!Objects.equals(checkIfShouldBeDeleted.get().get_sName(), "Borrada previamente")) {
+                Optional<Category> newCategory = _categoryRepository.findBy_sName("Borrada previamente");
+                List<Ticket> aTicketsWithThisCategory = _ticketRepository.findBy_category(_categoryRepository.findById(iCategoryId).get());
+                for (Ticket ticket : aTicketsWithThisCategory) {
+                    ticket.set_category(newCategory.get());
+                    _ticketRepository.save(ticket);
+                }
+            }
+            _categoryRepository.deleteById(iCategoryId);
         }
-        _categoryRepository.deleteById(iCategoryId);
     }
 }

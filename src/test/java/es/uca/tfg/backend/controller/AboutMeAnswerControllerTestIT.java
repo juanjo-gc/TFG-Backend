@@ -1,8 +1,9 @@
-package es.uca.tfg.backend.integration.controller;
+package es.uca.tfg.backend.controller;
 
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.AboutMeAnswer;
 import es.uca.tfg.backend.entity.AboutMeQuestion;
+import es.uca.tfg.backend.entity.Province;
 import es.uca.tfg.backend.entity.User;
 import es.uca.tfg.backend.rest.AboutMeQuestionAnswerDTO;
 import org.junit.Before;
@@ -16,6 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 

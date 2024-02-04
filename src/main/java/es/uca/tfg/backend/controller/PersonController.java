@@ -1,12 +1,10 @@
 package es.uca.tfg.backend.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import es.uca.tfg.backend.entity.*;
 import es.uca.tfg.backend.entity.ImagePath;
 import es.uca.tfg.backend.repository.*;
-import es.uca.tfg.backend.rest.MapUserRegister;
+import es.uca.tfg.backend.rest.RegisterDTO;
 import es.uca.tfg.backend.rest.UserChecker;
 import es.uca.tfg.backend.rest.UserDTO;
 import es.uca.tfg.backend.rest.UserFilterDTO;
@@ -28,7 +26,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
@@ -75,16 +72,16 @@ public class PersonController {
     private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
 
     @PostMapping("/register")
-    public String registerNewUser(@RequestBody MapUserRegister mapUserRegister) {
+    public String registerNewUser(@RequestBody RegisterDTO registerDTO) {
         String sMessage;
-        System.out.println(mapUserRegister.get_sEmail());
-        System.out.println(mapUserRegister.get_sPassword());
+        System.out.println(registerDTO.get_sEmail());
+        System.out.println(registerDTO.get_sPassword());
 
-        if (_personRepository.countBy_sUsername(mapUserRegister.get_sUsername()) == 0) {
+        if (_personRepository.countBy_sUsername(registerDTO.get_sUsername()) == 0) {
 
-            User user = _personRepository.save(new User(mapUserRegister.get_sEmail(), mapUserRegister.get_sPassword(),
-                    mapUserRegister.get_sUsername(), "", "user", mapUserRegister.get_sName(),
-                    mapUserRegister.get_tBirthDate(), mapUserRegister.get_sProvince() == null ? null : _provinceRepository.findBy_sName(mapUserRegister.get_sProvince())));
+            User user = _personRepository.save(new User(registerDTO.get_sEmail(), registerDTO.get_sPassword(),
+                    registerDTO.get_sUsername(), "", "user", registerDTO.get_sName(),
+                    registerDTO.get_tBirthDate(), registerDTO.get_sProvince() == null ? null : _provinceRepository.findBy_sName(registerDTO.get_sProvince())));
             //mapUserRegister.set_sMessage("Usuario creado correctamente.");
             sMessage = "Usuario creado correctamente.";
         } else {
@@ -124,7 +121,6 @@ public class PersonController {
 
     @GetMapping("/getUserFromUsername/{username}")
     public User getUserFromUsername(@PathVariable("username") String sUsername) {
-        System.out.println(sUsername);
         User user = _userRepository.findBy_sUsername(sUsername);
         return user != null ? user : new User();
     }
@@ -172,18 +168,20 @@ public class PersonController {
 
     @PostMapping("/uploadInterests")
     public Set<Interest> saveInterests(@RequestParam("id") int iId, @RequestParam("interests[]") String[] aSInterests) {
+        Optional<User> optionalUser = _userRepository.findById(iId);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            Set<Interest> aInterests = new HashSet<>();
+            for (int i = 0; i < aSInterests.length; i++) {
+                aInterests.add(_interestRepository.findBy_sName(aSInterests[i]));
+            }
+            user.set_setInterests(aInterests);
+            user = _userRepository.save(user);
 
-        User user = _userRepository.findBy_iId(iId);
-
-        //user.get_setInterests().clear();
-        Set<Interest> aInterests = new HashSet<>();
-        for (int i = 0; i < aSInterests.length; i++) {
-            aInterests.add(_interestRepository.findBy_sName(aSInterests[i]));
+            return user.get_setInterests();
+        } else {
+            return Collections.emptySet();
         }
-        user.set_setInterests(aInterests);
-        user = _userRepository.save(user);
-
-        return user.get_setInterests();
     }
 
     @GetMapping("/getUserInterests/{userId}")
@@ -212,14 +210,6 @@ public class PersonController {
             return new User();
         }
     }
-
-    /*
-    @GetMapping("getProfileImage")
-    public MultipartFile getProfileImage(int iId) {
-
-    }
-
-     */
 
     @PostMapping("/uploadProfileImage")
     public ImagePath saveProfileImage(@RequestParam("id") int iId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
@@ -255,23 +245,28 @@ public class PersonController {
 
     @PostMapping("/uploadImages")
     public String saveImages(@RequestParam("id") int iId, @RequestParam("file[]") MultipartFile[] aMultipartFile) throws IOException {
-        User user = _userRepository.findBy_iId(iId);
+        Optional<User> optionalUser = _userRepository.findById(iId);
         System.out.println(_sUploadPath);
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            for (int i = 0; i < aMultipartFile.length; i++) {
+                String sFilename = aMultipartFile[i].getOriginalFilename();
+                ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
+                sFilename = user.get_iId() + "-" + imagePath.get_iId() + "-" + sFilename;
+                imagePath.set_sName(sFilename);
+                File file = new File(_sUploadPath + sFilename);
+                aMultipartFile[i].transferTo(file);
+                System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sUploadPath);
 
-        for (int i = 0; i < aMultipartFile.length; i++) {
-            String sFilename = aMultipartFile[i].getOriginalFilename();
-            ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
-            sFilename = user.get_iId() + "-" +  imagePath.get_iId() + "-" + sFilename;
-            imagePath.set_sName(sFilename);
-            File file = new File(_sUploadPath + sFilename);
-            aMultipartFile[i].transferTo(file);
-            System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sUploadPath);
-
-            //imagePath.set_user(user);
-            user.get_setImagePath().add(imagePath);
+                //imagePath.set_user(user);
+                user.get_setImagePath().add(imagePath);
+            }
             user = _userRepository.save(user);
+            return "Imágenes subidas correctamente.";
+        } else {
+            return "Ha ocurrido un error al subir las imágenes.";
         }
-        return "Imágenes subidas correctamente";
+
     }
 
     @PostMapping("/uploadUserImage")
@@ -351,6 +346,7 @@ public class PersonController {
     }
 
     @GetMapping("/getImageNames/{userId}")
+
     public List<ImagePath> getImageNames(@PathVariable("userId") int iUserId) {
         Optional<User> optionalUser = _userRepository.findById(iUserId);
         return optionalUser.isPresent() ? optionalUser.get().get_setImagePath().stream().toList() : Collections.emptyList();
@@ -367,7 +363,6 @@ public class PersonController {
 
         User user = _userRepository.findBy_iId(iUserId);
         User userToFollow = _userRepository.findBy_iId(iFollowId);
-
         if (user.get_setFollowing().contains(userToFollow)) {
             user.get_setFollowing().remove(userToFollow);
             System.out.println("Deja de seguir");
@@ -383,11 +378,14 @@ public class PersonController {
     @GetMapping("/getNumFollows/{userId}")
     public ArrayList<Integer> getNumFollows(@PathVariable("userId") int iUserId) {
         ArrayList<Integer> numFollows = new ArrayList<>();
-        User user = _userRepository.findBy_iId(iUserId);
-
-        numFollows.add(user.get_setFollowing().size());
-        numFollows.add(user.get_setFollowers().size());
-
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if(optionalUser.isPresent()) {
+            numFollows.add(optionalUser.get().get_setFollowing().size());
+            numFollows.add(optionalUser.get().get_setFollowers().size());
+        } else {
+            numFollows.add(-1);
+            numFollows.add(-1);
+        }
         return numFollows;
     }
 
@@ -465,9 +463,10 @@ public class PersonController {
         boolean bSuspend = iSuspend == 1;
         Optional<User> optionalUser = _userRepository.findById(iUserId);
         if (optionalUser.isPresent()) {
-            optionalUser.get().set_bIsSuspended(bSuspend);
-            _userRepository.save(optionalUser.get());
-            return optionalUser.get().is_bIsSuspended();
+            User user = optionalUser.get();
+            user.set_bIsSuspended(bSuspend);
+            user = _userRepository.save(user);
+            return user.is_bIsSuspended();
         } else {
             return false;
         }

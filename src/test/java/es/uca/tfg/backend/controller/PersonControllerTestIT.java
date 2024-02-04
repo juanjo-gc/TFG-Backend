@@ -1,27 +1,17 @@
 package es.uca.tfg.backend.integration.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import es.uca.tfg.backend.config.AbstractTest;
-import es.uca.tfg.backend.controller.PersonController;
-import es.uca.tfg.backend.entity.ImagePath;
 import es.uca.tfg.backend.entity.Interest;
 import es.uca.tfg.backend.entity.Province;
 import es.uca.tfg.backend.entity.User;
-import es.uca.tfg.backend.repository.*;
-import es.uca.tfg.backend.rest.MapUserRegister;
+import es.uca.tfg.backend.rest.RegisterDTO;
 import es.uca.tfg.backend.rest.UserChecker;
 import es.uca.tfg.backend.rest.UserFilterDTO;
-import es.uca.tfg.backend.service.PersonService;
-import es.uca.tfg.backend.service.PostService;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -29,18 +19,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,12 +91,12 @@ public class PersonControllerTestIT extends AbstractTest {
     void registerNewUserTest() throws Exception {
         //given
         //User user = new User("example@gmail.com", "password", "username", "user", "name", new Date());
-        MapUserRegister mapUserRegister = new MapUserRegister("example@gmail.com", "name", "username", "password", new Date(), "Cádiz");
+        RegisterDTO registerDTO = new RegisterDTO("example@gmail.com", "name", "username", "password", new Date(), "Cádiz");
         //given(_personService.update(any(Person.class))).willAnswer((invocationOnMock -> invocationOnMock.getArgument(0)));
         //when
         ResultActions response = _mockMvc.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(_objectMapper.writeValueAsString(mapUserRegister)));
+                .content(_objectMapper.writeValueAsString(registerDTO)));
         //then
         /*
         response.andDo(print())

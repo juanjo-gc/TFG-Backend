@@ -34,6 +34,7 @@ public class AboutMeAnswerController {
         //public AboutMeQuestionAnswerDTO(String sQuestion, String sAnswer, int iAdminId, int iUserId, int iQuestionId, int iAnswerId) {
         Optional<User> optionalUser = _userRepository.findById(answerDTO.get_iUserId());
         Optional<AboutMeQuestion> optionalQuestion = _questionRepository.findById(answerDTO.get_iQuestionId());
+        System.out.println("Presente?" + optionalQuestion.isPresent());
         if(optionalUser.isPresent() && optionalQuestion.isPresent()) {
             Optional<AboutMeAnswer> optionalAnswer = _answerRepository.findByUserAndQuestion(optionalUser.get(), optionalQuestion.get());
             if(optionalAnswer.isPresent()) {

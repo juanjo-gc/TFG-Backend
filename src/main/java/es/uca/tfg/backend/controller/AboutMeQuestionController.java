@@ -46,6 +46,7 @@ public class AboutMeQuestionController {
         Optional<Admin> optionalAdmin = _adminRepository.findById(questionDTO.get_iAdminId());
         Optional<AboutMeQuestion> optionalQuestion = _questionRepository.findById(questionDTO.get_iQuestionId());
         if(optionalAdmin.isPresent()) {
+            System.out.println(optionalQuestion.get().get_iId());
             optionalQuestion.get().set_sQuestion(questionDTO.get_sQuestion());
             AboutMeQuestion question = _questionRepository.save(optionalQuestion.get());
             System.out.println("Id pregunta: " + question.get_iId());

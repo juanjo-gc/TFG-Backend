@@ -1,4 +1,4 @@
-package es.uca.tfg.backend.integration.controller;
+package es.uca.tfg.backend.controller;
 
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.AboutMeAnswer;

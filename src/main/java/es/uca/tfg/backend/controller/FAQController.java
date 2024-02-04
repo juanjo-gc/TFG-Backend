@@ -44,8 +44,7 @@ public class FAQController {
             FAQ faq = optionalFAQ.get();
             faq.set_sQuestion(faqDTO.get_sQuestion());
             faq.set_sAnswer(faqDTO.get_sAnswer());
-            _faqRepository.save(faq);
-            return faq;
+            return _faqRepository.save(faq);
         } else {
             return new FAQ();
         }

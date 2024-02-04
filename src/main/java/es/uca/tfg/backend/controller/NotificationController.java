@@ -44,7 +44,6 @@ public class NotificationController {
         Optional<Event> optionalEvent = _eventRepository.findById(notificationDTO.get_iEventId());
         Optional<Post> optionalPost = _postRepository.findById(notificationDTO.get_iPostId());
 
-        System.out.println("Llega notificaion con tipo: " + notificationDTO.get_sType() + (Objects.equals(notificationDTO.get_sType(), "BehaviorWarning")));
         if (Objects.equals(notificationDTO.get_sType(), "NewFollow")) {
             if (optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
                 System.out.println("Guardando notificación de tipo" + notificationDTO.get_sType());
@@ -111,10 +110,6 @@ public class NotificationController {
         Optional<User> optionalRecipient = _userRepository.findById(iRecipientId);
         //Para que esté pendiente la solicitud, deberá existir un FollowRequest, pero no un FollowRequestAccepted
         if(optionalIssuer.isPresent() && optionalRecipient.isPresent()) {
-            Optional<Notification> notification = _notificationRepository.findByIssuerAndRecipientAndType(optionalIssuer.get(), optionalRecipient.get(), _typeNotificationRepository.findBy_sName("FollowRequest"));
-            Optional<Notification> notificationFQA = _notificationRepository.findByIssuerAndRecipientAndType(optionalRecipient.get(), optionalIssuer.get(), _typeNotificationRepository.findBy_sName("FollowRequestAccepted"));
-            System.out.println("Notificacion presente? " + notification.isPresent() + " FQA presente? " + notificationFQA.isPresent());
-
             return _notificationRepository.findByIssuerAndRecipientAndType(optionalIssuer.get(), optionalRecipient.get(), _typeNotificationRepository.findBy_sName("FollowRequest")).isPresent() &&
                     !_notificationRepository.findByIssuerAndRecipientAndType(optionalRecipient.get(), optionalIssuer.get(), _typeNotificationRepository.findBy_sName("FollowRequestAccepted")).isPresent();
         } else {

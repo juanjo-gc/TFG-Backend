@@ -35,20 +35,18 @@ public class PostController {
 
     @PostMapping("/newPost")
     public Post newPost(@RequestBody PostDTO dtopost) {
-
-        Post post = new Post(dtopost.get_sText(), _userRepository.findBy_iId(dtopost.get_iUserId()));
-        System.out.println(post.get_sText());
-        System.out.println(post.get_user().get_sUsername());
-        return _postRepository.save(post);
+        Optional<User> optionalUser = _userRepository.findById(dtopost.get_iUserId());
+        if(optionalUser.isPresent()) {
+            Post post = new Post(dtopost.get_sText(), optionalUser.get());
+            return _postRepository.save(post);
+        } else {
+            return new Post();
+        }
     }
-
 
     @GetMapping("/getUserPosts/{username}")
     public List<Post> getUserPosts(@PathVariable("username") String sUsername) {
-        System.out.println("Recibido: " + sUsername);
         List<Post> posts = _postRepository.findBy_user(_userRepository.findBy_sUsername(sUsername));
-        System.out.println("Username en getuserposts: " + _userRepository.findBy_sUsername(sUsername).get_sUsername());
-        System.out.println("Numero de posts: " + posts.size());
         if(posts.isEmpty() || posts == null) {
             return Collections.emptyList();
         } else {
@@ -96,13 +94,10 @@ public class PostController {
 
         if(post.get_setLikes().contains(user)) {    //El usuario ya le había dado like al post
             post.get_setLikes().remove(user);
-            post = _postRepository.save(post);
             System.out.println("Ya le habia dado like");
         } else {
             bPostWasLiked = true;
-            System.out.println("Antes de añadir al usuario: " + post.get_setLikes().size());
             post.get_setLikes().add(user);
-            System.out.println("Despues de añadir al usuario: " + post.get_setLikes().size());
             System.out.println("No le habia dado like");
         }
         post.set_iLikes(post.get_setLikes().size());
@@ -113,7 +108,6 @@ public class PostController {
 
     @GetMapping("/getPost/{postId}")
     public Post getPost(@PathVariable("postId") int iPostId) {
-        System.out.println("Peticion de post con id " + iPostId);
         Optional<Post> optionalPost = _postRepository.findById(iPostId);
         return optionalPost.isPresent() ? optionalPost.get() : new Post();
     }

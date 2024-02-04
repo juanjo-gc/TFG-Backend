@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
@@ -93,18 +92,25 @@ public class EventController {
 
     @PatchMapping("/setAssist/{eventId}/{userId}")
     public boolean setAssist(@PathVariable("eventId") int iEventId, @PathVariable("userId") int iUserId) {
-        Event event = _eventRepository.findById(iEventId).get();
-        User user = _userRepository.findBy_iId(iUserId);
-        boolean bIsAssisting = false;
-        if(event.get_setAssistants().contains(user)) {
-            System.out.println("Ya esta el usuario apuntado");
-            event.get_setAssistants().remove(user);
+        Optional<Event> optionalEvent = _eventRepository.findById(iEventId);
+        Optional<User> optionalUser = _userRepository.findById(iUserId);
+        if(optionalEvent.isPresent() && optionalUser.isPresent()) {
+            Event event = optionalEvent.get();
+            User user = optionalUser.get();
+            boolean bIsAssisting = false;
+            if (event.get_setAssistants().contains(user)) {
+                System.out.println("Ya esta el usuario apuntado");
+                event.get_setAssistants().remove(user);
+            } else {
+                System.out.println("El usuario no estaba apuntado");
+                bIsAssisting = event.get_setAssistants().add(user);
+            }
+            event = _eventRepository.save(event);
+            return bIsAssisting;
         } else {
-            System.out.println("El usuario no estaba apuntado");
-           bIsAssisting = event.get_setAssistants().add(user);
+            return false;
         }
-        event = _eventRepository.save(event);
-        return bIsAssisting;
+
     }
 
     @GetMapping("/getUserEvents/{userId}")
@@ -116,12 +122,12 @@ public class EventController {
     @GetMapping("/getFilteredAssistants/{username}/{eventId}")
     public List<User> filterAssistants(@PathVariable("username") String sUsername, @PathVariable("eventId") int iEventId) {
         Optional<Event> optionalEvent = _eventRepository.findById(iEventId);
-        if(!optionalEvent.isPresent()) {
-            return Collections.emptyList();
-        } else {
+        if(optionalEvent.isPresent()) {
+            return _eventRepository.findFilteredAssistantsByName(sUsername);
             //List<User> aFilteredUsers = _userRepository.findBy_sUsernameStartsWith(sUsername);
             //return aFilteredUsers.stream().filter(user ->  optionalEvent.get().get_setAssistants().contains(user)).collect(Collectors.toList());
-            return _eventRepository.findFilteredAssistantsByName(sUsername);
+        } else {
+            return Collections.emptyList();
         }
     }
 
@@ -188,9 +194,9 @@ public class EventController {
         Optional<User> optionalUser = _userRepository.findById(iUserId);
         if(optionalUser.isPresent()) {
             if(optionalUser.get().get_province() != null) {
-                return _eventRepository.findTop5LocatedEventsWithMoreAssistants(optionalUser.get().get_province(), optionalUser.get(), PageRequest.of(0, 5)).get().toList();
+                return _eventRepository.find5LocatedEventsForUser(optionalUser.get().get_province(), optionalUser.get(), PageRequest.of(0, 5)).get().toList();
             } else {
-                return _eventRepository.findTop5OnlineEventsWithMoreAssistants(optionalUser.get(), PageRequest.of(0, 5)).get().toList();
+                return _eventRepository.find5OnlineEventsForUser(optionalUser.get(), PageRequest.of(0, 5)).get().toList();
             }
         } else {
             return Collections.emptyList();
@@ -224,6 +230,7 @@ public class EventController {
                     location = _locationRepository.save(location);
                 }
                 event.set_location(location);
+                event.set_bIsOnline(false);
             }
             event.set_tCelebratedAt(eventDTO.get_tCelebratedAt());
             event.set_tCelebrationHour(eventDTO.get_tCelebrationHour());
@@ -231,7 +238,6 @@ public class EventController {
                 setInterests.add(_interestRepository.findBy_sName(sInterest));
             }
             event.set_setInterests(setInterests);
-            event.set_bIsOnline(eventDTO.is_bIsOnline());
             event = _eventRepository.save(event);
             return event.get_iId();
         } else {
@@ -247,8 +253,6 @@ public class EventController {
                 optionalEvent.get().set_tDeleteDate(LocalDateTime.now());
             else
                 optionalEvent.get().set_tDeleteDate(null);
-
-            System.out.println("Fecha borrado: " + optionalEvent.get().get_tDeleteDate());
             return _eventRepository.save(optionalEvent.get()).get_tDeleteDate() != null;
         } else {
             return false;
