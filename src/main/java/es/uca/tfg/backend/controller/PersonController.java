@@ -503,6 +503,13 @@ public class PersonController {
         return optionalUser.isPresent() ? optionalUser.get().get_setBlockedBy() : Collections.emptySet();
     }
 
+    @GetMapping("/checkMutualBlock/{userId}/{blockedId}")
+    public boolean checkMutualBlock(@PathVariable("userId") int iUserId, @PathVariable("blockedId") int iBlockedId) {
+        User user = _userRepository.findBy_iId(iUserId);
+        User blocked = _userRepository.findBy_iId(iBlockedId);
+        return !user.get_setBlockedBy().contains(blocked) && !blocked.get_setBlockedBy().contains(user);
+    }
+
     @GetMapping("/loadDB")
     public void loadDB() {
         System.out.println("Recibida petición de inicialización de bd");

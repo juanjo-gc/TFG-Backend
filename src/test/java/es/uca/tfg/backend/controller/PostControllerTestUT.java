@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -289,5 +290,80 @@ public class PostControllerTestUT extends AbstractTest {
         Post newReply = _controller.newReply(dto, 10);
         //then
         Assertions.assertEquals("Test post", newReply.get_sText());
+    }
+
+    @Test
+    public void newReplyWillFailAndReturnEmptyPostAsPostToReplyDoesNotExist() {
+        //given
+        User user = Mockito.mock(User.class);
+        Post post = Mockito.mock(Post.class);
+        Post reply = Mockito.mock(Post.class);
+        PostDTO dto = new PostDTO("Test post", 1);
+        Set<Post> aReplies = new HashSet<>();
+        for(int i = 0; i < 5; i++)
+            aReplies.add(new Post());
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+        Mockito.when(reply.get_sText()).thenReturn(dto.get_sText());
+        Mockito.when(post.get_setReplies()).thenReturn(aReplies);
+        Mockito.when(_postRepository.save(any(Post.class))).thenReturn(reply);
+        //when
+        Post newReply = _controller.newReply(dto, 10);
+        //then
+        Assertions.assertNull(newReply.get_sText());
+    }
+
+    @Test
+    public void softDeleteOrRestorePostWillDeleteExistingPost() {
+        //given
+        Post post = new Post();
+        Mockito.when(_postRepository.findById(1)).thenReturn(Optional.of(post));
+        Mockito.when(_postRepository.save(post)).thenReturn(post);
+        //when
+        boolean bHasBeenDeleted = _controller.softDeletePost(1);
+        //then
+        Assertions.assertTrue(bHasBeenDeleted);
+    }
+
+    @Test
+    public void softDeleteOrRestorePostWillRestoreDeletedPost() {
+        //given
+        Post post = new Post();
+        post.set_tDeleteDate(LocalDateTime.now());
+        Mockito.when(_postRepository.findById(1)).thenReturn(Optional.of(post));
+        Mockito.when(_postRepository.save(post)).thenReturn(post);
+        //when
+        boolean bHasBeenDeleted = _controller.softDeletePost(1);
+        //then
+        Assertions.assertFalse(bHasBeenDeleted);
+    }
+
+    @Test
+    public void checkLikeWillReturnTrueAsUserLikedPost() {
+        //given
+        Post post = new Post();
+        User user = new User();
+        Set aLikes = new HashSet();
+        aLikes.add(user);
+        post.set_setLikes(aLikes);
+        Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(user));
+        Mockito.when(_postRepository.findById(1)).thenReturn(Optional.of(post));
+        //when
+        boolean bPostIsLiked = _controller.checkLike(1, 1);
+        //then
+        Assertions.assertTrue(bPostIsLiked);
+    }
+
+    @Test
+    public void checkLikeWillReturnFalseAsUserDidNotLikePost() {
+        //given
+        Post post = new Post();
+        User user = new User();
+        post.set_setLikes(Collections.emptySet());
+        Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(user));
+        Mockito.when(_postRepository.findById(1)).thenReturn(Optional.of(post));
+        //when
+        boolean bPostIsLiked = _controller.checkLike(1, 1);
+        //then
+        Assertions.assertFalse(bPostIsLiked);
     }
 }

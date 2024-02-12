@@ -6,6 +6,7 @@ import es.uca.tfg.backend.repository.RegionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -33,6 +34,7 @@ public class RegionService {
             for (Province province: optionalRegion.get().get_setProvinces()) {
                 _provinceService.delete(province.get_iId());
             }
+            optionalRegion.get().set_setProvinces(new HashSet<>());
             _regionRepository.deleteById(iRegionId);
         }
     }

@@ -26,8 +26,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.ArgumentMatchers.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -88,15 +88,17 @@ public class AboutMeQuestionControllerUT extends AbstractTest {
     public void updateAboutMeQuestionWillUpdateQuestion() {
         //given
         AboutMeQuestionAnswerDTO dto = new AboutMeQuestionAnswerDTO("Example question updated", "", 1, -1, 1, -1);
+        AboutMeQuestion question = Mockito.mock(AboutMeQuestion.class);
         Mockito.when(_adminRepository.findById(1)).thenReturn(Optional.of(_admin));
-        Mockito.when(_questionRepository.findById(1)).thenReturn(Optional.of(_question));
-        Mockito.when(_questionRepository.save(any(AboutMeQuestion.class))).thenReturn(_question);
+        Mockito.when(_questionRepository.findById(1)).thenReturn(Optional.of(question));
+        Mockito.when(_questionRepository.save(any(AboutMeQuestion.class))).thenReturn(question);
+        Mockito.when(question.get_iId()).thenReturn(10);
         //when
-        AboutMeQuestion question = controller.updateAboutMeQuestion(dto);
+        AboutMeQuestion updatedQuestion = controller.updateAboutMeQuestion(dto);
         //then
+        Mockito.verify(question).set_sQuestion(dto.get_sQuestion());
         Mockito.verify(_questionRepository).save(any(AboutMeQuestion.class));
         Mockito.verify(_operationRepository).save(any(Operation.class));
-        Assertions.assertEquals(question.get_sQuestion(), "Example question updated");
     }
 
 

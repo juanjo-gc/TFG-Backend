@@ -46,4 +46,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
                                  Pageable pageable);
 
     List<User> findBy_province(Province province);
+
+    @Query("SELECT u.id FROM User u WHERE :user MEMBER OF u._setBlockedBy")
+    List<Integer> findUserIdsWhoBlockedUser(@Param("user") User user);
 }

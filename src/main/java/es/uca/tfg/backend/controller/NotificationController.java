@@ -6,13 +6,11 @@ import es.uca.tfg.backend.rest.NotificationDTO;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:8080")
@@ -95,7 +93,21 @@ public class NotificationController {
 
     @GetMapping("/getUserNotifications/{userId}/{pageNumber}")
     public Page<Notification> getUserNotifications(@PathVariable("userId") int iUserId, @PathVariable("pageNumber") int iPageNumber) {
-        return _notificationRepository.findUserNotifications(_userRepository.findBy_iId(iUserId), PageRequest.of(iPageNumber, 20));
+        /*
+        User recipient = _userRepository.findBy_iId(iUserId);
+        Page<Notification> userNotifications = _notificationRepository.findUserNotifications(_userRepository.findBy_iId(iUserId), PageRequest.of(iPageNumber, 20));
+        List<Notification> aNotificationsWithoutBlocked = new ArrayList<>();
+        for(Notification notification: userNotifications.getContent()) {
+            if(notification.get_issuer().getClass().equals(User.class)) {
+                User issuer = (User) notification.get_issuer();
+                if (!issuer.get_setBlockedBy().contains(recipient) && !recipient.get_setBlockedBy().contains(issuer))
+                    aNotificationsWithoutBlocked.add(notification);
+            }
+        }
+        return new PageImpl<>(aNotificationsWithoutBlocked);
+
+         */
+        return  _notificationRepository.findUserNotifications(_userRepository.findBy_iId(iUserId), PageRequest.of(iPageNumber, 20));
     }
     @GetMapping("getNotification/{id}")
     public Notification getNotification(@PathVariable("id") int iId) {

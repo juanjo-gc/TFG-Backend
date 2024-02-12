@@ -39,11 +39,4 @@ public class PostService {
         return (int) _postRepository.count();
     }
 
-    public List<Post> getOrderedPosts(int iUserId) {
-        User user = _userRepository.findBy_iId(iUserId);
-
-
-
-        return new ArrayList<Post>();
-    }
 }
