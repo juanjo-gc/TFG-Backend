@@ -1,4 +1,4 @@
-package es.uca.tfg.backend.integration.controller;
+package es.uca.tfg.backend.controller;
 
 
 import es.uca.tfg.backend.config.AbstractTest;
@@ -38,7 +38,7 @@ public class EventControllerTestIT extends AbstractTest {
     @Test
     public void newNonOnlineEventWillRegisterLocationAndCreateEvent() throws Exception {
         //given
-        EventDTO eventDTO = new EventDTO("TestEvent", LocalDate.now(), LocalTime.now(), "Description", Integer.valueOf(1),
+        EventDTO eventDTO = new EventDTO("TestEvent", LocalDate.now(), LocalTime.now(), "Description", 1,
                 new HashSet<>(Arrays.asList("i1", "i2")), "Location", 1.2f, 2.1f, "Province", false);
 
         User organizer = Mockito.mock(User.class);
@@ -68,8 +68,9 @@ public class EventControllerTestIT extends AbstractTest {
         Set<String> asInterests = new HashSet<>(Arrays.asList("i1", "i2"));
         EventDTO eventDTO = new EventDTO("TestTitle", LocalDate.now(), LocalTime.now(), "Description", 1,
                 asInterests, "RegisteredLocation", 5.0f, 5.0f, "Province", false);
-        System.out.println("Titulo: " +eventDTO.get_sTitle() + " Organizer id: " + eventDTO.get_iOrganizerId());
-        System.out.println(_objectMapper.writeValueAsString(eventDTO));
+
+        //System.out.println("Titulo: " +eventDTO.get_sTitle() + " Organizer id: " + eventDTO.get_iOrganizerId());
+        //System.out.println(_objectMapper.writeValueAsString(eventDTO));
         User organizer = Mockito.mock(User.class);
         EventDTO mock = Mockito.mock(EventDTO.class);
         Interest i1 = Mockito.mock(Interest.class);
@@ -208,8 +209,8 @@ public class EventControllerTestIT extends AbstractTest {
     @Test
     public void updateLocatedEventWillUpdateExistingEventInExistingLocation() throws Exception {
         //given
-        EventDTO eventDTO = new EventDTO("TestEvent", LocalDate.now(), LocalTime.now(), "Description", Integer.valueOf(1),
-                new HashSet<>(Arrays.asList("i1", "i2")), "Location", 1.2f, 2.1f, "Province", false);
+        EventDTO eventDTO = new EventDTO("TestEvent", LocalDate.now(), LocalTime.now(), "Description", 1,
+                new HashSet<>(), "Location", 1.2f, 2.1f, "Province", false);
         Event event = Mockito.mock(Event.class);
         Location location = Mockito.mock(Location.class);
         Mockito.when(event.get_iId()).thenReturn(1);
@@ -233,7 +234,7 @@ public class EventControllerTestIT extends AbstractTest {
     @Test
     public void updateLocatedEventWillUpdateExistingEventInNewLocation() throws Exception {
         //given
-        EventDTO eventDTO = new EventDTO("TestEvent", LocalDate.now(), LocalTime.now(), "Description", Integer.valueOf(1),
+        EventDTO eventDTO = new EventDTO("TestEvent", LocalDate.now(), LocalTime.now(), "Description", 1,
                 new HashSet<>(Arrays.asList("i1", "i2")), "Location", 1.2f, 2.1f, "Province", false);
         Event event = Mockito.mock(Event.class);
         Mockito.when(event.get_iId()).thenReturn(1);
@@ -255,7 +256,7 @@ public class EventControllerTestIT extends AbstractTest {
     @Test
     public void updateOnlineEventWillUpdateExistingEvent() throws Exception {
         //given
-        EventDTO eventDTO = new EventDTO("TestEvent", LocalDate.now(), LocalTime.now(), "Description", Integer.valueOf(1),
+        EventDTO eventDTO = new EventDTO("TestEvent", LocalDate.now(), LocalTime.now(), "Description", 1,
                 new HashSet<>(Arrays.asList("i1", "i2")), "Location", 1.2f, 2.1f, "Province", true);
         Event event = Mockito.mock(Event.class);
         Mockito.when(event.get_iId()).thenReturn(1);

@@ -44,7 +44,11 @@ public class Event {
 
     @NotNull
     @ManyToMany
-    @JoinColumn(name = "assistant_id")
+    @JoinTable(
+            name = "event_assistant",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     @JsonIgnore
     private Set<User> _setAssistants;
 

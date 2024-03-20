@@ -135,18 +135,22 @@ public class MessageControllerTestIT extends AbstractTest {
     }
 
     @Test
-    public void getConversationWillSuccess() throws Exception {
+    public void getConversationWillReturnConversationBetweenUsers() throws Exception {
         //given
+        /*
         User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
         User target = new User("messaged@gmail.com", "password", "messaged", "descriptin", "user", "name", new Date(), new Province());
         Optional<User> optionalUser = Optional.of(user);
         Optional<User> optionalTarget = Optional.of(target);
+         */
+        User user = Mockito.mock(User.class);
+        User target = Mockito.mock(User.class);
         ArrayList<Message> aMessages = new ArrayList<>();
         for(int i = 0; i < 5; i++)
-            aMessages.add(Mockito.mock(Message.class));
+            aMessages.add(new Message());
 
-        Mockito.when(_userRepository.findById(0)).thenReturn(optionalUser);
-        Mockito.when(_userRepository.findById(1)).thenReturn(optionalTarget);
+        Mockito.when(_userRepository.findById(0)).thenReturn(Optional.of(user));
+        Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(target));
 
         Mockito.when(_messageRepository.findConversation(user, target)).thenReturn(aMessages);
         //when
@@ -158,19 +162,21 @@ public class MessageControllerTestIT extends AbstractTest {
     }
 
     @Test
-    public void testGetConversation() throws Exception {
-        User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
-        User target = new User("messaged@gmail.com", "password", "messaged", "descriptin", "user", "name", new Date(), new Province());
+    public void getConversationWillFailAndReturnEmptyList() throws Exception {
+        //User user = new User("example@gmail.com", "password", "username", "description", "user", "name", new Date(), new Province());
+        //User target = new User("messaged@gmail.com", "password", "messaged", "descriptin", "user", "name", new Date(), new Province());
+
+        User user = Mockito.mock(User.class);
+        User target = Mockito.mock(User.class);
 
         List<Message> aMessages = new ArrayList<>();
         for(int i = 0; i < 5; i++)
-            aMessages.add(Mockito.mock(Message.class));
+            aMessages.add(new Message());
 
-        Mockito.when(_userRepository.findById(user.get_iId())).thenReturn(Optional.of(user));
-        Mockito.when(_userRepository.findById(target.get_iId())).thenReturn(Optional.of(target));
-        Mockito.when(_messageRepository.findConversation(any(), any())).thenReturn(aMessages);
+        Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(user));
+        Mockito.when(_messageRepository.findConversation(user, target)).thenReturn(aMessages);
 
-        ResultActions response = _mockMvc.perform(get("/api/getConversation/0/1"));
+        ResultActions response = _mockMvc.perform(get("/api/getConversation/1/2"));
 
         response.andExpect(status().is2xxSuccessful());
         //List<Message> conversation = _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), List.class);
@@ -178,6 +184,6 @@ public class MessageControllerTestIT extends AbstractTest {
         List<Message> conversation = _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), new TypeReference<List<Message>>() {});
 
         Assertions.assertNotNull(conversation);
-        Assertions.assertEquals(1, conversation.size());
+        Assertions.assertEquals(0, conversation.size());
     }
 }

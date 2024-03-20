@@ -142,6 +142,27 @@ public class PersonControllerTestUT extends AbstractTest {
     }
 
     @Test
+    public void isEmailTakenWillReturnTrueAsEmailIsTaken() {
+        //given
+        UserChecker.EmailChecker dto = new UserChecker.EmailChecker("TestEmail@gmail.com");
+        Mockito.when(_personRepository.countBy_sEmail(dto.get_sEmail())).thenReturn(1l);
+        //when
+        boolean bIsEmailTaken = _controller.isEmailTaken(dto);
+        //then
+        Assertions.assertTrue(bIsEmailTaken);
+    }
+
+    public void isEmailTakenWillReturnFalseAsEmailIsNotTaken() {
+        //given
+        UserChecker.EmailChecker dto = new UserChecker.EmailChecker("TestEmail@gmail.com");
+        Mockito.when(_personRepository.countBy_sEmail(dto.get_sEmail())).thenReturn(0l);
+        //when
+        boolean bIsEmailTaken = _controller.isEmailTaken(dto);
+        //then
+        Assertions.assertFalse(bIsEmailTaken);
+    }
+
+    @Test
     public void getUserWillReturnUser() {
         //given
         User user = Mockito.mock(User.class);
@@ -247,6 +268,47 @@ public class PersonControllerTestUT extends AbstractTest {
     }
 
     @Test
+    public void uploadProfileImageWillUploadImageAndUserDidntHaveProfileImage() throws IOException {
+        //given
+        User user = new User();
+        ImagePath imagePath = new ImagePath();
+        user.set_profileImagePath(null);
+        MultipartFile multipartFile = Mockito.mock(MultipartFile.class);
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+        Mockito.when(_imagePathRepository.save(any(ImagePath.class))).thenReturn(imagePath);
+        //Mockito.when(user.get_profileImagePath()).thenReturn(null);
+        //Mockito.when(user.get_iId()).thenReturn(1);
+        Mockito.when(multipartFile.getOriginalFilename()).thenReturn("filename.jpg");
+        //when
+        ImagePath profileImg = _controller.saveProfileImage(1, multipartFile);
+        //then
+        Mockito.verify(_imagePathRepository).save(any(ImagePath.class));
+        Mockito.verify(multipartFile, Mockito.times(1)).transferTo(any(File.class));
+        Mockito.verify(_userRepository).save(user);
+    }
+
+    @Test
+    public void uploadProfileImageWillUploadImageAndUserAlreadyHadProfileImage() throws IOException {
+        //given
+        User user = new User();
+        ImagePath currentProfileImg = new ImagePath();
+        user.set_profileImagePath(currentProfileImg);
+        ImagePath imagePath = new ImagePath();
+        MultipartFile multipartFile = Mockito.mock(MultipartFile.class);
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+        Mockito.when(_imagePathRepository.save(any(ImagePath.class))).thenReturn(imagePath);
+        //Mockito.when(user.get_profileImagePath()).thenReturn(null);
+        //Mockito.when(user.get_iId()).thenReturn(1);
+        Mockito.when(multipartFile.getOriginalFilename()).thenReturn("filename.jpg");
+        //when
+        ImagePath profileImg = _controller.saveProfileImage(1, multipartFile);
+        //then
+        Mockito.verify(_imagePathRepository).save(any(ImagePath.class));
+        Mockito.verify(multipartFile, Mockito.times(0)).transferTo(any(File.class));
+        Mockito.verify(_userRepository).save(user);
+    }
+
+    @Test
     public void saveInterestsWillUpdateExistingUserInterests() {
         //given
         User user = new User();
@@ -278,6 +340,45 @@ public class PersonControllerTestUT extends AbstractTest {
         //then
         Assertions.assertEquals(0, aInterests.size());
         Assertions.assertEquals(Collections.emptySet(), aInterests);
+    }
+
+    @Test
+    public void uploadUserImageWillUploadImage() throws IOException {
+        //given
+        User user = Mockito.mock(User.class);
+        Set<ImagePath> aUserImages = new HashSet<>();
+        MultipartFile multipartFile = Mockito.mock(MultipartFile.class);
+        ImagePath imagePath = new ImagePath();
+        Mockito.when(_imagePathRepository.save(any(ImagePath.class))).thenReturn(imagePath);
+        Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(user));
+        Mockito.when(user.get_iId()).thenReturn(1);
+        Mockito.when(user.get_setImagePath()).thenReturn(aUserImages);
+        Mockito.when(multipartFile.getOriginalFilename()).thenReturn("filename.jpg");
+        //when
+        ImagePath uploadedImage = _controller.uploadUserImage(1, multipartFile);
+        //then
+        Mockito.verify(multipartFile).transferTo(any(File.class));
+        Mockito.verify(_imagePathRepository).save(any(ImagePath.class));
+        Mockito.verify(_userRepository).save(user);
+    }
+
+    @Test
+    public void uploadUserImageWillFailAsUserDoesNotExist() throws IOException {
+        //given
+        User user = Mockito.mock(User.class);
+        Set<ImagePath> aUserImages = new HashSet<>();
+        MultipartFile multipartFile = Mockito.mock(MultipartFile.class);
+        ImagePath imagePath = new ImagePath();
+        Mockito.when(_imagePathRepository.save(any(ImagePath.class))).thenReturn(imagePath);
+        Mockito.when(user.get_iId()).thenReturn(1);
+        Mockito.when(user.get_setImagePath()).thenReturn(aUserImages);
+        Mockito.when(multipartFile.getOriginalFilename()).thenReturn("filename.jpg");
+        //when
+        ImagePath uploadedImage = _controller.uploadUserImage(1, multipartFile);
+        //then
+        Mockito.verify(multipartFile, Mockito.times(0)).transferTo(any(File.class));
+        Mockito.verify(_imagePathRepository, Mockito.times(0)).save(any(ImagePath.class));
+        Mockito.verify(_userRepository, Mockito.times(0)).save(user);
     }
 
     @Test
@@ -371,7 +472,6 @@ public class PersonControllerTestUT extends AbstractTest {
         Mockito.verify(_userRepository, Mockito.times(0)).save(user);
         Assertions.assertEquals("Ha ocurrido un error al subir las imágenes.", sMessage);
     }
-
 
 
 
@@ -636,5 +736,41 @@ public class PersonControllerTestUT extends AbstractTest {
         Set<User> aUsersWhoBlockedUser = _controller.getBlockedBy(1);
         //then
         Assertions.assertEquals(Collections.emptySet(), aUsersWhoBlockedUser);
+    }
+
+    @Test
+    public void checkMutualBlockWillReturnTrueAsAtLeastOneUserHasTheOtherUserBlocked() {
+        //given
+        User user = Mockito.mock(User.class);
+        User blocked = Mockito.mock(User.class);
+        Set<User> aBlocked = Mockito.mock(Set.class);
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+        Mockito.when(_userRepository.findBy_iId(2)).thenReturn(blocked);
+        Mockito.when(user.get_setBlockedBy()).thenReturn(aBlocked);
+        Mockito.when(blocked.get_setBlockedBy()).thenReturn(aBlocked);
+        Mockito.when(aBlocked.contains(user)).thenReturn(true);
+        Mockito.when(aBlocked.contains(blocked)).thenReturn(false);
+        //when
+        boolean bIsMutual = _controller.checkMutualBlock(1, 2);
+        //then
+        Assertions.assertFalse(bIsMutual);
+    }
+
+    @Test
+    public void checkMutualBlockWillReturnTrueAsNoOneHasEachOtherBlocked() {
+        //given
+        User user = Mockito.mock(User.class);
+        User blocked = Mockito.mock(User.class);
+        Set<User> aBlocked = Mockito.mock(Set.class);
+        Mockito.when(_userRepository.findBy_iId(1)).thenReturn(user);
+        Mockito.when(_userRepository.findBy_iId(2)).thenReturn(blocked);
+        Mockito.when(user.get_setBlockedBy()).thenReturn(aBlocked);
+        Mockito.when(blocked.get_setBlockedBy()).thenReturn(aBlocked);
+        Mockito.when(aBlocked.contains(user)).thenReturn(false);
+        Mockito.when(aBlocked.contains(blocked)).thenReturn(false);
+        //when
+        boolean bIsMutual = _controller.checkMutualBlock(1, 2);
+        //then
+        Assertions.assertTrue(bIsMutual);
     }
 }

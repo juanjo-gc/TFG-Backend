@@ -28,7 +28,7 @@ public class User extends Person {
 
 
     @ManyToMany
-    @JoinTable(name = "User_Interests")
+    @JoinTable(name = "user_interests")
     @Column(name = "interests")
     private Set<Interest> _setInterests;
 
@@ -74,6 +74,11 @@ public class User extends Person {
     private Set<Message> _setReceivedMessages;
 
     @ManyToMany
+    @JoinTable(
+            name = "user_blockedby",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "blockedby_id")
+    )
     @JsonIgnore
     private Set<User> _setBlockedBy;
 

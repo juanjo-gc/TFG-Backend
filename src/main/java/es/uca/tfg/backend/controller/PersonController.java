@@ -228,12 +228,13 @@ public class PersonController {
         sFilename = imagePath.get_iId() + "-" + sFilename;
         if (user.get_profileImagePath() != null) {          // Tenía foto de perfil
             user.get_profileImagePath().set_tDeleteDate(LocalDateTime.now());
-        } else {
-            File file = new File(_sUploadPath + sFilename);
-            System.out.println("Guardando la imagen con nombre: " + sFilename);
-            System.out.println("Ruta: " + path.toString());
-            multipartFile.transferTo(file);
         }
+
+        File file = new File(_sUploadPath + sFilename);
+        System.out.println("Guardando la imagen con nombre: " + sFilename);
+        System.out.println("Ruta: " + path.toString());
+        multipartFile.transferTo(file);
+
         imagePath.set_user(user);
         imagePath.set_sName(sFilename + "-" + imagePath.get_iId());
         user.set_profileImagePath(imagePath);
@@ -510,6 +511,8 @@ public class PersonController {
         return !user.get_setBlockedBy().contains(blocked) && !blocked.get_setBlockedBy().contains(user);
     }
 
+    /*
+
     @GetMapping("/loadDB")
     public void loadDB() {
         System.out.println("Recibida petición de inicialización de bd");
@@ -553,6 +556,7 @@ public class PersonController {
         }
 
     }
+    */
 }
 
 

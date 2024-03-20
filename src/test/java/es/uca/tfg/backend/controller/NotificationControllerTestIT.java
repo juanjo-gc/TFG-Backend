@@ -1,4 +1,4 @@
-package es.uca.tfg.backend.integration.controller;
+package es.uca.tfg.backend.controller;
 
 import es.uca.tfg.backend.config.AbstractTest;
 import es.uca.tfg.backend.entity.*;
@@ -46,7 +46,7 @@ public class NotificationControllerTestIT extends AbstractTest {
         Mockito.when(recipient.get_iId()).thenReturn(0);
         Mockito.when(issuer.get_iId()).thenReturn(1);
         Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(recipient));
-        Mockito.when(_userRepository.findById(2)).thenReturn(Optional.of(issuer));
+        Mockito.when(_personRepository.findById(2)).thenReturn(Optional.of(issuer));
         Mockito.when(_typeNotificationRepository.findBy_sName(any(String.class))).thenReturn(typeNotification);
         //when
         ResultActions response = _mockMvc.perform(post("/api/newNotification")
@@ -69,9 +69,9 @@ public class NotificationControllerTestIT extends AbstractTest {
         Mockito.when(issuer.get_iId()).thenReturn(1);
         Mockito.when(event.get_iId()).thenReturn(1);
         Mockito.when(_userRepository.findById(1)).thenReturn(Optional.of(recipient));
-        Mockito.when(_userRepository.findById(2)).thenReturn(Optional.of(issuer));
+        Mockito.when(_personRepository.findById(2)).thenReturn(Optional.of(issuer));
         Mockito.when(_eventRepository.findById(1)).thenReturn(Optional.of(event));
-        Mockito.when(_typeNotificationRepository.findBy_sName(any(String.class))).thenReturn(typeNotification);
+        Mockito.when(_typeNotificationRepository.findBy_sName("NewEventAssistant")).thenReturn(typeNotification);
         //when
         ResultActions response = _mockMvc.perform(post("/api/newNotification")
                 .contentType(MediaType.APPLICATION_JSON)

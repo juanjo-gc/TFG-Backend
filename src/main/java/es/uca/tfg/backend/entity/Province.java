@@ -17,9 +17,12 @@ public class Province {
     @Column(name = "name", unique = true)
     private String _sName;
 
+    /*
     @OneToMany(mappedBy = "_province")
     @JsonIgnore
     private Set<User> _setUsers;
+
+     */
 
     @ManyToOne
     @JoinColumn(name = "region_id", nullable = true)
@@ -44,6 +47,7 @@ public class Province {
         this._sName = _sName;
     }
 
+    /*
     public Set<User> get_setUsers() {
         return _setUsers;
     }
@@ -51,6 +55,8 @@ public class Province {
     public void set_setUsers(Set<User> _setUsers) {
         this._setUsers = _setUsers;
     }
+
+     */
 
     public Region get_region() {
         return _region;

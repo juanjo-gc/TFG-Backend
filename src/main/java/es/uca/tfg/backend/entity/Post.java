@@ -44,9 +44,9 @@ public class Post {
     @NotNull
     @ManyToMany
     @JoinTable(
-            name = "user_likes",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "liked_id"))
+            name = "liked_user",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     @JsonIgnore
     private Set<User> _setLikes;
 

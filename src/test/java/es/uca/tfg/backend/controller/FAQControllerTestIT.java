@@ -60,6 +60,7 @@ public class FAQControllerTestIT extends AbstractTest {
         FaqDTO faqDTO = new FaqDTO("updatedQuestion", "updatedAnswer");
         FAQ faq = new FAQ("questionTest", "answerTest");
         Mockito.when(_faqRepository.findById(1)).thenReturn(Optional.of(faq));
+        Mockito.when(_faqRepository.save(faq)).thenReturn(faq);
         //when
         ResultActions resultActions = _mockMvc.perform(patch("/api/updateFAQ/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -67,8 +68,9 @@ public class FAQControllerTestIT extends AbstractTest {
         //then
         resultActions.andDo(print())
                 .andExpect(status().is2xxSuccessful());
-        Assertions.assertEquals("updatedQuestion", _objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(), FAQ.class).get_sQuestion());
-        Assertions.assertEquals("updatedAnswer", _objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(), FAQ.class).get_sAnswer());
+        FAQ returnedFAQ = _objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(), FAQ.class);
+        Assertions.assertEquals("updatedQuestion", returnedFAQ.get_sQuestion());
+        Assertions.assertEquals("updatedAnswer", returnedFAQ.get_sAnswer());
         Mockito.verify(_faqRepository).save(any(FAQ.class));
     }
 }

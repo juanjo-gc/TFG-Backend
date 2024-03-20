@@ -33,9 +33,10 @@ public class EventDTO {
     public EventDTO() {}
 
     public EventDTO(@JsonProperty("sTitle") String sTitle, @JsonProperty("tCelebratedAt") LocalDate tCelebratedAt, @JsonProperty("tCelebrationHour") LocalTime tCelebrationHour,
-                    @JsonProperty("sDescription") String sDescription, @JsonProperty("iOrganizerId") Integer iOrganizerId, @JsonProperty("setInterests") Set<String> setInterests,
+                    @JsonProperty("sDescription") String sDescription, @JsonProperty("iOrganizerId") int iOrganizerId, @JsonProperty("setInterests") Set<String> setInterests,
                     @JsonProperty("sLocationName") String sLocationName, @JsonProperty("dLatitude") float dLatitude, @JsonProperty("dLongitude") float dLongitude,
                     @JsonProperty("sProvinceName") String sProvinceName, @JsonProperty("bIsOnline") boolean bIsOnline) {
+        System.out.println("AAAAAAAAAAAAAAAAAAAAA" + iOrganizerId);
         _sTitle = sTitle;
         _tCelebratedAt = tCelebratedAt;
         _tCelebrationHour = tCelebrationHour;
