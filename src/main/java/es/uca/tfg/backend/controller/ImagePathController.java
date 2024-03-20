@@ -76,7 +76,9 @@ public class ImagePathController {
         for(int i = 0; i < aMultipartFiles.length; i++) {
             String sFilename = event.get_iId() + "-" + aMultipartFiles[i].getOriginalFilename();
             ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
-            sFilename = sFilename + "-" + imagePath.get_iId();
+            sFilename =  imagePath.get_iId() + "-" + sFilename;
+            imagePath.set_sName(sFilename);
+            imagePath = _imagePathRepository.save(imagePath);
             File file = new File(_sEventsUploadPath + sFilename);
             aMultipartFiles[i].transferTo(file);
             System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sEventsUploadPath);
@@ -116,6 +118,7 @@ public class ImagePathController {
     @ResponseBody
     public ResponseEntity<InputStreamResource> getImagePath(@PathVariable("imageName") String sImageName) throws FileNotFoundException {
         File file = new File(_sEventsUploadPath + sImageName);
+        System.out.println(sImageName);
         FileInputStream fileInputStream = new FileInputStream(file);
 
         return ResponseEntity.ok()

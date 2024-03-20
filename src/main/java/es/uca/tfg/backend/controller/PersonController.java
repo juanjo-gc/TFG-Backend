@@ -530,10 +530,24 @@ public class PersonController {
                 _typeNotificationRepository.save(new TypeNotification(sName));
             for(String sQuestion: List.of("¿Cuál es tu comida favorita?", "Qué tipo de música escuchas?", "¿Cuál es tu artista musical favorito?", "Cuál es tu principal hobby?", "¿Qué te gusta hacer cuando quedas con amigos?", "¿Cómo te definirías en una frase?", "¿Qué es lo que más valoras en una persona?"))
                 _questionRepository.save(new AboutMeQuestion(sQuestion));
-            _faqRepository.save(new FAQ("Pregunta frecuente 1", "Respuesta 1"));
-            _faqRepository.save(new FAQ("Pregunta frecuente 2", "Respuesta 2"));
-            _faqRepository.save(new FAQ("Pregunta frecuente 3", "Respuesta 3"));
-
+            _faqRepository.save(new FAQ("¿Si tengo una cuenta privada, los demás usuarios pueden ver mi información del perfil?",
+                    "Sí, los demás usuarios pueden ver tu información básica, como puede ser la descripción, intereses, preguntas 'Conóceme' y fotos. La opción de cuenta privada se encarga de ocultar las " +
+                            "publicaciones, eventos a los que hayas asistido y publicaciones que te hayan gustado de aquellos usuarios que no te sigan."));
+            _faqRepository.save(new FAQ("Me ha llegado una notificación de comportamiento inadecuado. ¿Qué castigo implica?",
+                    "Nuestros administradores pueden enviar avisos en caso de que se infrinjan las normas de la plataforma. De esta forma, se eliminan ciertas conductas no deseadas en el uso de " +
+                            "la plataforma. Ten en cuenta que, cuantos más avisos tengas, más probabilidad hay de que un administrador te suspenda la cuenta, así que te rogamos que cumplas con la normativa de la página."));
+            //_faqRepository.save(new FAQ("Pregunta frecuente 3", "Respuesta 3"));
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2000, Calendar.AUGUST, 10);
+            _userRepository.save(new User("juanjo@gmail.com", "juanjo", "juanjogc", "Soy estudiante de GII en la UCA.", "User", "Juanjo", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.JUNE, 1);
+            _userRepository.save(new User("davidg@gmail.com", "davidg", "davidgr", "Amante de las películas y del arte.", "User", "David", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.MAY, 17);
+            _userRepository.save(new User("diego@gmail.com", "diego", "diegofc", "Me gustan mucho los videojuegos y el deporte.", "User", "Diego", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.SEPTEMBER, 11);
+            _userRepository.save(new User("davidm@gmail.com", "davidm", "davidmo", "Siempre he sido fanático de los videojuegos.", "User", "David", calendar.getTime(), _provinceRepository.findBy_sName("Sevilla")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("alejandro@gmail.com", "alejandro", "alejandrogm", "Calistenia como forma de vida.", "User", "Ale", calendar.getTime(), _provinceRepository.findBy_sName("Sevilla")));
         } else {
         System.out.println("La base de datos ya estaba inicializada");
         }

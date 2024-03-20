@@ -19,7 +19,7 @@ public class FAQ {
     private String _sQuestion;
 
     @NotNull
-    @Column(name = "answer")
+    @Column(name = "answer", length = 1024)
     private String _sAnswer;
 
     public FAQ() {}
