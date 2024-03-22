@@ -31,16 +31,12 @@ public class AboutMeAnswerController {
 
     @PostMapping("/createOrModifyAboutMeAnswer")
     public boolean newAboutMeAnswer(@RequestBody AboutMeQuestionAnswerDTO answerDTO) {
-        //public AboutMeQuestionAnswerDTO(String sQuestion, String sAnswer, int iAdminId, int iUserId, int iQuestionId, int iAnswerId) {
         Optional<User> optionalUser = _userRepository.findById(answerDTO.get_iUserId());
         Optional<AboutMeQuestion> optionalQuestion = _questionRepository.findById(answerDTO.get_iQuestionId());
-        System.out.println("Presente?" + optionalQuestion.isPresent());
         if(optionalUser.isPresent() && optionalQuestion.isPresent()) {
             Optional<AboutMeAnswer> optionalAnswer = _answerRepository.findByUserAndQuestion(optionalUser.get(), optionalQuestion.get());
             if(optionalAnswer.isPresent()) {
-                //System.out.println("Antes: " +answerDTO.get_sAnswer());
                 optionalAnswer.get().set_sAnswer(answerDTO.get_sAnswer());
-                //System.out.println("Despues: " + answerDTO.get_sAnswer());
                 AboutMeAnswer answer = _answerRepository.save(optionalAnswer.get());
                 return true;
             } else {

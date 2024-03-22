@@ -45,7 +45,6 @@ public class ImagePathController {
     @PostMapping("/uploadEventHeaderImage")
     public boolean saveProfileImage(@RequestParam("id") int iId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         Event event = _eventRepository.findById(iId).get();
-        System.out.println(_sEventsUploadPath);
         Path path = Paths.get(_sEventsUploadPath);
 
         if(event.get_headerPhoto() != null) {
@@ -58,8 +57,6 @@ public class ImagePathController {
         sFilename = event.get_iId() + "-" + imagePath.get_iId() + "-" + sFilename;
         imagePath.set_sName(sFilename);
         File file = new File(_sEventsUploadPath + sFilename);
-        System.out.println("Guardando la imagen con nombre: " + sFilename);
-        System.out.println("Ruta: " + path.toString());
         multipartFile.transferTo(file);
 
         imagePath = _imagePathRepository.save(imagePath);
@@ -71,7 +68,6 @@ public class ImagePathController {
     @PostMapping("/uploadEventImages")
     public String saveEventImages(@RequestParam("id") int iId, @RequestParam("file[]") MultipartFile[] aMultipartFiles) throws IOException {
         Event event = _eventRepository.findById(iId).get();
-        System.out.println(_sEventsUploadPath);
 
         for(int i = 0; i < aMultipartFiles.length; i++) {
             String sFilename = event.get_iId() + "-" + aMultipartFiles[i].getOriginalFilename();
@@ -81,7 +77,6 @@ public class ImagePathController {
             imagePath = _imagePathRepository.save(imagePath);
             File file = new File(_sEventsUploadPath + sFilename);
             aMultipartFiles[i].transferTo(file);
-            System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sEventsUploadPath);
             event.get_setPhotos().add(imagePath);
             event = _eventRepository.save(event);
         }
@@ -118,7 +113,6 @@ public class ImagePathController {
     @ResponseBody
     public ResponseEntity<InputStreamResource> getImagePath(@PathVariable("imageName") String sImageName) throws FileNotFoundException {
         File file = new File(_sEventsUploadPath + sImageName);
-        System.out.println(sImageName);
         FileInputStream fileInputStream = new FileInputStream(file);
 
         return ResponseEntity.ok()
@@ -133,17 +127,10 @@ public class ImagePathController {
 
         if(optionalTicket.isPresent()) {
             Ticket ticket = optionalTicket.get();
-            /*
-            if (ticket.get_imagePath() != null) {
-                File file = new File(_sTicketsUploadPath + event.get_headerPhoto().get_sName());
-                file.delete();
-            }
-             */
+
 
             String sFilename = ticket.get_iId() + "-" + multipartFile.getOriginalFilename();
             File file = new File(_sTicketsUploadPath + sFilename);
-            System.out.println("Guardando la imagen con nombre: " + sFilename);
-            System.out.println("Ruta: " + path.toString());
             multipartFile.transferTo(file);
 
             ImagePath imagePath = new ImagePath(sFilename);
@@ -163,17 +150,9 @@ public class ImagePathController {
 
         if(optionalReply.isPresent()) {
             Reply reply = optionalReply .get();
-            /*
-            if (ticket.get_imagePath() != null) {
-                File file = new File(_sTicketsUploadPath + event.get_headerPhoto().get_sName());
-                file.delete();
-            }
-             */
 
             String sFilename = reply.get_iId() + "-" + multipartFile.getOriginalFilename();
             File file = new File(_sReplyUploadPath + sFilename);
-            System.out.println("Guardando la imagen con nombre: " + sFilename);
-            System.out.println("Ruta: " + path.toString());
             multipartFile.transferTo(file);
 
             ImagePath imagePath = new ImagePath(sFilename);

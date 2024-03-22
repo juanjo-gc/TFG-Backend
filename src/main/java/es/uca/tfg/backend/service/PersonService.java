@@ -39,10 +39,8 @@ public class PersonService {
         Person person  = _personRepository.findBy_sEmail(sEmail);
         System.out.println("Email: " + sEmail);
         if(person != null && person.checkPassword(sPassword)) {
-            System.out.println("Usuario encontrado");
             return person;
         } else {
-            System.out.println("Usuario no encontrado");
             return new Person();
         }
     }

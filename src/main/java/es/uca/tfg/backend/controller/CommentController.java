@@ -58,8 +58,6 @@ public class CommentController {
                 optionalComment.get().set_tDeleteDate(LocalDateTime.now());
             else
                 optionalComment.get().set_tDeleteDate(null);
-
-            System.out.println("Fecha borrado: " + optionalComment.get().get_tDeleteDate());
             return _commentRepository.save(optionalComment.get()).get_tDeleteDate() != null;
         } else {
             return false;

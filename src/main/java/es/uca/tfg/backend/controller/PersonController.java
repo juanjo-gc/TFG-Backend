@@ -74,18 +74,14 @@ public class PersonController {
     @PostMapping("/register")
     public String registerNewUser(@RequestBody RegisterDTO registerDTO) {
         String sMessage;
-        System.out.println(registerDTO.get_sEmail());
-        System.out.println(registerDTO.get_sPassword());
 
         if (_personRepository.countBy_sUsername(registerDTO.get_sUsername()) == 0) {
 
             User user = _personRepository.save(new User(registerDTO.get_sEmail(), registerDTO.get_sPassword(),
                     registerDTO.get_sUsername(), "", "user", registerDTO.get_sName(),
                     registerDTO.get_tBirthDate(), registerDTO.get_sProvince() == null ? null : _provinceRepository.findBy_sName(registerDTO.get_sProvince())));
-            //mapUserRegister.set_sMessage("Usuario creado correctamente.");
             sMessage = "Usuario creado correctamente.";
         } else {
-            //mapUserRegister.set_sMessage("Error. El nombre de usuario ya existe.");
             sMessage = "Error. El nombre de usuario ya existe.";
         }
         return sMessage;
@@ -109,7 +105,6 @@ public class PersonController {
 
     @PostMapping("/login")
     public Person authenticateLogin(@RequestBody UserChecker.LoginChecker loginChecker) {
-        System.out.println(loginChecker.get_sEmail() + " " + loginChecker.get_sPassword());
         return _personService.authenticate(loginChecker.get_sEmail(), loginChecker.get_sPassword());
     }
 
@@ -125,21 +120,6 @@ public class PersonController {
         return user != null ? user : new User();
     }
 
-    /*
-    @PostMapping("/updateUserDetails")
-    public User updateUserDetails(@RequestParam("id") int iId, @RequestParam("name") String sName, @RequestParam("description") String sDescription,
-                                  @RequestParam("email") String sEmail, @RequestParam("username") String sUsername) {
-        User user = _userRepository.findBy_iId(iId);
-        System.out.println(iId + " Nombre " + sName + " Descr " + sDescription + " User " + sUsername + " email: " +sEmail);
-        user.set_sName(sName);
-        user.set_sUsername(sUsername);
-        user.set_sEmail(sEmail);
-        user.set_sDescription(sDescription);
-        user = _userRepository.save(user);
-        //System.out.println("Despues del cambio: " + user.get_sDescription());
-        return user;
-    }
-     */
     @PostMapping("/updateUserAccountDetails")
     public User updateUserDetails(@RequestBody UserDTO userDTO) {
         Optional<User> optionalUser = _userRepository.findById(userDTO.get_iUserId());
@@ -214,16 +194,8 @@ public class PersonController {
     @PostMapping("/uploadProfileImage")
     public ImagePath saveProfileImage(@RequestParam("id") int iId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         User user = _userRepository.findBy_iId(iId);
-        System.out.println(_sUploadPath);
         Path path = Paths.get(_sUploadPath);
-        /*
-        if(user.get_profileImagePath() != null) {
-            File file = new File(_sUploadPath + user.get_profileImagePath().get_sName());
-            file.delete();
-        }
-         */
         String sFilename = user.get_iId() + "-profileImg-" + multipartFile.getOriginalFilename();
-        //Optional<ImagePath> optionalImagePath = _imagePathRepository.findBy_sName(sFilename);
         ImagePath imagePath = _imagePathRepository.save(new ImagePath(sFilename));
         sFilename = imagePath.get_iId() + "-" + sFilename;
         if (user.get_profileImagePath() != null) {          // Tenía foto de perfil
@@ -231,8 +203,6 @@ public class PersonController {
         }
 
         File file = new File(_sUploadPath + sFilename);
-        System.out.println("Guardando la imagen con nombre: " + sFilename);
-        System.out.println("Ruta: " + path.toString());
         multipartFile.transferTo(file);
 
         imagePath.set_user(user);
@@ -247,7 +217,6 @@ public class PersonController {
     @PostMapping("/uploadImages")
     public String saveImages(@RequestParam("id") int iId, @RequestParam("file[]") MultipartFile[] aMultipartFile) throws IOException {
         Optional<User> optionalUser = _userRepository.findById(iId);
-        System.out.println(_sUploadPath);
         if(optionalUser.isPresent()) {
             User user = optionalUser.get();
             for (int i = 0; i < aMultipartFile.length; i++) {
@@ -257,9 +226,6 @@ public class PersonController {
                 imagePath.set_sName(sFilename);
                 File file = new File(_sUploadPath + sFilename);
                 aMultipartFile[i].transferTo(file);
-                System.out.println("Guardada la imagen " + sFilename + " en la ruta " + _sUploadPath);
-
-                //imagePath.set_user(user);
                 user.get_setImagePath().add(imagePath);
             }
             user = _userRepository.save(user);
@@ -273,7 +239,6 @@ public class PersonController {
     @PostMapping("/uploadUserImage")
     public ImagePath uploadUserImage(@RequestParam("userId") int iUserId, @RequestParam("file") MultipartFile multipartFile) throws IOException {
         Optional<User> optionalUser = _userRepository.findById(iUserId);
-        System.out.println();
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             String sFilename = user.get_iId() + "-" + multipartFile.getOriginalFilename();
@@ -304,40 +269,11 @@ public class PersonController {
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(new InputStreamResource(fileInputStream));
-        /*
-        User user = _userRepository.findBy_iId(iId);
-        String sImageName = "GenericAvatar.png";
-        if (user.get_profileImagePath() != null)
-            sImageName = user.get_profileImagePath().get_sName();
-        File file = new File(_sUploadPath + sImageName);
-        FileInputStream fileInputStream = new FileInputStream(file);
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(new InputStreamResource(fileInputStream));
-
-         */
     }
 
     @GetMapping("/getImage/{imageName}")
     @ResponseBody
     public ResponseEntity<InputStreamResource> getImagePath(@PathVariable("imageName") String sImageName) throws FileNotFoundException {
-        /*
-        User user = _userRepository.findBy_iId(2);
-        ImagePath uimg = user.get_setImagePath().iterator().next();
-        String sFilename = uimg.get_sName();
-
-        char cFormat = sFilename.toCharArray()[sFilename.length() - 3];
-
-        MediaType contentType = Character.compare(cFormat, 'j') == 0 ? MediaType.IMAGE_JPEG : MediaType.IMAGE_PNG;
-        System.out.println("Content type : " + contentType);
-        System.out.println(_sUploadPath+uimg.get_sName());
-        //InputStream inputStream = getClass().getResourceAsStream(_sUploadPath + uimg.get_sName());
-        //System.out.println(inputStream);
-        File file = new File(_sUploadPath + sFilename);
-        FileInputStream fileInputStream = new FileInputStream(file);
-
-         */
         File file = new File(_sUploadPath + sImageName);
         FileInputStream fileInputStream = new FileInputStream(file);
 
@@ -366,11 +302,9 @@ public class PersonController {
         User userToFollow = _userRepository.findBy_iId(iFollowId);
         if (user.get_setFollowing().contains(userToFollow)) {
             user.get_setFollowing().remove(userToFollow);
-            System.out.println("Deja de seguir");
         } else {
             user.get_setFollowing().add(userToFollow);
             bIsFollowing = true;
-            System.out.println("Siguiendo ahora");
         }
         user = _userRepository.save(user);
         return bIsFollowing;
@@ -409,39 +343,11 @@ public class PersonController {
 
     @PostMapping(value = "/filterUsers/{userId}/{pageNumber}")
     public Page<User> filterUsers(@RequestBody UserFilterDTO filter, @PathVariable("userId") int iUserId, @PathVariable("pageNumber") int iPageNumber) throws JsonProcessingException {
-        /*
-        List<Integer> aiFilteredUserIdsByInterest;
-        List<Integer> aiFilteredUserIds = _userRepository.findUserIdsByLocation(
-                _provinceRepository.findBy_sName(filter.get_sProvince()),
-                _regionRepository.findBy_sName(filter.get_sRegion()),
-                _countryRepository.findBy_sName(filter.get_sCountry()));
-
-
-        if(!filter.get_asInterests().isEmpty()) {
-            int iNumberOfInterests = filter.get_asInterests().size();
-             aiFilteredUserIdsByInterest = _userRepository.findUserIdsByOptionalInterests(
-                    iNumberOfInterests >= 1 ? _interestRepository.findBy_sName(filter.get_asInterests().get(0)) : null,
-                    iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(filter.get_asInterests().get(1)) : null,
-                    iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(filter.get_asInterests().get(2)) : null
-            );
-        } else {
-            aiFilteredUserIdsByInterest = _userRepository.findAllIds();
-        }
-
-        aiFilteredUserIds = aiFilteredUserIds.stream().filter(iId -> aiFilteredUserIdsByInterest.contains(iId) && iId != iUserId).collect(Collectors.toList());
-
-        List<Integer> aiFollowedIds = _userRepository.findFollowingUserIds(_userRepository.findBy_iId(iUserId));
-
-        return aiFilteredUserIds.stream().filter(iId -> !aiFollowedIds.contains(Integer.valueOf(iId))).collect(Collectors.toList());
-        */
-
-
         int iNumberOfInterests = filter.get_asInterests().size();
         Optional<Province> optionalProvince = _provinceRepository.findByName(filter.get_sProvince());
         Optional<Region> optionalRegion = _regionRepository.findBy_sName(filter.get_sRegion());
         Optional<Country> optionalCountry = _countryRepository.findBy_sName(filter.get_sCountry());
         User user = _userRepository.findById(iUserId).get();
-        //System.out.println(new ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(filter));
         return _userRepository.findFilteredUsers(
                 optionalProvince.isPresent() ? optionalProvince.get() : null,
                 optionalRegion.isPresent() ? optionalRegion.get() : null,
@@ -450,8 +356,6 @@ public class PersonController {
                 iNumberOfInterests >= 2 ? _interestRepository.findBy_sName(filter.get_asInterests().get(1)) : null,
                 iNumberOfInterests >= 3 ? _interestRepository.findBy_sName(filter.get_asInterests().get(2)) : null,
                 user, PageRequest.of(iPageNumber, 10));
-
-
     }
 
     @GetMapping("/countUsers")
@@ -583,21 +487,5 @@ public class PersonController {
         entityManager.createNativeQuery("create schema backend;").executeUpdate();
     }
 
-     */
-
-
-        /*
-    Esto funciona pero no es la mejor manera
-    @GetMapping("getImages")
-    public String getUsersImages() throws IOException {
-        User user = _userRepository.findBy_iId(2);
-
-        ImagePath imagePath = user.get_setImagePath().iterator().next();
-        String sFilename = imagePath.get_sName();
-        byte[] fileContent = FileUtils.readFileToByteArray(new File(_sUploadPath + sFilename));
-        String encodedString = Base64.getEncoder().encodeToString(fileContent);
-        System.out.println(_sUploadPath);
-        return encodedString;
-    }
      */
 

@@ -31,24 +31,18 @@ public class TicketController {
 
     @PostMapping("/newTicket")
     public int newTicket(@RequestBody TicketDTO ticketDTO) {
-        // String sSubject, String sDescription, int iIssuerId, int iReportedId, int iEventId, int iPostId
         List<Integer> adminIds = _adminRepository.findAllAdminIds();
         Optional<User> optionalIssuer = _userRepository.findById(ticketDTO.get_iIssuerId());
         Optional<Admin> optionalAdmin = _adminRepository.findById(adminIds.get((int)Math.random()*adminIds.size()));
         Optional<Category> optionalCategory = _categoryRepository.findBy_sName(ticketDTO.get_sCategory());
         Ticket ticket = new Ticket();
-        System.out.println("Categoria: " + ticketDTO.get_sCategory());
-        System.out.println("La comprobacion funciona? " + ticketDTO.get_sCategory().equals("Denunciar un usuario"));
         if(optionalIssuer.isPresent() && optionalAdmin.isPresent()) {
-            System.out.println("Entra en if. Lo siguiente es el switch");
             switch(ticketDTO.get_sCategory()) {
                 case "Denunciar un usuario":
                     Optional<User> optionalReported = _userRepository.findById(ticketDTO.get_iReportedId());
-                    System.out.println(optionalReported.get().get_iId());
                     if(optionalReported.isPresent() && optionalCategory.isPresent()) {
                         ticket = _ticketRepository.save(new Ticket(ticketDTO.get_sSubject(), ticketDTO.get_sDescription(), optionalAdmin.get(),
                                 optionalIssuer.get(), optionalReported.get(), optionalCategory.get()));
-                        System.out.println("Se ha creado la denuncia");
                     }
                     break;
                 case "Reportar un error":
@@ -59,7 +53,6 @@ public class TicketController {
                     break;
                 case "Denunciar una publicación":
                     Optional<Post> optionalPost = _postRepository.findById(ticketDTO.get_iPostId());
-                    System.out.println(ticketDTO.get_sDescription());
                     if(optionalPost.isPresent() && optionalCategory.isPresent()) {
                         ticket = _ticketRepository.save(new Ticket(ticketDTO.get_sSubject(), ticketDTO.get_sDescription(), optionalAdmin.get(), optionalIssuer.get(),
                                 null, null, optionalPost.get(), optionalCategory.get()));

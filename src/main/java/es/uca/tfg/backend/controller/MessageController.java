@@ -37,7 +37,6 @@ public class MessageController {
 
     @PostMapping("/newMessage")
     public Message newMessage(@RequestBody MessageDTO messageDTO) {
-        System.out.println("Llega peticion con mensaje: " + messageDTO.get_sText());
         Message message = new Message(messageDTO.get_sText(), _userRepository.findBy_iId(messageDTO.get_iIssuerId()), _userRepository.findBy_iId(messageDTO.get_iRecipientId()));
         pusher.trigger("rt-chat", "newMessage", Collections.singletonMap("message", messageDTO));
         return _messageRepository.save(message);
@@ -63,12 +62,7 @@ public class MessageController {
             return Collections.emptyList();
         }
     }
-    /*
-    @GetMapping("/getMessagedUsers")
-    public List<User> messagedUsers() {
-        return _messageRepository.findMessagedUsers(_userRepository.findBy_iId(2));
-    }
-     */
+
 
     @GetMapping("/getConversation/{userId}/{targetId}")
     public List<Message> getConversation(@PathVariable("userId") int iUserId, @PathVariable("targetId") int iTargetId) {

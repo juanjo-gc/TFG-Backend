@@ -73,13 +73,6 @@ public class Event {
     @Column(name = "isOnline")
     private boolean _bIsOnline;
 
-    /*
-    @OneToMany
-    @JoinColumn(name = "comments_id")
-    private Set<Comment> _setComments;
-
-     */
-
     public Event() {}
 
     public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer,
@@ -99,26 +92,6 @@ public class Event {
         _bIsOnline = bIsOnline;
         _tDeleteDate = null;
     }
-
-    /*
-    public Event(String sTitle, LocalDate tCelebratedAt, LocalTime tCelebrationHour, String sDescription, User organizer, Set<Interest> setInterests, ImagePath headerPhoto, boolean _bIsOnline) {
-        _sTitle = sTitle;
-        _tCelebratedAt = tCelebratedAt;
-        _tCelebrationHour = tCelebrationHour;
-        _sDescription = sDescription;
-        _organizer = organizer;
-        _headerPhoto = headerPhoto;
-        _location = null;
-        if(setInterests != null)
-            _setInterests = setInterests;
-        else
-            _setInterests = new HashSet<>();
-        _setAssistants = new HashSet<>();
-        _bIsOnline = true;
-        _tDeleteDate = null;
-    }
-
-     */
 
     public int get_iId() {
         return _iId;
@@ -217,15 +190,4 @@ public class Event {
     public LocalDateTime get_tDeleteDate() { return _tDeleteDate; }
 
     public void set_tDeleteDate(LocalDateTime tDeleteDate) { _tDeleteDate = tDeleteDate; }
-
-    /*
-    public Set<Comment> get_setComments() {
-        return _setComments;
-    }
-
-    public void set_setComments(Set<Comment> _setComments) {
-        this._setComments = _setComments;
-    }
-
-     */
 }

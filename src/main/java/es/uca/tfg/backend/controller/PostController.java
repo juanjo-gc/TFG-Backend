@@ -22,14 +22,10 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "http://localhost:8080")
 @RequestMapping("/api")
 public class PostController {
-
-
     @Autowired
     private PostRepository _postRepository;
-
     @Autowired
     private UserRepository _userRepository;
-
     @Autowired
     private PostService _postService;
 
@@ -65,24 +61,6 @@ public class PostController {
         } else {
             return Page.empty();
         }
-        /*
-        List<Post> orderedPosts = _postRepository.findBy_user(user);
-
-        for(User followed: user.get_setFollowing()) {
-            List<Post> followedUserPosts = _postRepository.findBy_user(followed);
-            orderedPosts.addAll(followedUserPosts);
-        }
-        if(!orderedPosts.isEmpty()) {
-            orderedPosts = orderedPosts.stream()
-                    .filter(p -> p.get_tCreatedAt().isAfter(LocalDateTime.now().minusDays(10)))     //Publicaciones de hace menos de 10 días
-                    .sorted(Comparator.comparing(Post::get_tCreatedAt).reversed())         // Ordenados por fecha (el primero el más reciente)
-                    .collect(Collectors.toList());
-            return orderedPosts;
-        } else {
-            return Collections.emptyList();
-        }
-
-         */
     }
 
     @PostMapping("/setLike/{postId}/{userId}")
@@ -94,11 +72,9 @@ public class PostController {
 
         if(post.get_setLikes().contains(user)) {    //El usuario ya le había dado like al post
             post.get_setLikes().remove(user);
-            System.out.println("Ya le habia dado like");
         } else {
             bPostWasLiked = true;
             post.get_setLikes().add(user);
-            System.out.println("No le habia dado like");
         }
         post.set_iLikes(post.get_setLikes().size());
         post = _postRepository.save(post);
@@ -148,7 +124,6 @@ public class PostController {
             else
                 optionalPost.get().set_tDeleteDate(null);
 
-            System.out.println("Fecha borrado: " + optionalPost.get().get_tDeleteDate());
             return _postRepository.save(optionalPost.get()).get_tDeleteDate() != null;
         } else {
             return false;

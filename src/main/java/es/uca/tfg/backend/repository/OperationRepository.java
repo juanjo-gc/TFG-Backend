@@ -8,6 +8,4 @@ import java.util.List;
 
 public interface OperationRepository extends JpaRepository<Operation, Integer> {
 
-    //List<Operation> findTop7ByOrderByTimestampAsc();
-
 }

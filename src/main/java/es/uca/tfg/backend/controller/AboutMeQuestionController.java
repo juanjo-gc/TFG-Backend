@@ -46,10 +46,8 @@ public class AboutMeQuestionController {
         Optional<Admin> optionalAdmin = _adminRepository.findById(questionDTO.get_iAdminId());
         Optional<AboutMeQuestion> optionalQuestion = _questionRepository.findById(questionDTO.get_iQuestionId());
         if(optionalAdmin.isPresent()) {
-            System.out.println(optionalQuestion.get().get_iId());
             optionalQuestion.get().set_sQuestion(questionDTO.get_sQuestion());
             AboutMeQuestion question = _questionRepository.save(optionalQuestion.get());
-            System.out.println("Id pregunta: " + question.get_iId());
             if(question.get_iId() != 0)
                 _operationRepository.save(new Operation("Se ha modificado la pregunta con ID " + questionDTO.get_iQuestionId() + ". Antes de modificar: Pregunta -> " +
                         optionalQuestion.get().get_sQuestion() + " Después de modificar: Pregunta -> " + questionDTO.get_sQuestion(), optionalAdmin.get()));

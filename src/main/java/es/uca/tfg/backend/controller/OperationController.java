@@ -38,13 +38,4 @@ public class OperationController {
     public Page<Operation> getOperations(@PathVariable("pageNumber") int iPageNumber) {
         return _operationRepository.findAll(PageRequest.of(iPageNumber, 20));
     }
-
-    /*
-    @GetMapping("/getLastOperations")
-    public List<Operation> getLastOperations() {
-        return _operationRepository.findTop7ByOrderByTimestampAsc();
-
-    }
-
-     */
 }
