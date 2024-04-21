@@ -69,7 +69,7 @@ public class PersonController {
     private FAQRepository _faqRepository;
 
 
-    private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "\\src\\main\\resources\\static\\images\\users\\";
+    private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/app/static/images/users/";
 
     @PostMapping("/register")
     public String registerNewUser(@RequestBody RegisterDTO registerDTO) {
