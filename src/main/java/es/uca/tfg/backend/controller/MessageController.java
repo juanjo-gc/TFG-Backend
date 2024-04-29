@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin
 @RequestMapping("/api")
 public class MessageController {
 

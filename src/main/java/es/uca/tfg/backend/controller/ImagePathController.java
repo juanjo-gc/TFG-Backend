@@ -22,7 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin
 @RequestMapping("/api")
 public class ImagePathController {
 
