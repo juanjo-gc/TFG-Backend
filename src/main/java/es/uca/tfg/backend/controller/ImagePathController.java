@@ -37,9 +37,9 @@ public class ImagePathController {
     @Autowired
     private ReplyRepository _replyRepository;
 
-    private String _sEventsUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/app/static/images/events/";
-    private String _sTicketsUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/app/static/images/tickets/";
-    private String _sReplyUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/app/static/images/replies/";
+    private String _sEventsUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/src/main/resources/static/images/events/";
+    private String _sTicketsUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/src/main/resources/static/images/tickets/";
+    private String _sReplyUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/src/main/resources/static/images/replies/";
 
 
     @PostMapping("/uploadEventHeaderImage")

@@ -8,6 +8,7 @@ import es.uca.tfg.backend.rest.OperationDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,6 @@ public class OperationController {
 
     @GetMapping("/getOperations/{pageNumber}")
     public Page<Operation> getOperations(@PathVariable("pageNumber") int iPageNumber) {
-        return _operationRepository.findAll(PageRequest.of(iPageNumber, 20));
+        return _operationRepository.findAll(PageRequest.of(iPageNumber, 20, Sort.by("_tTimestamp").descending()));
     }
 }

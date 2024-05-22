@@ -10,6 +10,8 @@ import es.uca.tfg.backend.rest.UserDTO;
 import es.uca.tfg.backend.rest.UserFilterDTO;
 import es.uca.tfg.backend.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
@@ -68,8 +70,7 @@ public class PersonController {
     @Autowired
     private FAQRepository _faqRepository;
 
-
-    private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/app/static/images/users/";
+    private String _sUploadPath = new FileSystemResource("").getFile().getAbsolutePath() + "/src/main/resources/static/images/users/";
 
     @PostMapping("/register")
     public String registerNewUser(@RequestBody RegisterDTO registerDTO) {
