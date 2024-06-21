@@ -416,7 +416,7 @@ public class PersonController {
         return !user.get_setBlockedBy().contains(blocked) && !blocked.get_setBlockedBy().contains(user);
     }
 
-    /*
+
 
     @GetMapping("/loadDB")
     public void loadDB() {
@@ -430,20 +430,64 @@ public class PersonController {
             Region region =_regionRepository.save(new Region("Andalucía", country));
             for(String sName: List.of("Cádiz", "Huelva", "Sevilla", "Málaga", "Córdoba", "Jaén", "Granada", "Almería"))
                 _provinceRepository.save(new Province(sName, region));
-            for(String sName: List.of("Borrada previamente", "Denunciar un evento", "Denunciar una publicación", "Denunciar un usuario", "Reportar un error"))
+
+            region =_regionRepository.save(new Region("Galicia", country));
+            for(String sName: List.of("Pontevedra", "Ourense", "Lugo", "La Coruña"))
+                _provinceRepository.save(new Province(sName, region));
+
+            region =_regionRepository.save(new Region("Asturias", country));
+            for(String sName: List.of("Asturias"))
+                _provinceRepository.save(new Province(sName, region));
+
+            region =_regionRepository.save(new Region("Cantabria", country));
+            for(String sName: List.of("Cantabria"))
+                _provinceRepository.save(new Province(sName, region));
+
+            region =_regionRepository.save(new Region("País Vasco", country));
+            for(String sName: List.of("Vizcaya", "Guipúzcoa", "Álava"))
+                _provinceRepository.save(new Province(sName, region));
+
+            region =_regionRepository.save(new Region("Castilla y León", country));
+            for(String sName: List.of("León", "Palencia", "Burgos", "Zamora", "Valladolid", "Soria", "Segovia", "Salamanca", "Ávila"))
+                _provinceRepository.save(new Province(sName, region));
+
+            region =_regionRepository.save(new Region("Cataluña", country));
+            for(String sName: List.of("Gerona", "Lérida", "Tarragona", "Barcelona"))
+                _provinceRepository.save(new Province(sName, region));
+
+            region =_regionRepository.save(new Region("Valencia", country));
+            for(String sName: List.of("Castellón", "Valencia", "Alicante"))
+                _provinceRepository.save(new Province(sName, region));
+
+            region =_regionRepository.save(new Region("Comunidad de Madrid", country));
+            for(String sName: List.of("Madrid"))
+                _provinceRepository.save(new Province(sName, region));
+
+            for(String sName: List.of("Borrada previamente", "Denunciar un evento", "Denunciar una publicación", "Denunciar un usuario", "Reportar un error", "Duda genérica", "Sugerencia de mejora"))
                 _categoryRepository.save(new Category(sName));
+
+
             for(String sName: List.of("Música", "Videojuegos", "Deportes", "Arte"))
                 _interestRepository.save(new Interest(sName));
+
+
             for(String sName: List.of("NewFollow", "FollowRequest", "NewEventAssistant", "NewEventComment", "NewEventPhoto", "NewMessage", "NewPostLike", "NewPostComment", "FollowRequestAccepted", "BehaviorWarning", "Announcement"))
                 _typeNotificationRepository.save(new TypeNotification(sName));
-            for(String sQuestion: List.of("¿Cuál es tu comida favorita?", "Qué tipo de música escuchas?", "¿Cuál es tu artista musical favorito?", "Cuál es tu principal hobby?", "¿Qué te gusta hacer cuando quedas con amigos?", "¿Cómo te definirías en una frase?", "¿Qué es lo que más valoras en una persona?"))
-                _questionRepository.save(new AboutMeQuestion(sQuestion));
+
+
+            for(String sQuestion: List.of("¿Cuál es tu comida favorita?", "Qué tipo de música escuchas?", "¿Cuál es tu artista musical favorito?", "Cuál es tu principal hobby?", "¿Qué te gusta hacer cuando quedas con amigos?", "¿Cómo te definirías en una frase?", "¿Qué es lo que más valoras en una persona?")) _questionRepository.save(new AboutMeQuestion(sQuestion));
             _faqRepository.save(new FAQ("¿Si tengo una cuenta privada, los demás usuarios pueden ver mi información del perfil?",
                     "Sí, los demás usuarios pueden ver tu información básica, como puede ser la descripción, intereses, preguntas 'Conóceme' y fotos. La opción de cuenta privada se encarga de ocultar las " +
                             "publicaciones, eventos a los que hayas asistido y publicaciones que te hayan gustado de aquellos usuarios que no te sigan."));
             _faqRepository.save(new FAQ("Me ha llegado una notificación de comportamiento inadecuado. ¿Qué castigo implica?",
                     "Nuestros administradores pueden enviar avisos en caso de que se infrinjan las normas de la plataforma. De esta forma, se eliminan ciertas conductas no deseadas en el uso de " +
                             "la plataforma. Ten en cuenta que, cuantos más avisos tengas, más probabilidad hay de que un administrador te suspenda la cuenta, así que te rogamos que cumplas con la normativa de la página."));
+            _faqRepository.save(new FAQ("Si no he indicado que pertenezco a ninguna provincia, ¿los demás usuarios pueden localizarme?",
+                    "No, en ese caso los usuarios no podrán encontrarte si usan la opción de explorar usuarios ya que ésta funciona seleccionando una localización. Sin embargo, tu sí podrás encontrar a otros usuarios."));
+            _faqRepository.save(new FAQ("Me han suspendido la cuenta de forma injusta. ¿Qué puedo hacer?",
+                    "Si consideras que se te ha suspendido la cuenta de forma injusta puedes contactar vía e-mail a support@firelight.com detallando los motivos. " +
+                            "Una vez recibida la propuesta nuestros administradores revisarán la cuenta y si es necesario se podrán en contacto contigo para pedir más motivos antes de dar la resolución definitiva."));
+
             //_faqRepository.save(new FAQ("Pregunta frecuente 3", "Respuesta 3"));
             Calendar calendar = Calendar.getInstance();
             calendar.set(2000, Calendar.AUGUST, 10);
@@ -453,15 +497,38 @@ public class PersonController {
             calendar.set(2000, Calendar.MAY, 17);
             _userRepository.save(new User("diego@gmail.com", "diego", "diegofc", "Me gustan mucho los videojuegos y el deporte.", "User", "Diego", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
             calendar.set(2000, Calendar.SEPTEMBER, 11);
-            _userRepository.save(new User("davidm@gmail.com", "davidm", "davidmo", "Siempre he sido fanático de los videojuegos.", "User", "David", calendar.getTime(), _provinceRepository.findBy_sName("Sevilla")));
+            _userRepository.save(new User("davidm@gmail.com", "davidm", "davidmo", "Siempre he sido fanático de los videojuegos.", "User", "David", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
             calendar.set(2000, Calendar.OCTOBER, 21);
-            _userRepository.save(new User("alejandro@gmail.com", "alejandro", "alejandrogm", "Calistenia como forma de vida.", "User", "Ale", calendar.getTime(), _provinceRepository.findBy_sName("Sevilla")));
+            _userRepository.save(new User("alejandro@gmail.com", "alejandro", "alejandrogm", "Calistenia como forma de vida.", "User", "Ale", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            _userRepository.save(new User("rosi@gmail.com", "rosi", "rosisielo", "Friki desde pequeñita.", "User", "Rosi", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.JULY, 21);
+            _userRepository.save(new User("javi@gmail.com", "javi", "javipilgrim", "Si no contesto al móvil es que estoy jugando al baloncesto..", "User", "Javi Pilgrim", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("borrego@gmail.com", "borrego", "javiborrego", "", "User", "David", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("wan@gmail.com", "wan", "wanjpg", "Amante de los coches.", "User", "Wan", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("fer@gmail.com", "fernando", "ferniart", "Estudiante y apasionado del arte.", "User", "Fernando", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("maria@gmail.com", "maria", "marymusic", "Flautista de la orquesta de Jerez.", "User", "María M", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("laura@gmail.com", "laura", "laurygm", "Tenista de profesión.", "User", "Laura", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("jesus@gmail.com", "jesus", "jesusVGC", "Jugador profesional de Pokémon VGC.", "User", "Jesús", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("copo@gmail.com", "copo", "wyntears", "Apasionada de la música y la fotografía.", "User", "Copo", calendar.getTime(), _provinceRepository.findBy_sName("Cádiz")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("danielg@gmail.com", "daniel", "daniroller", "Patinaje como vocación. Subcampeón de Andalucía en speed slalom.", "User", "Dani", calendar.getTime(), _provinceRepository.findBy_sName("Sevilla")));
+            calendar.set(2000, Calendar.OCTOBER, 21);
+            _userRepository.save(new User("burguete@gmail.com", "burguete", "burguetefsk", "Si no contesto búscame patinando en Puerta Jerez.", "User", "Burguete", calendar.getTime(), _provinceRepository.findBy_sName("Sevilla")));
+            _userRepository.save(new User("sofia@gmail.com", "sofia", "sofifrstyle", "Estudiante de filología inglesa y patinadora en mis ratos libres.", "User", "Dani", calendar.getTime(), _provinceRepository.findBy_sName("Sevilla")));
+            _userRepository.save(new User("john@gmail.com", "john", "jmiddleton", "Apasionado de las matemáticas, la física y el patinaje.", "User", "John", calendar.getTime(), _provinceRepository.findBy_sName("Sevilla")));
         } else {
         System.out.println("La base de datos ya estaba inicializada");
         }
 
     }
-    */
+
 }
 
 

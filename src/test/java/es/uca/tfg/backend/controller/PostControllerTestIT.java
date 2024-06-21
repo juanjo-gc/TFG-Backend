@@ -56,28 +56,6 @@ public class PostControllerTestIT extends AbstractTest {
         Mockito.verify(_postRepository).save(any(Post.class));
     }
 
-    /*
-    @Test
-    public void getUserPostsWillReturnAtLeastOnePost() throws Exception {
-        //given
-        User user = Mockito.mock(User.class);
-        Post post = Mockito.mock(Post.class);
-        Post.PostComparator comparator = Mockito.mock(Post.PostComparator.class);
-        ArrayList<Post> aPosts = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            aPosts.add(post);
-        }
-        Mockito.when(_userRepository.findBy_sUsername(anyString())).thenReturn(user);
-        Mockito.when(_postRepository.findBy_user(user)).thenReturn(aPosts);
-        Mockito.when(comparator.compare(any(), any())).thenReturn((int) Math.floor(Math.random()));
-        //when
-        ResultActions response = _mockMvc.perform(get("/api/getUserPosts/user"));
-        //then
-        response.andDo(print())
-                .andExpect(status().is2xxSuccessful());
-    }
-     */
-
     @Test
     public void setLikeWhenPostIsNotLiked() throws Exception {
         //given
@@ -93,7 +71,8 @@ public class PostControllerTestIT extends AbstractTest {
         //then
         response.andDo(print())
                 .andExpect(status().is2xxSuccessful());
-        Assertions.assertTrue(_objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), Boolean.class));
+        Assertions.assertTrue(_objectMapper.readValue
+                (response.andReturn().getResponse().getContentAsString(), Boolean.class));
     }
 
     @Test
@@ -112,7 +91,8 @@ public class PostControllerTestIT extends AbstractTest {
         //then
         response.andDo(print())
                 .andExpect(status().is2xxSuccessful());
-        Assertions.assertTrue(!_objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), Boolean.class));
+        Assertions.assertFalse(_objectMapper.readValue
+                (response.andReturn().getResponse().getContentAsString(), Boolean.class));
     }
 
     @Test
@@ -127,7 +107,8 @@ public class PostControllerTestIT extends AbstractTest {
         //then
         response.andDo(print())
                 .andExpect(status().is2xxSuccessful());
-        Assertions.assertEquals("test", _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), Post.class).get_sText());
+        Assertions.assertEquals("test", _objectMapper.readValue
+                (response.andReturn().getResponse().getContentAsString(), Post.class).get_sText());
     }
 
     @Test
@@ -146,7 +127,8 @@ public class PostControllerTestIT extends AbstractTest {
         //then
         response.andDo(print())
                 .andExpect(status().is2xxSuccessful());
-        Assertions.assertEquals(3, _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), List.class).size());
+        Assertions.assertEquals(3, _objectMapper.readValue
+                (response.andReturn().getResponse().getContentAsString(), List.class).size());
     }
 
     @Test
@@ -154,10 +136,6 @@ public class PostControllerTestIT extends AbstractTest {
         //given
         List<Post> aPosts = new ArrayList<>();
         for(int i = 0; i < 3; i++) {
-            /*
-            aPosts.add(new Post("test" + (i+1),
-                    new User("example" + (i+1) + "@gmail.com", "password", "username" + (i+1), "description", "user", "name", new Date(), new Province())));
-             */
             aPosts.add(new Post());
         }
         Pageable pageable = PageRequest.of(0, 5);
@@ -194,7 +172,5 @@ public class PostControllerTestIT extends AbstractTest {
                 .andExpect(status().is2xxSuccessful());
         Mockito.verify(_postRepository, Mockito.times(2)).save(any(Post.class));
 
-        //System.out.println("Respuesta: " + response.andReturn().getResponse().getContentAsString());
-        //Assertions.assertEquals("reply", _objectMapper.readValue(response.andReturn().getResponse().getContentAsString(), Post.class).get_sText());
     }
 }

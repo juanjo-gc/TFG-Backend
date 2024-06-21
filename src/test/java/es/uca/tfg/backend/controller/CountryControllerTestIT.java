@@ -46,7 +46,9 @@ public class CountryControllerTestIT extends AbstractTest {
         //then
         resultActions.andDo(print())
                         .andExpect(status().is2xxSuccessful());
-        Assertions.assertEquals("CountryTest", _objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsString(), Country.class).get_sName());
+        Assertions.assertEquals("CountryTest", _objectMapper.readValue
+                (resultActions.andReturn().getResponse().getContentAsString(), Country.class)
+                .get_sName());
         Mockito.verify(_countryRepository).save(any(Country.class));
     }
 

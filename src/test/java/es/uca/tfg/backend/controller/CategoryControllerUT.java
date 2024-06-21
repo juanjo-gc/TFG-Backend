@@ -58,7 +58,8 @@ public class CategoryControllerUT extends AbstractTest {
     public void createCategoryWillCreateNewCategory() {
         //given
         CategoryDTO dto = new CategoryDTO("Test category");
-        Mockito.when(_categoryRepository.save(any(Category.class))).thenReturn(new Category(dto.get_sName()));
+        Mockito.when(_categoryRepository.save(any(Category.class))).
+                thenReturn(new Category(dto.get_sName()));
         //when
         Category category = _controller.createCategory(dto);
         //then
@@ -70,8 +71,10 @@ public class CategoryControllerUT extends AbstractTest {
     public void updateCategoryWillUpdateExistingCategory() {
         //given
         CategoryDTO dto = new CategoryDTO("Test category updated");
-        Mockito.when(_categoryRepository.findById(1)).thenReturn(Optional.of(_category));
-        Mockito.when(_categoryRepository.save(_category)).thenReturn(_category);
+        Mockito.when(_categoryRepository.findById(1)).
+                thenReturn(Optional.of(_category));
+        Mockito.when(_categoryRepository.save(_category)).
+                thenReturn(_category);
         //when
         Category category = _controller.updateCategory(dto, 1);
         //then
@@ -87,7 +90,8 @@ public class CategoryControllerUT extends AbstractTest {
         //when
         Category category = _controller.updateCategory(dto, -1);
         //then
-        Mockito.verify(_categoryRepository, Mockito.times(0)).save(any(Category.class));
+        Mockito.verify(_categoryRepository, Mockito.times(0)).
+                save(any(Category.class));
         Assertions.assertEquals(0, category.get_iId());
     }
 
@@ -98,10 +102,14 @@ public class CategoryControllerUT extends AbstractTest {
         for(int i = 0; i < 5; i++)
             aTicketsWithCategory.add(new Ticket());
         Category previouslyDeleted = new Category("Borrada previamente");
-        Mockito.when(_categoryRepository.findBy_sName("Borrada previamente")).thenReturn(Optional.of(previouslyDeleted));
-        Mockito.when(_categoryRepository.findById(1)).thenReturn(Optional.of(_category));
-        Mockito.when(_categoryRepository.findBy_sName("Borrada previamente")).thenReturn(Optional.of(previouslyDeleted));
-        Mockito.when(_ticketRepository.findBy_category(_category)).thenReturn(aTicketsWithCategory);
+        Mockito.when(_categoryRepository.findBy_sName("Borrada previamente")).
+                thenReturn(Optional.of(previouslyDeleted));
+        Mockito.when(_categoryRepository.findById(1)).
+                thenReturn(Optional.of(_category));
+        Mockito.when(_categoryRepository.findBy_sName("Borrada previamente")).
+                thenReturn(Optional.of(previouslyDeleted));
+        Mockito.when(_ticketRepository.findBy_category(_category)).
+                thenReturn(aTicketsWithCategory);
         //when
         _controller.deleteCategory(1);
         //then

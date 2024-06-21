@@ -36,8 +36,8 @@ public class Interest {
         return _sName;
     }
 
-    public void set_sName(String _sName) {
-        this._sName = _sName;
+    public void set_sName(String sName) {
+        _sName = sName;
     }
 
     public Set<User> get_setUsers() { return _setUsers; }

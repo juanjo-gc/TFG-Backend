@@ -304,7 +304,7 @@ public class PersonControllerTestUT extends AbstractTest {
         ImagePath profileImg = _controller.saveProfileImage(1, multipartFile);
         //then
         Mockito.verify(_imagePathRepository).save(any(ImagePath.class));
-        Mockito.verify(multipartFile, Mockito.times(0)).transferTo(any(File.class));
+        Mockito.verify(multipartFile, Mockito.times(1)).transferTo(any(File.class));
         Mockito.verify(_userRepository).save(user);
     }
 
